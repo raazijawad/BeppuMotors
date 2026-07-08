@@ -5,13 +5,6 @@ import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 import { login, register, dashboard } from '@/routes';
 
-const navLinks = [
-    { title: 'Home', href: '/' },
-    { title: 'Features', href: '#features' },
-    { title: 'Pricing', href: '#pricing' },
-    { title: 'Contact', href: '#contact' },
-];
-
 export default function Navbar() {
     const { auth } = usePage().props;
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -25,18 +18,6 @@ export default function Navbar() {
                     </div>
                     <span className="text-sm font-semibold">BeppuMotors</span>
                 </Link>
-
-                <nav className="hidden items-center space-x-6 md:flex">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.title}
-                            href={link.href}
-                            className="text-sm text-[#706f6c] transition-colors hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-[#EDEDEC]"
-                        >
-                            {link.title}
-                        </Link>
-                    ))}
-                </nav>
 
                 <div className="hidden items-center space-x-3 md:flex">
                     {auth.user ? (
@@ -70,18 +51,6 @@ export default function Navbar() {
 
             {mobileOpen && (
                 <div className="border-t border-[#19140035] px-4 pb-4 pt-2 dark:border-[#3E3E3A] md:hidden">
-                    <nav className="flex flex-col space-y-3">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.title}
-                                href={link.href}
-                                className="text-sm text-[#706f6c] transition-colors hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-[#EDEDEC]"
-                                onClick={() => setMobileOpen(false)}
-                            >
-                                {link.title}
-                            </Link>
-                        ))}
-                    </nav>
                     <div className="mt-4 flex flex-col space-y-2">
                         {auth.user ? (
                             <Link

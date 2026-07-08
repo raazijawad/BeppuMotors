@@ -361,6 +361,7 @@ function SidebarGroup({ className, ...props }) {
 
 function SidebarGroupLabel({
   asChild = false,
+  className,
   ...props
 }) {
   const Comp = asChild ? Slot : "div"

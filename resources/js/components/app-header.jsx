@@ -17,13 +17,6 @@ import {
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 
-         // "Enter the Reciver Number - "......................." //
-         // "Reciver Phone Model      - "......................." //
-         // "Reciver Sim Model        - "......................." //
-         // "Enter the Sender Number  - "......................." //
-         // "Screen Shot of chat Box" -  "Click here to Upload" 
-
-
 import {
     Sheet,
     SheetContent,
