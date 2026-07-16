@@ -33,7 +33,7 @@ export default function VehicleDetail() {
                 </div>
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex w-full flex-col gap-8 px-6 pt-20 pb-6">
+                <div className="flex w-full flex-col gap-8 px-6 pt-20 md:pt-8 pb-6">
                     {showList ? (
                         <div className="w-full rounded-lg border border-[#19140035] bg-white p-6 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
                             <div className="mb-4 flex items-center justify-between">
