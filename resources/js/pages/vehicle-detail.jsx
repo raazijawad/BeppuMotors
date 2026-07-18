@@ -82,9 +82,9 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                             {incomes.length === 0 ? (
                                 <p className="text-sm text-[#706f6c] dark:text-[#A1A09A]">No income added yet.</p>
                             ) : (
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-0">
                                     {incomes.map((v) => (
-                                        <div key={v.id} className="rounded-md p-3">
+                                        <div key={v.id} className="rounded-md py-0.5">
                                             <div className="flex items-center justify-between">
                                                 <p className="text-sm font-medium">{v.income_name}</p>
                                                 <p className="text-xs font-semibold text-green-600">+{v.amount}</p>

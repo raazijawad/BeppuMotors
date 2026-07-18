@@ -46,7 +46,7 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                         </span>
                     </div>
 
-                    <div className="w-full rounded-lg border border-[#19140035] bg-white p-6 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
+                    <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-4 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
                         <div className="mb-4 flex items-center justify-between">
                             <h2 className="text-lg font-semibold">Expense List</h2>
                             <button
@@ -59,13 +59,15 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                         {expenses.length === 0 ? (
                             <p className="text-sm text-[#706f6c] dark:text-[#A1A09A]">No expenses added yet.</p>
                         ) : (
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-0">
                                 {expenses.map((v) => (
-                                    <div key={v.id} className="rounded-md border border-[#19140035] p-3 dark:border-[#3E3E3A]">
-                                        <p className="text-sm font-medium">{v.expense_name}</p>
-                                        <p className="text-xs text-[#706f6c] dark:text-[#A1A09A]">{v.amount}</p>
+                                    <div key={v.id} className="rounded-md py-0.5">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-sm font-medium">{v.expense_name}</p>
+                                            <p className="text-xs font-semibold text-red-600">-{v.amount}</p>
+                                        </div>
                                         {v.description && (
-                                            <p className="text-xs text-[#706f6c] dark:text-[#A1A09A]">{v.description}</p>
+                                            <p className="mt-1 text-xs text-[#706f6c] dark:text-[#A1A09A]">{v.description}</p>
                                         )}
                                     </div>
                                 ))}
