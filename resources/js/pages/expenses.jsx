@@ -3,7 +3,8 @@ import { useState } from 'react';
 import Footer from '@/components/footer';
 
 export default function Expenses({ expenses = [], selectedDate = null }) {
-    const today = selectedDate || new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     const [showForm, setShowForm] = useState(false);
 
