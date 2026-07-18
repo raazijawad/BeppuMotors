@@ -69,7 +69,7 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                     </div>
 
                     {showList ? (
-                        <div className="w-full rounded-lg border border-[#19140035] bg-white p-6 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-4 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
                             <div className="mb-4 flex items-center justify-between">
                                 <h2 className="text-lg font-semibold">Income List</h2>
                                 <button
@@ -84,11 +84,13 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                             ) : (
                                 <div className="flex flex-col gap-2">
                                     {incomes.map((v) => (
-                                        <div key={v.id} className="rounded-md border border-[#19140035] p-3 dark:border-[#3E3E3A]">
-                                            <p className="text-sm font-medium">{v.income_name}</p>
-                                            <p className="text-xs text-[#706f6c] dark:text-[#A1A09A]">{v.amount}</p>
+                                        <div key={v.id} className="rounded-md p-3">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-sm font-medium">{v.income_name}</p>
+                                                <p className="text-xs font-semibold text-green-600">+{v.amount}</p>
+                                            </div>
                                             {v.description && (
-                                                <p className="text-xs text-[#706f6c] dark:text-[#A1A09A]">{v.description}</p>
+                                                <p className="mt-1 text-xs text-[#706f6c] dark:text-[#A1A09A]">{v.description}</p>
                                             )}
                                         </div>
                                     ))}
