@@ -12,12 +12,25 @@ class IncomeController extends Controller
 {
     public function index(Request $request): Response
     {
-        $incomes = $request->user()
-            ? $request->user()->incomes()->latest()->get()
-            : collect();
+        $date = $request->query('date');
+
+        $incomesQuery = $request->user()
+            ? $request->user()->incomes()
+            : null;
+
+        if ($incomesQuery) {
+            if ($date) {
+                $incomesQuery->where('date', $date);
+            }
+            $incomes = $incomesQuery->latest()->get();
+        } else {
+            $incomes = collect();
+        }
 
         return Inertia::render('vehicle-detail', [
             'incomes' => $incomes,
+            'selectedDate' => $date,
+            'view' => $request->query('view'),
         ]);
     }
 
@@ -27,6 +40,7 @@ class IncomeController extends Controller
             'income_name' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
             'description' => 'nullable|string|max:1000',
+            'date' => 'required|date',
         ]);
 
         $request->user()->incomes()->create($validated);

@@ -2,13 +2,16 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
-export default function Expenses({ expenses = [] }) {
+export default function Expenses({ expenses = [], selectedDate = null }) {
+    const today = selectedDate || new Date().toISOString().slice(0, 10);
+
     const [showForm, setShowForm] = useState(false);
 
     const { data, setData, post, processing, reset } = useForm({
         expense_name: '',
         amount: '',
         description: '',
+        date: today,
     });
 
     const handleAddExpense = (e) => {
@@ -27,7 +30,7 @@ export default function Expenses({ expenses = [] }) {
             <nav className="relative h-16 md:h-20 w-full border-b border-white/10">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00447C] via-[#003d6f] to-[#00284a]"></div>
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
-                    <Link href="/vehicle-detail" className="text-sm font-medium text-white/70 hover:text-white">
+                    <Link href={`/vehicle-detail?date=${today}`} className="text-sm font-medium text-white/70 hover:text-white">
                         &larr; Back
                     </Link>
                     <span className="ml-4 text-sm font-semibold text-white">
@@ -37,6 +40,12 @@ export default function Expenses({ expenses = [] }) {
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-8 px-6 pt-10 md:pt-8 pb-6">
+                    <div className="flex items-center gap-4">
+                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                            Date: {today}
+                        </span>
+                    </div>
+
                     <div className="w-full rounded-lg border border-[#19140035] bg-white p-6 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
                         <div className="mb-4 flex items-center justify-between">
                             <h2 className="text-lg font-semibold">Expense List</h2>
@@ -107,6 +116,7 @@ export default function Expenses({ expenses = [] }) {
                                     rows={3}
                                 />
                             </div>
+                            <input type="hidden" value={data.date} />
                             <div className="flex gap-2">
                                 <button
                                     type="submit"

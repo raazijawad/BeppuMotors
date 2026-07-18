@@ -12,12 +12,24 @@ class ExpenseController extends Controller
 {
     public function index(Request $request): Response
     {
-        $expenses = $request->user()
-            ? $request->user()->expenses()->latest()->get()
-            : collect();
+        $date = $request->query('date');
+
+        $expensesQuery = $request->user()
+            ? $request->user()->expenses()
+            : null;
+
+        if ($expensesQuery) {
+            if ($date) {
+                $expensesQuery->where('date', $date);
+            }
+            $expenses = $expensesQuery->latest()->get();
+        } else {
+            $expenses = collect();
+        }
 
         return Inertia::render('expenses', [
             'expenses' => $expenses,
+            'selectedDate' => $date,
         ]);
     }
 
@@ -27,6 +39,7 @@ class ExpenseController extends Controller
             'expense_name' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
             'description' => 'nullable|string|max:1000',
+            'date' => 'required|date',
         ]);
 
         $request->user()->expenses()->create($validated);

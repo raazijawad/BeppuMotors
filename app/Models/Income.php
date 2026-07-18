@@ -12,9 +12,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $income_name
  * @property float $amount
  * @property string|null $description
+ * @property string|null $date
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at */
-#[Fillable(['income_name', 'amount', 'description'])]
+#[Fillable(['income_name', 'amount', 'description', 'date'])]
 class Income extends Model
 {
     use HasFactory;

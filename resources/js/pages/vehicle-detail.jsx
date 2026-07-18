@@ -1,16 +1,28 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
-export default function VehicleDetail({ incomes = [] }) {
-    const [showList, setShowList] = useState(false);
+export default function VehicleDetail({ incomes = [], selectedDate = null, view = null }) {
+    const today = selectedDate || new Date().toISOString().slice(0, 10);
+    const [selectedDay, setSelectedDay] = useState(today);
+
+    const showList = view === 'list';
     const [showForm, setShowForm] = useState(false);
 
     const { data, setData, post, processing, reset } = useForm({
         income_name: '',
         amount: '',
         description: '',
+        date: today,
     });
+
+    const handleDateChange = (e) => {
+        const newDate = e.target.value;
+        setSelectedDay(newDate);
+        setData('date', newDate);
+        const viewParam = showList ? '&view=list' : '';
+        router.get(`/vehicle-detail?date=${newDate}${viewParam}`, {}, { preserveState: true });
+    };
 
     const handleAddIncome = (e) => {
         e.preventDefault();
@@ -29,7 +41,7 @@ export default function VehicleDetail({ incomes = [] }) {
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00447C] via-[#003d6f] to-[#00284a]"></div>
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
                     {showList ? (
-                        <button onClick={() => setShowList(false)} className="text-sm font-medium text-white/70 hover:text-white">
+                        <button onClick={() => router.get(`/vehicle-detail?date=${selectedDay}`)} className="text-sm font-medium text-white/70 hover:text-white">
                             &larr; Back
                         </button>
                     ) : (
@@ -44,6 +56,18 @@ export default function VehicleDetail({ incomes = [] }) {
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-8 px-6 pt-10 md:pt-8 pb-6">
+                    <div className="flex items-center gap-4">
+                        <label className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                            Select Date:
+                        </label>
+                        <input
+                            type="date"
+                            value={selectedDay}
+                            onChange={handleDateChange}
+                            className="rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                        />
+                    </div>
+
                     {showList ? (
                         <div className="w-full rounded-lg border border-[#19140035] bg-white p-6 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
                             <div className="mb-4 flex items-center justify-between">
@@ -71,7 +95,7 @@ export default function VehicleDetail({ incomes = [] }) {
                                 </div>
                             )}
                             <button
-                                onClick={() => setShowList(false)}
+                                onClick={() => router.get(`/vehicle-detail?date=${selectedDay}`)}
                                 className="mt-4 rounded-md border border-[#19140035] px-4 py-2 text-sm font-medium dark:border-[#3E3E3A]"
                             >
                                 Back
@@ -80,18 +104,18 @@ export default function VehicleDetail({ incomes = [] }) {
                     ) : (
                         <div className="grid w-full grid-cols-2 gap-4 gap-y-8 md:grid-cols-6 md:gap-4">
                             <div
-                                onClick={() => setShowList(true)}
+                                onClick={() => router.get(`/vehicle-detail?date=${selectedDay}&view=list`)}
                                 className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md dark:border-[#3E3E3A] dark:bg-[#161615] md:h-28"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">+</span>
                             </div>
                             <Link
-                                href="/expenses"
+                                href={`/expenses?date=${selectedDay}`}
                                 className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md dark:border-[#3E3E3A] dark:bg-[#161615] md:h-28"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">-</span>
                             </Link>
-                            {['Stock', 'Customers', 'Oction', 'Cash Book'].map((label, i) => (
+                            {['Stock', 'Customers', 'Oction'].map((label, i) => (
                                 <div
                                     key={i + 2}
                                     className="flex h-44 items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:h-28"
@@ -99,6 +123,12 @@ export default function VehicleDetail({ incomes = [] }) {
                                     <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">{label}</span>
                                 </div>
                             ))}
+                            <Link
+                                href={`/cashbook?date=${selectedDay}`}
+                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md dark:border-[#3E3E3A] dark:bg-[#161615] md:h-28"
+                            >
+                                <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Cash Book</span>
+                            </Link>
                         </div>
                     )}
                 </div>
@@ -145,6 +175,7 @@ export default function VehicleDetail({ incomes = [] }) {
                                     rows={3}
                                 />
                             </div>
+                            <input type="hidden" value={data.date} />
                             <div className="flex gap-2">
                                 <button
                                     type="submit"
