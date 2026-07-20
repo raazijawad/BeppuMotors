@@ -5,11 +5,11 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'home')->name('home');
-Route::get('vehicle-detail', [IncomeController::class, 'index'])->name('vehicle-detail');
-Route::get('cashbook', [CashBookController::class, 'index'])->name('cashbook');
+Route::middleware(['auth'])->group(function () {
+    Route::inertia('/', 'home')->name('home');
+    Route::get('vehicle-detail', [IncomeController::class, 'index'])->name('vehicle-detail');
+    Route::get('cashbook', [CashBookController::class, 'index'])->name('cashbook');
 
-Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
     Route::get('incomes', [IncomeController::class, 'index'])->name('incomes.index');

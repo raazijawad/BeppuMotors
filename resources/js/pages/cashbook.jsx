@@ -4,6 +4,7 @@ import Footer from '@/components/footer';
 export default function Cashbook({ incomes = [], expenses = [], selectedDate = null }) {
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const activeDate = selectedDate || today;
 
     const totalIncome = incomes.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const totalExpense = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
@@ -14,7 +15,7 @@ export default function Cashbook({ incomes = [], expenses = [], selectedDate = n
             <nav className="relative h-16 md:h-20 w-full border-b border-white/10">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00447C] via-[#003d6f] to-[#00284a]"></div>
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
-                    <Link href={`/vehicle-detail?date=${today}`} className="text-sm font-medium text-white/70 hover:text-white">
+                    <Link href={`/vehicle-detail?date=${activeDate}`} className="text-sm font-medium text-white/70 hover:text-white">
                         &larr; Back
                     </Link>
                     <span className="ml-4 text-sm font-semibold text-white">
@@ -26,7 +27,7 @@ export default function Cashbook({ incomes = [], expenses = [], selectedDate = n
                 <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-6 md:gap-6 md:pt-8">
                     <div className="flex items-center gap-4">
                         <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                            Date: {today}
+                            Date: {activeDate}
                         </span>
                     </div>
 

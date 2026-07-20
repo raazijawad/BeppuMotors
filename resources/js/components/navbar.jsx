@@ -1,9 +1,9 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
-import { login, register, dashboard } from '@/routes';
+import { login, register, logout } from '@/routes';
 
 export default function Navbar() {
     const { auth } = usePage().props;
@@ -34,8 +34,8 @@ export default function Navbar() {
 
                 <div className="hidden items-center space-x-3 md:flex">
                     {auth.user ? (
-                        <Link href={dashboard()}>
-                            <Button className="bg-white/10 text-white hover:bg-white/20">Dashboard</Button>
+                        <Link href={logout()}>
+                            <Button className="bg-white/10 text-white hover:bg-white/20">Logout</Button>
                         </Link>
                     ) : (
                         <>
@@ -67,10 +67,10 @@ export default function Navbar() {
                     <div className="mt-4 flex flex-col space-y-2">
                         {auth.user ? (
                             <Link
-                                href={dashboard()}
+                                href={logout()}
                                 onClick={() => setMobileOpen(false)}
                             >
-                                <Button className="w-full bg-white/10 text-white hover:bg-white/20">Dashboard</Button>
+                                <Button className="w-full bg-white/10 text-white hover:bg-white/20">Logout</Button>
                             </Link>
                         ) : (
                             <>
