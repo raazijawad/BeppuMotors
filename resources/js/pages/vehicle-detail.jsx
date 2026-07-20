@@ -56,11 +56,8 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                 </div>
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex w-full flex-col gap-8 px-6 pt-10 md:pt-8 pb-6">
+                <div className="flex w-full flex-col gap-8 px-6 pt-4 pb-6 md:pt-8">
                     <div className="flex items-center gap-4">
-                        <label className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                            Select Date:
-                        </label>
                         <input
                             type="date"
                             value={selectedDay}
@@ -70,28 +67,28 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                     </div>
 
                     {showList ? (
-                        <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-4 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
-                            <div className="mb-4 flex items-center justify-between">
-                                <h2 className="text-lg font-semibold">Income List</h2>
+                        <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-3 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:p-4">
+                            <div className="mb-3 flex items-center justify-between md:mb-4">
+                                <h2 className="text-base font-semibold md:text-lg">Income List</h2>
                                 <button
                                     onClick={() => setShowForm(true)}
-                                    className="rounded-md bg-[#00447C] px-4 py-2 text-sm font-medium text-white hover:bg-[#003d6f]"
+                                    className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
                                 >
                                     + Add Income
                                 </button>
                             </div>
                             {incomes.length === 0 ? (
-                                <p className="text-sm text-[#706f6c] dark:text-[#A1A09A]">No income added yet.</p>
+                                <p className="text-xs text-[#706f6c] dark:text-[#A1A09A] md:text-sm">No income added yet.</p>
                             ) : (
                                 <div className="flex flex-col gap-0">
                                     {incomes.map((v) => (
                                         <div key={v.id} className="rounded-md py-0.5">
                                             <div className="flex items-center justify-between">
-                                                <p className="text-sm font-medium">{v.income_name}</p>
-                                                <p className="text-xs font-semibold text-green-600">+{v.amount}</p>
+                                                <p className="text-xs font-medium md:text-sm">{v.income_name}</p>
+                                                <p className="text-[10px] font-semibold text-green-600 md:text-xs">+{v.amount}</p>
                                             </div>
                                             {v.description && (
-                                                <p className="mt-1 text-xs text-[#706f6c] dark:text-[#A1A09A]">{v.description}</p>
+                                                <p className="mt-0.5 text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:mt-1 md:text-xs">{v.description}</p>
                                             )}
                                         </div>
                                     ))}
@@ -99,7 +96,7 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                             )}
                             <button
                                 onClick={() => router.get(`/vehicle-detail?date=${selectedDay}`)}
-                                className="mt-4 rounded-md border border-[#19140035] px-4 py-2 text-sm font-medium dark:border-[#3E3E3A]"
+                                className="mt-3 rounded-md border border-[#19140035] px-2.5 py-1.5 text-xs font-medium dark:border-[#3E3E3A] md:mt-4 md:px-4 md:py-2 md:text-sm"
                             >
                                 Back
                             </button>
