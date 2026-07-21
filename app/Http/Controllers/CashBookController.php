@@ -25,17 +25,19 @@ class CashBookController extends Controller
 
             $incomes = $incomesQuery->latest()->get()->map(fn ($i) => [
                 'id' => $i->id,
-                'name' => $i->income_name,
+                'income_name' => $i->income_name,
                 'amount' => $i->amount,
                 'description' => $i->description,
                 'date' => $i->date,
+                'created_at' => $i->created_at,
             ]);
             $expenses = $expensesQuery->latest()->get()->map(fn ($e) => [
                 'id' => $e->id,
-                'name' => $e->expense_name,
+                'expense_name' => $e->expense_name,
                 'amount' => $e->amount,
                 'description' => $e->description,
                 'date' => $e->date,
+                'created_at' => $e->created_at,
             ]);
         } else {
             $incomes = collect();

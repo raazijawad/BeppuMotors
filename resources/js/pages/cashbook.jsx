@@ -8,6 +8,7 @@ export default function Cashbook({ incomes = [], expenses = [], selectedDate = n
 
     const totalIncome = incomes.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const totalExpense = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+    const netAmount = totalIncome - totalExpense;
 
     return (
         <div className="flex h-screen flex-col overflow-hidden">
@@ -31,47 +32,56 @@ export default function Cashbook({ incomes = [], expenses = [], selectedDate = n
                         </span>
                     </div>
 
-                    <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-3 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:p-4">
-                        <div className="flex flex-col md:flex-row">
-                            <div className="flex-1 md:pr-6">
-                                <h2 className="mb-1 text-center text-base font-semibold text-green-600 md:mb-2 md:text-lg">+</h2>
-                                <hr className="mb-1.5 border-[#19140035] dark:border-[#3E3E3A] md:mb-2" />
-                                {incomes.length === 0 ? (
-                                    <p className="text-xs text-[#706f6c] dark:text-[#A1A09A] md:text-sm">No income entries.</p>
-                                ) : (
-                                    <div className="flex flex-col">
-                                        {incomes.map((entry) => (
-                                            <div key={entry.id} className="flex items-center justify-between py-0.5">
-                                                <p className="text-xs font-medium truncate md:text-sm">{entry.name}</p>
-                                                <p className="ml-2 text-[10px] font-semibold text-green-600 md:text-xs">+{entry.amount}</p>
-                                            </div>
-                                        ))}
-                                        <div className="mt-0.5 flex items-center justify-end px-2 py-0.5 md:mt-1 md:px-3 md:py-1">
-                                            <p className="text-[10px] font-bold text-green-600 md:text-xs">Total: +{totalIncome.toFixed(2)}</p>
+                    <div className="mx-auto w-full max-w-3xl rounded-lg border border-[#19140035] bg-white p-3 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:p-4">
+                        <div className="flex flex-row border-b border-[#19140035] pb-2 dark:border-[#3E3E3A]">
+                            <div className="w-20 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">Date</div>
+                            <div className="w-14 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">Time</div>
+                            <div className="flex-1 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Details</div>
+                            <div className="w-20 text-center text-[10px] font-semibold text-green-600 md:w-24 md:text-xs">+</div>
+                            <div className="w-20 text-center text-[10px] font-semibold text-red-600 md:w-24 md:text-xs">-</div>
+                        </div>
+
+                        {incomes.length === 0 && expenses.length === 0 ? (
+                            <p className="py-4 text-center text-xs text-[#706f6c] dark:text-[#A1A09A] md:text-sm">No entries yet.</p>
+                        ) : (
+                            <>
+                                {incomes.map((entry) => (
+                                    <div key={`income-${entry.id}`} className="flex flex-row items-center border-b border-[#19140035]/50 py-1.5 dark:border-[#3E3E3A]/50">
+                                        <div className="w-20 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">{entry.date}</div>
+                                        <div className="w-14 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">
+                                            {entry.created_at ? new Date(entry.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : ''}
                                         </div>
+                                        <div className="flex-1 truncate text-[10px] font-medium md:text-xs">{entry.income_name}</div>
+                                        <div className="w-20 text-center text-[10px] font-semibold text-green-600 md:w-24 md:text-xs">+{entry.amount}</div>
+                                        <div className="w-20 md:w-24"></div>
                                     </div>
-                                )}
-                            </div>
-                            <div className="my-3 h-px w-full bg-[#19140035] md:my-0 md:mx-6 md:h-auto md:w-px dark:bg-[#3E3E3A]"></div>
-                            <div className="flex-1 md:pl-6">
-                                <h2 className="mb-1 text-center text-base font-semibold text-red-600 md:mb-2 md:text-lg">-</h2>
-                                <hr className="mb-1.5 border-[#19140035] dark:border-[#3E3E3A] md:mb-2" />
-                                {expenses.length === 0 ? (
-                                    <p className="text-xs text-[#706f6c] dark:text-[#A1A09A] md:text-sm">No expense entries.</p>
-                                ) : (
-                                    <div className="flex flex-col">
-                                        {expenses.map((entry) => (
-                                            <div key={entry.id} className="flex items-center justify-between py-0.5">
-                                                <p className="text-xs font-medium truncate md:text-sm">{entry.name}</p>
-                                                <p className="ml-2 text-[10px] font-semibold text-red-600 md:text-xs">-{entry.amount}</p>
-                                            </div>
-                                        ))}
-                                        <div className="mt-0.5 flex items-center justify-end px-2 py-0.5 md:mt-1 md:px-3 md:py-1">
-                                            <p className="text-[10px] font-bold text-red-600 md:text-xs">Total: -{totalExpense.toFixed(2)}</p>
+                                ))}
+                                {expenses.map((entry) => (
+                                    <div key={`expense-${entry.id}`} className="flex flex-row items-center border-b border-[#19140035]/50 py-1.5 dark:border-[#3E3E3A]/50">
+                                        <div className="w-20 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">{entry.date}</div>
+                                        <div className="w-14 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">
+                                            {entry.created_at ? new Date(entry.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : ''}
                                         </div>
+                                        <div className="flex-1 truncate text-[10px] font-medium md:text-xs">{entry.expense_name}</div>
+                                        <div className="w-20 md:w-24"></div>
+                                        <div className="w-20 text-center text-[10px] font-semibold text-red-600 md:w-24 md:text-xs">-{entry.amount}</div>
                                     </div>
-                                )}
-                            </div>
+                                ))}
+                            </>
+                        )}
+
+                        <div className="flex flex-row items-center border-t border-[#19140035] pt-2 dark:border-[#3E3E3A]">
+                            <div className="w-20 md:w-24"></div>
+                            <div className="w-14 md:w-16"></div>
+                            <div className="flex-1 text-[10px] font-bold md:text-xs">Totals</div>
+                            <div className="w-20 text-center text-[10px] font-bold text-green-600 md:w-24 md:text-xs">+{totalIncome.toFixed(2)}</div>
+                            <div className="w-20 text-center text-[10px] font-bold text-red-600 md:w-24 md:text-xs">-{totalExpense.toFixed(2)}</div>
+                        </div>
+                        <hr className="my-2 border-[#19140035] dark:border-[#3E3E3A]" />
+                        <div className="flex items-center justify-center py-2">
+                            <p className={`text-xs font-bold md:text-sm ${netAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                Net: {netAmount >= 0 ? '+' : ''}{netAmount.toFixed(2)}
+                            </p>
                         </div>
                     </div>
                 </div>
