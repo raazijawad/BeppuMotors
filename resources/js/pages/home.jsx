@@ -1,8 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 
 export default function Home() {
+    const { auth } = usePage().props;
+
     return (
         <div className="flex h-screen flex-col overflow-hidden">
             <Head title="Home" />
@@ -15,7 +17,7 @@ export default function Home() {
                             className="flex h-28 items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:h-52"
                         >
                             <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                Muhammedh
+                                {auth.user?.name}
                             </span>
                         </Link>
                     </div>
