@@ -81,15 +81,23 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                                 <p className="text-xs text-[#706f6c] dark:text-[#A1A09A] md:text-sm">No income added yet.</p>
                             ) : (
                                 <div className="flex flex-col gap-0">
+                                    <div className="flex items-center border-b border-[#19140035] pb-1 dark:border-[#3E3E3A]">
+                                        <div className="w-20 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">Date</div>
+                                        <div className="w-14 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">Time</div>
+                                        <div className="flex-1 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Details</div>
+                                        <div className="w-20 text-right text-[10px] font-semibold text-green-600 md:w-24 md:text-xs">Amount</div>
+                                    </div>
                                     {incomes.map((v) => (
-                                        <div key={v.id} className="rounded-md py-0.5">
-                                            <div className="flex items-center justify-between">
-                                                <p className="text-xs font-medium md:text-sm">{v.income_name}</p>
-                                                <p className="text-[10px] font-semibold text-green-600 md:text-xs">+{v.amount}</p>
+                                        <div key={v.id} className="flex items-center border-b border-[#19140035]/50 py-1 dark:border-[#3E3E3A]/50">
+                                            <div className="w-20 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">{v.date || ''}</div>
+                                            <div className="w-14 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">
+                                                {v.created_at ? new Date(v.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : ''}
                                             </div>
-                                            {v.description && (
-                                                <p className="mt-0.5 text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:mt-1 md:text-xs">{v.description}</p>
-                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="truncate text-[10px] font-medium md:text-xs">{v.income_name}</p>
+                                                {v.description && <p className="truncate text-[9px] text-[#706f6c] dark:text-[#A1A09A] md:text-[10px]">{v.description}</p>}
+                                            </div>
+                                            <div className="w-20 text-right text-[10px] font-semibold text-green-600 md:w-24 md:text-xs">+{v.amount}</div>
                                         </div>
                                     ))}
                                 </div>

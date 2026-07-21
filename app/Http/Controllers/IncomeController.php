@@ -14,18 +14,7 @@ class IncomeController extends Controller
     {
         $date = $request->query('date');
 
-        $incomesQuery = $request->user()
-            ? $request->user()->incomes()
-            : null;
-
-        if ($incomesQuery) {
-            if ($date) {
-                $incomesQuery->where('date', $date);
-            }
-            $incomes = $incomesQuery->latest()->get();
-        } else {
-            $incomes = collect();
-        }
+        $incomes = Income::latest()->get();
 
         return Inertia::render('vehicle-detail', [
             'incomes' => $incomes,

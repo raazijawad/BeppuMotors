@@ -14,18 +14,7 @@ class ExpenseController extends Controller
     {
         $date = $request->query('date');
 
-        $expensesQuery = $request->user()
-            ? $request->user()->expenses()
-            : null;
-
-        if ($expensesQuery) {
-            if ($date) {
-                $expensesQuery->where('date', $date);
-            }
-            $expenses = $expensesQuery->latest()->get();
-        } else {
-            $expenses = collect();
-        }
+        $expenses = Expense::latest()->get();
 
         return Inertia::render('expenses', [
             'expenses' => $expenses,
