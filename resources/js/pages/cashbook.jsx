@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { Landmark } from 'lucide-react';
 import Footer from '@/components/footer';
 
 export default function Cashbook({ entries = [], selectedMonth = null }) {
@@ -24,12 +25,15 @@ export default function Cashbook({ entries = [], selectedMonth = null }) {
                     </span>
                 </div>
             </nav>
-            <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
+            <main className="h-[calc(100vh-10rem)] overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-6 md:gap-6 md:pt-8">
                     <div className="flex items-center gap-4">
                         <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                             Month: {activeMonth}
                         </span>
+                        <Link href="/drawer" className="ml-auto">
+                            <Landmark className="h-5 w-5 text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white md:h-6 md:w-6" />
+                        </Link>
                     </div>
 
                     <div className="mx-auto w-full max-w-3xl rounded-lg border border-[#19140035] bg-white p-3 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:p-4">

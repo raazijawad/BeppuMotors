@@ -9,6 +9,7 @@ Route::middleware(['auth'])->group(function () {
     Route::inertia('/', 'home')->name('home');
     Route::get('vehicle-detail', [IncomeController::class, 'index'])->name('vehicle-detail');
     Route::get('cashbook', [CashBookController::class, 'index'])->name('cashbook');
+    Route::inertia('drawer', 'drawer')->name('drawer');
 
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
