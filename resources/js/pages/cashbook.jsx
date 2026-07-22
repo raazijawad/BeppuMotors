@@ -20,15 +20,26 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const [activeMonth, setActiveMonth] = useState(selectedMonth || currentMonth);
+    const [selectedDate, setSelectedDate] = useState('');
 
-    const totalIncome = entries.filter((e) => e.type === 'income').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-    const totalExpense = entries.filter((e) => e.type === 'expense').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+    const filteredEntries = selectedDate
+        ? entries.filter((e) => e.date === selectedDate)
+        : entries;
+
+    const filteredDrawers = selectedDate
+        ? drawers.filter((d) => d.date === selectedDate)
+        : drawers;
+
+    const totalIncome = filteredEntries.filter((e) => e.type === 'income').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+    const totalExpense = filteredEntries.filter((e) => e.type === 'expense').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const netAmount = totalIncome - totalExpense;
 
     const [showDrawer, setShowDrawer] = useState(false);
     const [showDrawerForm, setShowDrawerForm] = useState(false);
     const [drawerName, setDrawerName] = useState('');
     const [drawerAmount, setDrawerAmount] = useState('');
+
+    const isDrawerFormFilled = drawerName.trim() !== '' || drawerAmount.trim() !== '';
 
     const handleDrawerSubmit = () => {
         if (!drawerName || !drawerAmount) return;
@@ -44,6 +55,7 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
     const changeMonth = (delta) => {
         const newMonth = addMonths(activeMonth, delta);
         setActiveMonth(newMonth);
+        setSelectedDate('');
         router.get('/cashbook', { date: `${newMonth}-01` }, { preserveState: true, replace: true });
     };
 
@@ -73,6 +85,17 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                         <button onClick={() => changeMonth(1)} className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5">
                             <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
                         </button>
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] text-[#706f6c] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#A1A09A] md:text-xs"
+                        />
+                        {selectedDate && (
+                            <button onClick={() => setSelectedDate('')} className="rounded-md px-2 py-1 text-[10px] font-medium text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:text-xs">
+                                Reset
+                            </button>
+                        )}
                         <button onClick={() => setShowDrawer(true)} className="ml-auto">
                             <Landmark className="h-5 w-5 text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white md:h-6 md:w-6" />
                         </button>
@@ -87,10 +110,10 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                             <div className="w-16 text-center text-[8px] font-semibold text-red-600 md:w-24 md:text-xs">-</div>
                         </div>
 
-                        {entries.length === 0 ? (
+                        {filteredEntries.length === 0 ? (
                             <p className="py-4 text-center text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:text-sm">No entries yet.</p>
                         ) : (
-                            entries.map((entry) => (
+                            filteredEntries.map((entry) => (
                                 <div key={`${entry.type}-${entry.id}`} className="flex flex-row items-center border-b border-[#19140035]/50 py-1 dark:border-[#3E3E3A]/50">
                                     <div className="w-16 truncate text-[8px] text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">{entry.date}</div>
                                     <div className="w-12 truncate text-[8px] text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">
@@ -140,10 +163,10 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                             <h2 className="text-base font-semibold md:text-lg">Drawer</h2>
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={showDrawerForm ? handleDrawerSubmit : () => setShowDrawerForm(true)}
+                                    onClick={showDrawerForm ? (isDrawerFormFilled ? handleDrawerSubmit : () => setShowDrawerForm(false)) : () => setShowDrawerForm(true)}
                                     className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
                                 >
-                                    {showDrawerForm ? 'Done' : '+ Add'}
+                                    {showDrawerForm ? (isDrawerFormFilled ? 'Done' : 'Cancel') : '+ Add'}
                                 </button>
                                 <button onClick={() => setShowDrawer(false)} className="text-sm font-medium text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white">
                                     &times;
@@ -151,9 +174,9 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                             </div>
                         </div>
                         <div className="rounded-lg border border-[#19140035] dark:border-[#3E3E3A]">
-                            <div className="flex flex-row border-b border-[#19140035] dark:border-[#3E3E3A]">
-                                <div className="flex-1 px-3 py-2 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Date</div>
-                                <div className="flex-1 px-3 py-2 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">New One</div>
+                                <div className="flex flex-row border-b border-[#19140035] dark:border-[#3E3E3A]">
+                                <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">{selectedDate || new Date().toISOString().slice(0, 10)}</div>
+                                <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">New One</div>
                             </div>
                             {showDrawerForm && (
                                 <div className="flex flex-row items-center border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50">
@@ -177,13 +200,12 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                                     </div>
                                 </div>
                             )}
-                            {drawers.map((entry) => (
-                                <div key={entry.id} className="flex flex-row items-center border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50">
-                                    <div className="flex-1 px-3 py-2 text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:text-xs">{entry.date}</div>
-                                    <div className="flex-1 px-3 py-2">
+                            {filteredDrawers.map((entry) => (
+                                <div key={entry.id} className="flex flex-row items-center">
+                                    <div className="flex-1 px-3 py-0.5 text-center">
                                         <p className="text-[10px] font-medium md:text-xs">{entry.name}</p>
-                                        <p className="text-[10px] font-semibold text-green-600 md:text-xs">+{entry.amount}</p>
                                     </div>
+                                    <div className="flex-1 px-3 py-0.5 text-center text-[10px] font-semibold text-green-600 md:text-xs">+{entry.amount}</div>
                                 </div>
                             ))}
                         </div>
