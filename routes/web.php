@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CashBookController;
+use App\Http\Controllers\DrawerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+    Route::post('drawers', [DrawerController::class, 'store'])->name('drawers.store');
+    Route::delete('drawers/{drawer}', [DrawerController::class, 'destroy'])->name('drawers.destroy');
 });
 
 require __DIR__.'/settings.php';

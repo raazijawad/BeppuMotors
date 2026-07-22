@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Drawer;
 use App\Models\Income;
 use App\Models\Expense;
 use Illuminate\Http\Request;
@@ -36,8 +37,11 @@ class CashBookController extends Controller
 
         $entries = $incomes->concat($expenses)->sortBy('created_at')->values();
 
+        $drawers = Drawer::latest()->get();
+
         return Inertia::render('cashbook', [
             'entries' => $entries,
+            'drawers' => $drawers,
             'selectedMonth' => $month,
         ]);
     }

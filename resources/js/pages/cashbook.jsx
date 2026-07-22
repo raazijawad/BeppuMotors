@@ -1,8 +1,9 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Landmark } from 'lucide-react';
+import { useState } from 'react';
 import Footer from '@/components/footer';
 
-export default function Cashbook({ entries = [], selectedMonth = null }) {
+export default function Cashbook({ entries = [], drawers = [], selectedMonth = null }) {
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const activeMonth = selectedMonth || currentMonth;
@@ -10,6 +11,22 @@ export default function Cashbook({ entries = [], selectedMonth = null }) {
     const totalIncome = entries.filter((e) => e.type === 'income').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const totalExpense = entries.filter((e) => e.type === 'expense').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const netAmount = totalIncome - totalExpense;
+
+    const [showDrawer, setShowDrawer] = useState(false);
+    const [showDrawerForm, setShowDrawerForm] = useState(false);
+    const [drawerName, setDrawerName] = useState('');
+    const [drawerAmount, setDrawerAmount] = useState('');
+
+    const handleDrawerSubmit = () => {
+        if (!drawerName || !drawerAmount) return;
+        router.post('/drawers', { name: drawerName, amount: drawerAmount }, {
+            onSuccess: () => {
+                setDrawerName('');
+                setDrawerAmount('');
+                setShowDrawerForm(false);
+            },
+        });
+    };
 
     return (
         <div className="flex h-screen flex-col overflow-hidden">
@@ -31,9 +48,9 @@ export default function Cashbook({ entries = [], selectedMonth = null }) {
                         <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                             Month: {activeMonth}
                         </span>
-                        <Link href="/drawer" className="ml-auto">
+                        <button onClick={() => setShowDrawer(true)} className="ml-auto">
                             <Landmark className="h-5 w-5 text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white md:h-6 md:w-6" />
-                        </Link>
+                        </button>
                     </div>
 
                     <div className="mx-auto w-full max-w-3xl rounded-lg border border-[#19140035] bg-white p-3 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:p-4">
@@ -90,6 +107,64 @@ export default function Cashbook({ entries = [], selectedMonth = null }) {
                 </div>
             </main>
             <Footer />
+
+            {showDrawer && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-2xl rounded-lg border border-[#19140035] bg-white p-4 shadow-lg dark:border-[#3E3E3A] dark:bg-[#161615] md:p-6">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="text-base font-semibold md:text-lg">Drawer</h2>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={showDrawerForm ? handleDrawerSubmit : () => setShowDrawerForm(true)}
+                                    className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
+                                >
+                                    {showDrawerForm ? 'Done' : '+ Add'}
+                                </button>
+                                <button onClick={() => setShowDrawer(false)} className="text-sm font-medium text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white">
+                                    &times;
+                                </button>
+                            </div>
+                        </div>
+                        <div className="rounded-lg border border-[#19140035] dark:border-[#3E3E3A]">
+                            <div className="flex flex-row border-b border-[#19140035] dark:border-[#3E3E3A]">
+                                <div className="flex-1 px-3 py-2 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Date</div>
+                                <div className="flex-1 px-3 py-2 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">New One</div>
+                            </div>
+                            {showDrawerForm && (
+                                <div className="flex flex-row items-center border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50">
+                                    <div className="flex-1 p-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Name"
+                                            value={drawerName}
+                                            onChange={(e) => setDrawerName(e.target.value)}
+                                            className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-xs"
+                                        />
+                                    </div>
+                                    <div className="flex-1 p-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Amount"
+                                            value={drawerAmount}
+                                            onChange={(e) => setDrawerAmount(e.target.value)}
+                                            className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-xs"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            {drawers.map((entry) => (
+                                <div key={entry.id} className="flex flex-row items-center border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50">
+                                    <div className="flex-1 px-3 py-2 text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:text-xs">{entry.date}</div>
+                                    <div className="flex-1 px-3 py-2">
+                                        <p className="text-[10px] font-medium md:text-xs">{entry.name}</p>
+                                        <p className="text-[10px] font-semibold text-green-600 md:text-xs">+{entry.amount}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
