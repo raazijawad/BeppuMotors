@@ -1,12 +1,25 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Landmark } from 'lucide-react';
+import { Landmark, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
+
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function getMonthLabel(ym) {
+    const [y, m] = ym.split('-');
+    return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
+}
+
+function addMonths(ym, delta) {
+    const [y, m] = ym.split('-').map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
 
 export default function Cashbook({ entries = [], drawers = [], selectedMonth = null }) {
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const activeMonth = selectedMonth || currentMonth;
+    const [activeMonth, setActiveMonth] = useState(selectedMonth || currentMonth);
 
     const totalIncome = entries.filter((e) => e.type === 'income').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const totalExpense = entries.filter((e) => e.type === 'expense').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
@@ -28,6 +41,12 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
         });
     };
 
+    const changeMonth = (delta) => {
+        const newMonth = addMonths(activeMonth, delta);
+        setActiveMonth(newMonth);
+        router.get('/cashbook', { date: `${newMonth}-01` }, { preserveState: true, replace: true });
+    };
+
     return (
         <div className="flex h-screen flex-col overflow-hidden">
             <Head title="Cash Book" />
@@ -44,10 +63,16 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
             </nav>
             <main className="h-[calc(100vh-10rem)] overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-6 md:gap-6 md:pt-8">
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                            Month: {activeMonth}
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => changeMonth(-1)} className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5">
+                            <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
+                        </button>
+                        <span className="min-w-[120px] text-center text-xs font-medium text-[#706f6c] dark:text-[#A1A09A] md:min-w-[160px] md:text-sm">
+                            {getMonthLabel(activeMonth)}
                         </span>
+                        <button onClick={() => changeMonth(1)} className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5">
+                            <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
+                        </button>
                         <button onClick={() => setShowDrawer(true)} className="ml-auto">
                             <Landmark className="h-5 w-5 text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white md:h-6 md:w-6" />
                         </button>
