@@ -175,7 +175,7 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                         </div>
                         <div className="rounded-lg border border-[#19140035] dark:border-[#3E3E3A]">
                                 <div className="flex flex-row border-b border-[#19140035] dark:border-[#3E3E3A]">
-                                <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">{selectedDate || new Date().toISOString().slice(0, 10)}</div>
+                                <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs border-r border-[#19140035] dark:border-[#3E3E3A]">{selectedDate || new Date().toISOString().slice(0, 10)}</div>
                                 <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">New One</div>
                             </div>
                             {showDrawerForm && (
@@ -202,7 +202,7 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                             )}
                             {filteredDrawers.map((entry) => (
                                 <div key={entry.id} className="flex flex-row items-center">
-                                    <div className="flex-1 px-3 py-0.5 text-center">
+                                    <div className="flex-1 px-3 py-0.5 text-center border-r border-[#19140035] dark:border-[#3E3E3A]">
                                         <p className="text-[10px] font-medium md:text-xs">{entry.name}</p>
                                     </div>
                                     <div className="flex-1 px-3 py-0.5 text-center text-[10px] font-semibold text-green-600 md:text-xs">+{entry.amount}</div>
