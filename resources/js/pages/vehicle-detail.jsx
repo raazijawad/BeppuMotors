@@ -123,7 +123,13 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">-</span>
                             </Link>
-                            {['Stock', 'Customers', 'Oction'].map((label, i) => (
+                            <Link
+                                href={`/stock?date=${selectedDay}`}
+                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md dark:border-[#3E3E3A] dark:bg-[#161615] md:h-28"
+                            >
+                                <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Stock</span>
+                            </Link>
+                            {['Customers', 'Oction'].map((label, i) => (
                                 <div
                                     key={i + 2}
                                     className="flex h-44 items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:h-28"

@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Landmark, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Landmark, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
@@ -33,6 +33,15 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
     const totalIncome = filteredEntries.filter((e) => e.type === 'income').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const totalExpense = filteredEntries.filter((e) => e.type === 'expense').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const netAmount = totalIncome - totalExpense;
+
+    const [searching, setSearching] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const searchFilteredEntries = searchTerm
+        ? entries.filter((e) => e.name?.toLowerCase().includes(searchTerm.toLowerCase()) || e.description?.toLowerCase().includes(searchTerm.toLowerCase()))
+        : entries;
+
+    const showEntries = searching ? searchFilteredEntries : filteredEntries;
 
     const [showDrawer, setShowDrawer] = useState(false);
     const [showDrawerForm, setShowDrawerForm] = useState(false);
@@ -75,21 +84,32 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
             </nav>
             <main className="h-[calc(100vh-10rem)] overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-6 md:gap-6 md:pt-8">
-                    <div className="flex items-center gap-2">
-                        <button onClick={() => changeMonth(-1)} className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5">
+                    <div className="flex items-center gap-1">
+                        <button onClick={() => changeMonth(-1)} className={`rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5 ${searching ? 'hidden md:block' : ''}`}>
                             <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
                         </button>
-                        <span className="min-w-[120px] text-center text-xs font-medium text-[#706f6c] dark:text-[#A1A09A] md:min-w-[160px] md:text-sm">
+                        <span className={`text-center text-xs font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-sm ${searching ? 'hidden md:inline' : ''}`}>
                             {getMonthLabel(activeMonth)}
                         </span>
-                        <button onClick={() => changeMonth(1)} className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5">
+                        <button onClick={() => changeMonth(1)} className={`rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5 ${searching ? 'hidden md:block' : ''}`}>
                             <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
                         </button>
+                        <button onClick={() => { setSearching(!searching); if (searching) setSearchTerm(''); }} className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5">
+                            {searching ? <X className="h-4 w-4 md:h-5 md:w-5" /> : <Search className="h-4 w-4 md:h-5 md:w-5" />}
+                        </button>
+                        <input
+                            autoFocus={searching}
+                            type="text"
+                            placeholder="Search entries..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className={`rounded-md border border-[#19140035] bg-white px-3 py-1.5 text-xs text-[#1b1b18] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm ${searching ? 'flex-1 md:w-48 md:flex-none' : 'hidden'}`}
+                        />
                         <input
                             type="date"
                             value={selectedDate}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] text-[#706f6c] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#A1A09A] md:text-xs"
+                            className={`rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] text-[#706f6c] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#A1A09A] md:text-xs ${searching ? 'hidden md:block' : ''}`}
                         />
                         {selectedDate && (
                             <button onClick={() => setSelectedDate('')} className="rounded-md px-2 py-1 text-[10px] font-medium text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:text-xs">
@@ -110,10 +130,10 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                             <div className="w-16 text-center text-[8px] font-semibold text-red-600 md:w-24 md:text-xs">-</div>
                         </div>
 
-                        {filteredEntries.length === 0 ? (
+                        {showEntries.length === 0 ? (
                             <p className="py-4 text-center text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:text-sm">No entries yet.</p>
                         ) : (
-                            filteredEntries.map((entry) => (
+                            showEntries.map((entry) => (
                                 <div key={`${entry.type}-${entry.id}`} className="flex flex-row items-center border-b border-[#19140035]/50 py-1 dark:border-[#3E3E3A]/50">
                                     <div className="w-16 truncate text-[8px] text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">{entry.date}</div>
                                     <div className="w-12 truncate text-[8px] text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">
