@@ -26,12 +26,10 @@ class DrawerController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
+            'date' => 'required|date',
         ]);
 
-        $request->user()->drawers()->create([
-            ...$validated,
-            'date' => now()->toDateString(),
-        ]);
+        $request->user()->drawers()->create($validated);
 
         return back();
     }

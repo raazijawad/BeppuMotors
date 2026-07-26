@@ -21,13 +21,15 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const [activeMonth, setActiveMonth] = useState(selectedMonth || currentMonth);
     const [selectedDate, setSelectedDate] = useState('');
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const [drawerDate, setDrawerDate] = useState(today);
 
     const filteredEntries = selectedDate
         ? entries.filter((e) => e.date === selectedDate)
         : entries;
 
-    const filteredDrawers = selectedDate
-        ? drawers.filter((d) => d.date === selectedDate)
+    const filteredDrawers = drawerDate
+        ? drawers.filter((d) => d.date === drawerDate)
         : drawers;
 
     const totalIncome = filteredEntries.filter((e) => e.type === 'income').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
@@ -38,7 +40,13 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
     const [searchTerm, setSearchTerm] = useState('');
 
     const searchFilteredEntries = searchTerm
-        ? entries.filter((e) => e.name?.toLowerCase().includes(searchTerm.toLowerCase()) || e.description?.toLowerCase().includes(searchTerm.toLowerCase()))
+        ? entries.filter((e) => {
+            const term = searchTerm.toLowerCase();
+            return e.date?.toLowerCase().includes(term) ||
+                e.name?.toLowerCase().includes(term) ||
+                e.description?.toLowerCase().includes(term) ||
+                String(e.amount).includes(term);
+        })
         : entries;
 
     const showEntries = searching ? searchFilteredEntries : filteredEntries;
@@ -52,7 +60,7 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
 
     const handleDrawerSubmit = () => {
         if (!drawerName || !drawerAmount) return;
-        router.post('/drawers', { name: drawerName, amount: drawerAmount }, {
+        router.post('/drawers', { name: drawerName, amount: drawerAmount, date: drawerDate }, {
             onSuccess: () => {
                 setDrawerName('');
                 setDrawerAmount('');
@@ -100,7 +108,7 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                         <input
                             autoFocus={searching}
                             type="text"
-                            placeholder="Search entries..."
+                            placeholder="Enter date or name or amount"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className={`rounded-md border border-[#19140035] bg-white px-3 py-1.5 text-xs text-[#1b1b18] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm ${searching ? 'flex-1 md:w-48 md:flex-none' : 'hidden'}`}
@@ -195,8 +203,15 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                         </div>
                         <div className="rounded-lg border border-[#19140035] dark:border-[#3E3E3A]">
                                 <div className="flex flex-row border-b border-[#19140035] dark:border-[#3E3E3A]">
-                                <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs border-r border-[#19140035] dark:border-[#3E3E3A]">{selectedDate || new Date().toISOString().slice(0, 10)}</div>
-                                <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">New One</div>
+                                <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs border-r border-[#19140035] dark:border-[#3E3E3A]">
+                                    <input
+                                        type="date"
+                                        value={drawerDate}
+                                        onChange={(e) => setDrawerDate(e.target.value)}
+                                        className="w-full cursor-pointer bg-transparent text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs"
+                                    />
+                                </div>
+                                <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Amount</div>
                             </div>
                             {showDrawerForm && (
                                 <div className="flex flex-row items-center border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50">
@@ -228,6 +243,12 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                                     <div className="flex-1 px-3 py-0.5 text-center text-[10px] font-semibold text-green-600 md:text-xs">+{entry.amount}</div>
                                 </div>
                             ))}
+                            <div className="flex flex-row items-center border-t border-[#19140035] dark:border-[#3E3E3A]">
+                                <div className="flex-1 px-3 py-1 text-center text-[10px] font-bold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Total</div>
+                                <div className="flex-1 px-3 py-1 text-center text-[10px] font-bold text-green-600 md:text-xs">
+                                    +{filteredDrawers.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0).toFixed(2)}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
