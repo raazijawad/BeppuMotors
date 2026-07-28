@@ -25,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
     Route::post('drawers', [DrawerController::class, 'store'])->name('drawers.store');
+    Route::put('drawers/{drawer}', [DrawerController::class, 'update'])->name('drawers.update');
     Route::delete('drawers/{drawer}', [DrawerController::class, 'destroy'])->name('drawers.destroy');
 });
 

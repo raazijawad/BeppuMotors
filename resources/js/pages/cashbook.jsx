@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Landmark, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
+import { Landmark, ChevronLeft, ChevronRight, Search, X, Pencil } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
@@ -28,10 +28,6 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
         ? entries.filter((e) => e.date === selectedDate)
         : entries;
 
-    const filteredDrawers = drawerDate
-        ? drawers.filter((d) => d.date === drawerDate)
-        : drawers;
-
     const totalIncome = filteredEntries.filter((e) => e.type === 'income').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const totalExpense = filteredEntries.filter((e) => e.type === 'expense').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const netAmount = totalIncome - totalExpense;
@@ -55,16 +51,58 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
     const [showDrawerForm, setShowDrawerForm] = useState(false);
     const [drawerName, setDrawerName] = useState('');
     const [drawerAmount, setDrawerAmount] = useState('');
+    const [editingDrawer, setEditingDrawer] = useState(null);
+    const [editName, setEditName] = useState('');
+    const [editAmount, setEditAmount] = useState('');
+    const [drawerSubmitting, setDrawerSubmitting] = useState(false);
+    const [editSubmitting, setEditSubmitting] = useState(false);
 
     const isDrawerFormFilled = drawerName.trim() !== '' || drawerAmount.trim() !== '';
 
+    const getLatestVersion = (entries, date) => {
+        const filtered = entries.filter((e) => e.date <= date);
+        if (filtered.length === 0) return null;
+        return filtered.reduce((latest, e) => (e.date > latest.date ? e : latest));
+    };
+
+    const groupedDrawers = drawers.reduce((acc, d) => {
+        const rootId = d.parent_id ?? d.id;
+        if (!acc[rootId]) acc[rootId] = [];
+        acc[rootId].push(d);
+        return acc;
+    }, {});
+
+    const filteredDrawers = Object.values(groupedDrawers)
+        .map((group) => getLatestVersion(group, drawerDate))
+        .filter(Boolean)
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    const drawerTotal = filteredDrawers.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+    const difference = drawerTotal - netAmount;
+
     const handleDrawerSubmit = () => {
-        if (!drawerName || !drawerAmount) return;
+        if (!drawerName || !drawerAmount || drawerSubmitting) return;
+        setDrawerSubmitting(true);
         router.post('/drawers', { name: drawerName, amount: drawerAmount, date: drawerDate }, {
+            onFinish: () => setDrawerSubmitting(false),
             onSuccess: () => {
                 setDrawerName('');
                 setDrawerAmount('');
                 setShowDrawerForm(false);
+            },
+        });
+    };
+
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+        if (!editName || !editAmount || !editingDrawer || editSubmitting) return;
+        setEditSubmitting(true);
+        router.put(`/drawers/${editingDrawer.id}`, { name: editName, amount: editAmount, date: drawerDate }, {
+            onFinish: () => setEditSubmitting(false),
+            onSuccess: () => {
+                setEditingDrawer(null);
+                setEditName('');
+                setEditAmount('');
             },
         });
     };
@@ -174,10 +212,22 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                             <div className="w-16 text-center text-[8px] font-bold text-red-600 md:w-24 md:text-xs">-{totalExpense.toFixed(2)}</div>
                         </div>
                         <hr className="my-2 border-[#19140035] dark:border-[#3E3E3A]" />
-                        <div className="flex items-center justify-center py-2">
+                        <div className="flex items-center justify-center gap-3 py-2">
                             <p className={`text-xs font-bold md:text-sm ${netAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                 Net: {netAmount >= 0 ? '+' : ''}{netAmount.toFixed(2)}
                             </p>
+                            {difference !== 0 ? (
+                                <>
+                                    <span className="text-[#706f6c] dark:text-[#A1A09A]">-</span>
+                                    <span className="text-xs text-[#706f6c] dark:text-[#A1A09A] md:text-sm">Different: {difference}</span>
+                                    <span className="text-[#706f6c] dark:text-[#A1A09A]">-</span>
+                                    <span className={`text-xs font-bold md:text-sm ${difference > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        {difference > 0 ? 'You have Extra Money' : 'Cash Missing'}
+                                    </span>
+                                </>
+                            ) : (
+                                <span className="text-xs font-bold text-green-600 md:text-sm">Account Tied</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -191,12 +241,13 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                             <h2 className="text-base font-semibold md:text-lg">Drawer</h2>
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={showDrawerForm ? (isDrawerFormFilled ? handleDrawerSubmit : () => setShowDrawerForm(false)) : () => setShowDrawerForm(true)}
-                                    className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
+                                    onClick={showDrawerForm ? (isDrawerFormFilled && !drawerSubmitting ? handleDrawerSubmit : () => setShowDrawerForm(false)) : () => setShowDrawerForm(true)}
+                                    disabled={drawerSubmitting}
+                                    className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:px-4 md:py-2 md:text-sm"
                                 >
-                                    {showDrawerForm ? (isDrawerFormFilled ? 'Done' : 'Cancel') : '+ Add'}
+                                    {showDrawerForm ? (drawerSubmitting ? 'Saving...' : isDrawerFormFilled ? 'Done' : 'Cancel') : '+ Add'}
                                 </button>
-                                <button onClick={() => setShowDrawer(false)} className="text-sm font-medium text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white">
+                                <button onClick={() => { setShowDrawer(false); setEditingDrawer(null); }} className="text-sm font-medium text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white">
                                     &times;
                                 </button>
                             </div>
@@ -237,16 +288,47 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                             )}
                             {filteredDrawers.map((entry) => (
                                 <div key={entry.id} className="flex flex-row items-center">
-                                    <div className="flex-1 px-3 py-0.5 text-center border-r border-[#19140035] dark:border-[#3E3E3A]">
-                                        <p className="text-[10px] font-medium md:text-xs">{entry.name}</p>
-                                    </div>
-                                    <div className="flex-1 px-3 py-0.5 text-center text-[10px] font-semibold text-green-600 md:text-xs">+{entry.amount}</div>
+                                    {editingDrawer?.id === entry.id ? (
+                                        <>
+                                            <div className="flex-1 px-2 py-0.5 border-r border-[#19140035] dark:border-[#3E3E3A]">
+                                                <input
+                                                    type="text"
+                                                    value={editName}
+                                                    onChange={(e) => setEditName(e.target.value)}
+                                                    className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-xs"
+                                                />
+                                            </div>
+                                            <div className="flex-1 px-2 py-0.5 flex items-center gap-1">
+                                                <input
+                                                    type="text"
+                                                    value={editAmount}
+                                                    onChange={(e) => setEditAmount(e.target.value)}
+                                                    className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-xs"
+                                                />
+                                                <button onClick={handleEditSubmit} disabled={editSubmitting} className="rounded bg-[#00447C] px-1.5 py-1 text-[10px] font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-xs">{editSubmitting ? '...' : 'OK'}</button>
+                                                <button onClick={() => setEditingDrawer(null)} className="rounded border border-[#19140035] px-1.5 py-1 text-[10px] font-medium dark:border-[#3E3E3A] md:text-xs">X</button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="flex-1 px-3 py-0.5 text-center border-r border-[#19140035] dark:border-[#3E3E3A]">
+                                                <p className="text-[10px] font-medium md:text-xs">{entry.name}</p>
+                                            </div>
+                                            <div className="flex-1 px-3 py-0.5 text-center text-[10px] font-semibold text-green-600 md:text-xs">+{parseFloat(entry.amount)}</div>
+                                            <button
+                                                onClick={() => { setEditingDrawer(entry); setEditName(entry.name); setEditAmount(String(parseFloat(entry.amount))); }}
+                                                className="px-2 py-0.5 text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
+                                            >
+                                                <Pencil className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             ))}
                             <div className="flex flex-row items-center border-t border-[#19140035] dark:border-[#3E3E3A]">
                                 <div className="flex-1 px-3 py-1 text-center text-[10px] font-bold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Total</div>
                                 <div className="flex-1 px-3 py-1 text-center text-[10px] font-bold text-green-600 md:text-xs">
-                                    +{filteredDrawers.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0).toFixed(2)}
+                                    +{filteredDrawers.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)}
                                 </div>
                             </div>
                         </div>

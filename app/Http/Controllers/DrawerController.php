@@ -34,6 +34,22 @@ class DrawerController extends Controller
         return back();
     }
 
+    public function update(Request $request, Drawer $drawer): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+            'date' => 'required|date',
+        ]);
+
+        $request->user()->drawers()->create([
+            ...$validated,
+            'parent_id' => $drawer->parent_id ?? $drawer->id,
+        ]);
+
+        return back();
+    }
+
     public function destroy(Drawer $drawer): RedirectResponse
     {
         $drawer->delete();
