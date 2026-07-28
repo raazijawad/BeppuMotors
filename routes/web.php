@@ -4,6 +4,7 @@ use App\Http\Controllers\CashBookController;
 use App\Http\Controllers\DrawerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -18,7 +19,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('incomes', [IncomeController::class, 'store'])->name('incomes.store');
     Route::delete('incomes/{income}', [IncomeController::class, 'destroy'])->name('incomes.destroy');
 
-    Route::inertia('stock', 'stock')->name('stock');
+    Route::get('stock', [StockController::class, 'index'])->name('stock');
+    Route::post('stock', [StockController::class, 'store'])->name('stock.store');
+    Route::delete('stock/{stock}', [StockController::class, 'destroy'])->name('stock.destroy');
 
     Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');

@@ -63,4 +63,9 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasMany(Drawer::class);
     }
+
+    public function stocks(): HasMany
+    {
+        return $this->hasMany(Stock::class);
+    }
 }
