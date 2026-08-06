@@ -68,4 +68,14 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasMany(Stock::class);
     }
+
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

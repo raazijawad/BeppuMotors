@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CashBookController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DrawerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
@@ -12,7 +13,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('vehicle-detail', [IncomeController::class, 'index'])->name('vehicle-detail');
     Route::get('cashbook', [CashBookController::class, 'index'])->name('cashbook');
     Route::inertia('drawer', 'drawer')->name('drawer');
-    Route::inertia('customer', 'customer')->name('customer');
+    Route::get('customer', [CustomerController::class, 'index'])->name('customer');
+    Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
+    Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+    Route::post('customers/{customer}/invoices', [CustomerController::class, 'storeInvoices'])->name('customers.invoices.store');
+    Route::delete('invoices/{invoice}', [CustomerController::class, 'destroyInvoice'])->name('invoices.destroy');
 
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
