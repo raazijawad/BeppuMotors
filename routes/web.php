@@ -12,6 +12,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('vehicle-detail', [IncomeController::class, 'index'])->name('vehicle-detail');
     Route::get('cashbook', [CashBookController::class, 'index'])->name('cashbook');
     Route::inertia('drawer', 'drawer')->name('drawer');
+    Route::inertia('customer', 'customer')->name('customer');
 
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
@@ -25,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+    Route::put('expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
     Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
     Route::post('drawers', [DrawerController::class, 'store'])->name('drawers.store');

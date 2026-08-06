@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $date
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at */
-#[Fillable(['expense_name', 'amount', 'description', 'date'])]
+#[Fillable(['expense_name', 'amount', 'description', 'date', 'stock_id'])]
 class Expense extends Model
 {
     use HasFactory;
@@ -30,5 +30,10 @@ class Expense extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function stock(): BelongsTo
+    {
+        return $this->belongsTo(Stock::class);
     }
 }
