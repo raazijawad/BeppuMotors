@@ -1,13 +1,13 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
+import Invoice from '@/components/invoice';
 
 export default function Customer({ customers = [], stocks = [] }) {
     const [showForm, setShowForm] = useState(false);
     const [showSaleModal, setShowSaleModal] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [selectedVehicles, setSelectedVehicles] = useState([]);
-    const [modalAmounts, setModalAmounts] = useState({});
 
     const today = new Date().toISOString().slice(0, 10);
     const [invoiceDate, setInvoiceDate] = useState(today);
@@ -43,10 +43,8 @@ export default function Customer({ customers = [], stocks = [] }) {
 
     // add vehicle to invoice function
     const handleSelectVehicle = (stock) => {
-        setSelectedVehicles((prev) => [
-            ...prev,
-            { ...stock, amount: modalAmounts[stock.id] ?? stock.price ?? stock.n_price ?? '' },
-        ]);
+        const amount = Number(stock.price) || Number(stock.n_price) || '';
+        setSelectedVehicles((prev) => [...prev, { ...stock, amount }]);
         setShowSaleModal(false);
     };
 
@@ -55,15 +53,13 @@ export default function Customer({ customers = [], stocks = [] }) {
         setSelectedVehicles((prev) => prev.filter((v) => v.id !== stockId));
     };
 
+    // change invoice amount function
+    const handleAmountChange = (stockId, value) => {
+        setSelectedVehicles((prev) => prev.map((v) => (v.id === stockId ? { ...v, amount: value } : v)));
+    };
+
     // open sale modal function
     const handleOpenSaleModal = () => {
-        const defaults = {};
-        stocks
-            .filter((s) => !purchasedStockIds.has(s.id) && !selectedVehicles.some((v) => v.id === s.id))
-            .forEach((s) => {
-                defaults[s.id] = s.price || s.n_price || '';
-            });
-        setModalAmounts(defaults);
         setShowSaleModal(true);
     };
 
@@ -104,9 +100,7 @@ export default function Customer({ customers = [], stocks = [] }) {
         ? new Set((selectedCustomer.invoices || []).map((inv) => inv.stock_id))
         : new Set();
 
-    const soldTotal =
-        selectedVehicles.reduce((sum, v) => sum + (parseFloat(v.amount) || 0), 0) +
-        (selectedCustomer?.invoices || []).reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0);
+    const invoiceNo = `INV-${(selectedCustomer?.invoices?.length || 0) + 1}`;
 
     return (
         <div className="flex h-screen flex-col overflow-hidden">
@@ -249,21 +243,24 @@ export default function Customer({ customers = [], stocks = [] }) {
                                         </tbody>
                                     </table>
                                 </div>
-                                {(selectedVehicles.length > 0 || (selectedCustomer.invoices || []).length > 0) && (
-                                    <div className="flex items-center justify-between border-t border-[#19140035] px-4 py-3 dark:border-[#3E3E3A]">
-                                        <span className="text-xs font-semibold text-[#706f6c] dark:text-[#A1A09A]">Total: <span className="text-green-600">{soldTotal}</span></span>
-                                        {selectedVehicles.length > 0 && (
-                                            <button
-                                                onClick={handleSaveInvoice}
-                                                disabled={processing}
-                                                className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"
-                                            >
-                                                Save Sale
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
                             </div>
+
+                            {selectedVehicles.length > 0 && (
+                                <Invoice
+                                    customer={selectedCustomer}
+                                    lines={selectedVehicles}
+                                    invoiceNo={invoiceNo}
+                                    date={invoiceDate}
+                                    showSave
+                                    saving={processing}
+                                    onSave={handleSaveInvoice}
+                                    onClose={() => setSelectedVehicles([])}
+                                    onAmountChange={handleAmountChange}
+                                    onRemove={handleRemoveVehicle}
+                                    stocks={stocks}
+                                    onAddVehicle={handleSelectVehicle}
+                                />
+                            )}
                         </>
                     )}
                 </div>
@@ -290,17 +287,9 @@ export default function Customer({ customers = [], stocks = [] }) {
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-semibold">{stock.name}</p>
                                                 <p className="truncate text-xs text-[#706f6c] dark:text-[#A1A09A]">
-                                                    {stock.company || stock.shopname || 'No details'}
+                                                    {stock.company || stock.shopname || 'No details'} - {parseFloat(stock.price)}
                                                 </p>
                                             </div>
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={modalAmounts[stock.id] ?? ''}
-                                                onChange={(e) => setModalAmounts((prev) => ({ ...prev, [stock.id]: e.target.value }))}
-                                                className="w-24 rounded-md border border-[#19140035] bg-white px-2 py-1 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                                placeholder="Amount"
-                                            />
                                             <button
                                                 onClick={() => handleSelectVehicle(stock)}
                                                 className="rounded-md bg-[#00447C] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f]"
