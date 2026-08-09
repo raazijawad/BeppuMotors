@@ -30,7 +30,7 @@ export default function Invoice({ customer, lines = [], invoiceNo = '', date = '
                 @page { size: A5 portrait; margin: 0; }
                 html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
                 body > *:not([data-print-target="${uid}"]) { display: none !important; }
-                [data-print-target="${uid}"] { display: block !important; position: relative !important; inset: auto !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 auto !important; width: 148mm !important; box-sizing: border-box !important; }
+                [data-print-target="${uid}"] { display: block !important; position: relative !important; inset: auto !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 auto !important; width: 148mm !important; box-sizing: border-box !important; transform: none !important; transform-origin: top center !important; }
                 [data-print-target="${uid}"] .no-print { display: none !important; }
             }
         `;
@@ -51,7 +51,7 @@ export default function Invoice({ customer, lines = [], invoiceNo = '', date = '
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-neutral-900/80 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-[560px]">
+            <div className="w-full max-w-[560px] -translate-y-5">
                 <div className="mb-1 flex items-center justify-between no-print">
                     <h2 className="text-sm font-bold text-white">New Sales Invoice</h2>
                     <div className="flex items-center gap-1.5">
@@ -75,7 +75,7 @@ export default function Invoice({ customer, lines = [], invoiceNo = '', date = '
                     </div>
                 </div>
 
-                <div className="rounded-lg bg-white shadow-2xl" ref={invoiceRef}>
+                <div className="origin-top-center scale-[0.9] rounded-lg bg-white shadow-2xl" ref={invoiceRef}>
                     <div className="p-2" style={{ fontFamily: "'Inter', sans-serif" }}>
                         <div className="mb-1 flex items-center justify-between">
                             <div className="flex items-center gap-1">
