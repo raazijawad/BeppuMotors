@@ -43,8 +43,7 @@ export default function Customer({ customers = [], stocks = [] }) {
 
     // add vehicle to invoice function
     const handleSelectVehicle = (stock) => {
-        const amount = Number(stock.price) || Number(stock.n_price) || '';
-        setSelectedVehicles((prev) => [...prev, { ...stock, amount }]);
+        setSelectedVehicles((prev) => [...prev, { ...stock, amount: '' }]);
         setShowSaleModal(false);
     };
 

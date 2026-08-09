@@ -52,8 +52,7 @@ export default function Invoice({ customer, lines = [], invoiceNo = '', date = '
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-neutral-900/80 p-4 backdrop-blur-sm">
             <div className="w-full max-w-[560px] -translate-y-5">
-                <div className="mb-1 flex items-center justify-between no-print">
-                    <h2 className="text-sm font-bold text-white">New Sales Invoice</h2>
+                <div className="mb-1 flex items-center justify-end no-print">
                     <div className="flex items-center gap-1.5">
                         <button onClick={handlePrint} className="rounded-lg bg-emerald-600 p-1 text-white transition-colors hover:bg-emerald-700" title="Print Invoice">
                             <Printer size={12} />
