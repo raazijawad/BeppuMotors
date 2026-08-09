@@ -19,6 +19,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('customers/{customer}/invoices', [CustomerController::class, 'storeInvoices'])->name('customers.invoices.store');
     Route::delete('invoices/{invoice}', [CustomerController::class, 'destroyInvoice'])->name('invoices.destroy');
 
+    Route::inertia('profile', 'profile')->name('profile');
+
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
     Route::get('incomes', [IncomeController::class, 'index'])->name('incomes.index');

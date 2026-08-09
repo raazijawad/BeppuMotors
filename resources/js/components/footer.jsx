@@ -1,10 +1,11 @@
+import { Link } from '@inertiajs/react';
 import { Home, ShoppingCart, Package, User } from 'lucide-react';
 
 const navLinks = [
     { name: 'Home', icon: Home, href: '/' },
     { name: 'Orders', icon: ShoppingCart, href: '/my-orders' },
     { name: 'Inventory', icon: Package, href: '/stock' },
-    { name: 'Profile', icon: User, href: '/user/profile' },
+    { name: 'Profile', icon: User, href: '/profile' },
 ];
 
 export default function Footer() {
@@ -30,7 +31,7 @@ export default function Footer() {
                 <div className="flex items-center justify-center">
                     <div className="grid grid-cols-4 gap-2 md:gap-4">
                         {navLinks.map((link) => (
-                            <a
+                            <Link
                                 key={link.name}
                                 href={link.href}
                                 className="group relative flex flex-col items-center gap-1.5 p-2"
@@ -45,7 +46,7 @@ export default function Footer() {
                                 </span>
 
                                 <div className="absolute bottom-1 left-1/2 h-px w-0 -translate-x-1/2 bg-gradient-to-r from-transparent via-blue-400 to-transparent transition-all duration-500 group-hover:w-8"></div>
-                            </a>
+                            </Link>
                         ))}
                     </div>
                 </div>
