@@ -12,7 +12,7 @@ class StockController extends Controller
 {
     public function index(Request $request): Response
     {
-        $stocks = Stock::where('user_id', $request->user()->id)->latest()->get();
+        $stocks = Stock::latest()->get();
 
         return Inertia::render('stock', [
             'stocks' => $stocks,

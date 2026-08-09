@@ -14,12 +14,9 @@ class CustomerController extends Controller
 {
     public function index(Request $request): Response
     {
-        $customers = Customer::where('user_id', $request->user()->id)
-            ->with('invoices.stock')
-            ->latest()
-            ->get();
+        $customers = Customer::with('invoices.stock')->latest()->get();
 
-        $stocks = Stock::where('user_id', $request->user()->id)->latest()->get();
+        $stocks = Stock::latest()->get();
 
         return Inertia::render('customer', [
             'customers' => $customers,
