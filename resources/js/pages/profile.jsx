@@ -5,6 +5,7 @@ import Footer from '@/components/footer';
 export default function Profile() {
     const { auth } = usePage().props;
     const [passwordUpdated, setPasswordUpdated] = useState(false);
+    const [showPasswordForm, setShowPasswordForm] = useState(false);
 
     const { data, setData, put, processing, errors, reset } = useForm({
         current_password: '',
@@ -69,77 +70,102 @@ export default function Profile() {
                     </div>
 
                     <div className="rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
-                        <div className="border-b border-[#19140035] px-4 py-3 dark:border-[#3E3E3A]">
+                        <div className="flex items-center justify-between px-4 py-3">
                             <h2 className="text-sm font-semibold">Change Password</h2>
-                        </div>
-                        <form onSubmit={handleUpdatePassword} className="flex flex-col gap-3 px-4 py-4">
-                            {passwordUpdated && (
-                                <p className="rounded-md bg-green-50 px-3 py-2 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300">
-                                    Password updated successfully.
-                                </p>
-                            )}
-
-                            <div>
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">
-                                    Current Password
-                                </label>
-                                <input
-                                    type="password"
-                                    value={data.current_password}
-                                    onChange={(e) => setData('current_password', e.target.value)}
-                                    className={inputClass}
-                                    autoComplete="current-password"
-                                    required
-                                />
-                                {errors.current_password && (
-                                    <p className="mt-1 text-[10px] text-red-600">{errors.current_password}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">
-                                    New Password
-                                </label>
-                                <input
-                                    type="password"
-                                    value={data.password}
-                                    onChange={(e) => setData('password', e.target.value)}
-                                    className={inputClass}
-                                    autoComplete="new-password"
-                                    required
-                                />
-                                {errors.password && (
-                                    <p className="mt-1 text-[10px] text-red-600">{errors.password}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">
-                                    Confirm New Password
-                                </label>
-                                <input
-                                    type="password"
-                                    value={data.password_confirmation}
-                                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                                    className={inputClass}
-                                    autoComplete="new-password"
-                                    required
-                                />
-                                {errors.password_confirmation && (
-                                    <p className="mt-1 text-[10px] text-red-600">{errors.password_confirmation}</p>
-                                )}
-                            </div>
-
-                            <div className="flex gap-2 pt-2">
+                            {!showPasswordForm && (
                                 <button
-                                    type="submit"
-                                    disabled={processing}
-                                    className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"
+                                    type="button"
+                                    onClick={() => {
+                                        setShowPasswordForm(true);
+                                        setPasswordUpdated(false);
+                                    }}
+                                    className="rounded-md bg-[#00447C] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f]"
                                 >
-                                    {processing ? 'Saving...' : 'Update Password'}
+                                    Change Password
                                 </button>
-                            </div>
-                        </form>
+                            )}
+                        </div>
+                        {showPasswordForm && (
+                            <form onSubmit={handleUpdatePassword} className="flex flex-col gap-3 border-t border-[#19140035] px-4 py-4 dark:border-[#3E3E3A]">
+                                {passwordUpdated && (
+                                    <p className="rounded-md bg-green-50 px-3 py-2 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300">
+                                        Password updated successfully.
+                                    </p>
+                                )}
+
+                                <div>
+                                    <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">
+                                        Current Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={data.current_password}
+                                        onChange={(e) => setData('current_password', e.target.value)}
+                                        className={inputClass}
+                                        autoComplete="current-password"
+                                        required
+                                    />
+                                    {errors.current_password && (
+                                        <p className="mt-1 text-[10px] text-red-600">{errors.current_password}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">
+                                        New Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={data.password}
+                                        onChange={(e) => setData('password', e.target.value)}
+                                        className={inputClass}
+                                        autoComplete="new-password"
+                                        required
+                                    />
+                                    {errors.password && (
+                                        <p className="mt-1 text-[10px] text-red-600">{errors.password}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">
+                                        Confirm New Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={data.password_confirmation}
+                                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                                        className={inputClass}
+                                        autoComplete="new-password"
+                                        required
+                                    />
+                                    {errors.password_confirmation && (
+                                        <p className="mt-1 text-[10px] text-red-600">{errors.password_confirmation}</p>
+                                    )}
+                                </div>
+
+                                <div className="flex gap-2 pt-2">
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"
+                                    >
+                                        {processing ? 'Saving...' : 'Update Password'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowPasswordForm(false);
+                                            reset();
+                                            setPasswordUpdated(false);
+                                        }}
+                                        className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A] md:text-sm"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        )}
                     </div>
 
                     <button

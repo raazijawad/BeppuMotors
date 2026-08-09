@@ -8,6 +8,7 @@ export default function Customer({ customers = [], stocks = [] }) {
     const [showSaleModal, setShowSaleModal] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [selectedVehicles, setSelectedVehicles] = useState([]);
+    const [viewInvoice, setViewInvoice] = useState(null);
 
     const today = new Date().toISOString().slice(0, 10);
     const [invoiceDate, setInvoiceDate] = useState(today);
