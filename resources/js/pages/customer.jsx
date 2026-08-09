@@ -70,8 +70,10 @@ export default function Customer({ customers = [], stocks = [] }) {
             `/customers/${selectedCustomer.id}/invoices`,
             { lines, date: invoiceDate },
             {
-                onSuccess: () => {
+                onSuccess: (page) => {
                     setSelectedVehicles([]);
+                    const fresh = (page.props.customers || []).find((c) => c.id === selectedCustomer.id);
+                    if (fresh) setSelectedCustomer(fresh);
                 },
             },
         );
