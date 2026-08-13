@@ -6,6 +6,14 @@ export default function Invoice({ customer, lines = [], invoiceNo = '', date = '
     const invoiceRef = useRef(null);
     const [showAddRow, setShowAddRow] = useState(false);
     const [discount, setDiscount] = useState('');
+    const [focusedAmountId, setFocusedAmountId] = useState(null);
+
+    const formatAmount = (val) => {
+        if (val === '' || val === null || val === undefined) return '';
+        const n = parseFloat(val);
+        if (isNaN(n)) return val;
+        return String(Number(n.toFixed(2)));
+    };
 
     const splitAmount = (amount) => {
         const a = parseFloat(amount) || 0;
@@ -167,18 +175,22 @@ export default function Invoice({ customer, lines = [], invoiceNo = '', date = '
                                                 <td className="border border-black p-0">
                                                     <input
                                                         type="text"
-                                                        value={l ? l.amount : ''}
+                                                        value={l ? (focusedAmountId === l.id ? l.amount : formatAmount(l.amount)) : ''}
                                                         readOnly={!l}
                                                         onChange={(e) => onAmountChange(l.id, e.target.value)}
+                                                        onFocus={() => l && setFocusedAmountId(l.id)}
+                                                        onBlur={() => setFocusedAmountId(null)}
                                                         className="w-full px-1 py-0.5 text-right text-[15px] outline-none"
                                                     />
                                                 </td>
                                                 <td className="border border-black p-0">
                                                     <input
                                                         type="text"
-                                                        value={l ? l.amount : ''}
+                                                        value={l ? (focusedAmountId === l.id ? l.amount : formatAmount(l.amount)) : ''}
                                                         readOnly={!l}
                                                         onChange={(e) => onAmountChange(l.id, e.target.value)}
+                                                        onFocus={() => l && setFocusedAmountId(l.id)}
+                                                        onBlur={() => setFocusedAmountId(null)}
                                                         className="w-full px-0 py-0.5 text-right text-[15px] outline-none"
                                                     />
                                                 </td>

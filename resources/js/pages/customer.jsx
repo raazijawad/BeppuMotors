@@ -221,13 +221,21 @@ export default function Customer({ customers = [], stocks = [] }) {
                                                     </tr>
                                                 ))}
                                             {(selectedCustomer.invoices || []).map((inv) => (
-                                                <tr key={inv.id} className="border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50">
+                                                <tr
+                                                    key={inv.id}
+                                                    onClick={() => setViewInvoice(inv)}
+                                                    className="cursor-pointer border-b border-[#19140035]/50 hover:bg-gray-50 dark:border-[#3E3E3A]/50 dark:hover:bg-[#1a1a19]"
+                                                    title="View invoice"
+                                                >
                                                     <td className="px-2 py-1.5">{inv.date}</td>
                                                     <td className="px-2 py-1.5 font-medium">{inv.stock?.name || 'Vehicle'}</td>
                                                     <td className="px-2 py-1.5">{parseFloat(inv.amount)}</td>
                                                     <td className="px-2 py-1.5 text-right">
                                                         <button
-                                                            onClick={() => handleDeleteInvoice(inv)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteInvoice(inv);
+                                                            }}
                                                             className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
                                                         >
                                                             Delete
@@ -261,6 +269,23 @@ export default function Customer({ customers = [], stocks = [] }) {
                                     onRemove={handleRemoveVehicle}
                                     stocks={stocks}
                                     onAddVehicle={handleSelectVehicle}
+                                />
+                            )}
+
+                            {viewInvoice && (
+                                <Invoice
+                                    customer={selectedCustomer}
+                                    lines={[
+                                        {
+                                            ...(viewInvoice.stock || {}),
+                                            id: viewInvoice.stock_id,
+                                            name: viewInvoice.stock?.name || 'Vehicle',
+                                            amount: viewInvoice.amount,
+                                        },
+                                    ]}
+                                    invoiceNo={`INV-${viewInvoice.id}`}
+                                    date={viewInvoice.date}
+                                    onClose={() => setViewInvoice(null)}
                                 />
                             )}
                         </>
