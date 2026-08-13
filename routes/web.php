@@ -6,7 +6,10 @@ use App\Http\Controllers\DrawerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
+Route::inertia('pending', 'auth/pending')->name('registration.pending');
 
 Route::middleware(['auth'])->group(function () {
     Route::inertia('/', 'home')->name('home');
@@ -39,6 +42,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('drawers', [DrawerController::class, 'store'])->name('drawers.store');
     Route::put('drawers/{drawer}', [DrawerController::class, 'update'])->name('drawers.update');
     Route::delete('drawers/{drawer}', [DrawerController::class, 'destroy'])->name('drawers.destroy');
+
+    Route::middleware(['admin'])->prefix('admin')->group(function () {
+        Route::get('users', [UserController::class, 'index'])->name('admin.users');
+        Route::post('users/{user}/approve', [UserController::class, 'approve'])->name('admin.users.approve');
+        Route::post('users/{user}/reject', [UserController::class, 'reject'])->name('admin.users.reject');
+    });
 });
 
 require __DIR__.'/settings.php';

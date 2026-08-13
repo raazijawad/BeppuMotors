@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@gmail.com',
             'password' => 'admin123',
             'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
         ]);
     }
 }

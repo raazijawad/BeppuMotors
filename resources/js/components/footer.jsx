@@ -1,10 +1,10 @@
 import { Link } from '@inertiajs/react';
-import { Home, ShoppingCart, Package, User } from 'lucide-react';
+import { Home, ShoppingCart, User, UserCheck } from 'lucide-react';
 
 const navLinks = [
     { name: 'Home', icon: Home, href: '/' },
     { name: 'Orders', icon: ShoppingCart, href: '/my-orders' },
-    { name: 'Inventory', icon: Package, href: '/stock' },
+    { name: 'User', icon: UserCheck, href: '/admin/users' },
     { name: 'Profile', icon: User, href: '/profile' },
 ];
 

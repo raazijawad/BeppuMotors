@@ -65,6 +65,34 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_pending_users_can_not_authenticate()
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_PENDING,
+        ]);
+
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+    }
+
+    public function test_rejected_users_can_not_authenticate()
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_REJECTED,
+        ]);
+
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+    }
+
     public function test_users_can_logout()
     {
         $user = User::factory()->create();
