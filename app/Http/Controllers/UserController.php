@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -40,6 +41,24 @@ class UserController extends Controller
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => "{$user->name} has been rejected.",
+        ]);
+
+        return back();
+    }
+
+    public function updatePassword(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'password' => ['required', 'string', Password::default(), 'confirmed'],
+        ]);
+
+        $user->forceFill([
+            'password' => $validated['password'],
+        ])->save();
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => "Password for {$user->name} has been updated.",
         ]);
 
         return back();

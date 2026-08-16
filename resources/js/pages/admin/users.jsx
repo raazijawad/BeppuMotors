@@ -1,7 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Check, X } from 'lucide-react';
+import { Check, Key, X } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
+import PasswordInput from '@/components/password-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,6 +12,16 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 
 const statusLabels = {
@@ -29,6 +40,10 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
     useFlashToast();
 
     const [processingId, setProcessingId] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [password, setPassword] = useState('');
+    const [passwordConfirmation, setPasswordConfirmation] = useState('');
+    const [passwordErrors, setPasswordErrors] = useState({});
 
     const handleApprove = (user) => {
         if (processingId) {
@@ -64,6 +79,39 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
                 onFinish: () => setProcessingId(null),
             },
         );
+    };
+
+    const handlePasswordChange = () => {
+        if (!selectedUser || !password) {
+            return;
+        }
+
+        setPasswordErrors({});
+        router.put(
+            `/admin/users/${selectedUser.id}/password`,
+            {
+                password,
+                password_confirmation: passwordConfirmation,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setSelectedUser(null);
+                    setPassword('');
+                    setPasswordConfirmation('');
+                },
+                onError: (errors) => {
+                    setPasswordErrors(errors);
+                },
+            },
+        );
+    };
+
+    const openPasswordDialog = (user) => {
+        setSelectedUser(user);
+        setPassword('');
+        setPasswordConfirmation('');
+        setPasswordErrors({});
     };
 
     const pendingUsers = users.filter((user) => user.status === 'pending');
@@ -183,7 +231,10 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
                                     {otherUsers.map((user) => (
                                         <div
                                             key={user.id}
-                                            className="flex items-center justify-between gap-2 rounded-lg border p-2.5 sm:gap-3 sm:p-4"
+                                            className="flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-2.5 transition-colors hover:bg-muted sm:gap-3 sm:p-4"
+                                            onClick={() =>
+                                                openPasswordDialog(user)
+                                            }
                                         >
                                             <div className="min-w-0 flex-1">
                                                 <p className="truncate text-xs font-medium sm:text-base">
@@ -208,9 +259,10 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
                                                         size="sm"
                                                         variant="outline"
                                                         className="h-6 px-2 text-[11px]"
-                                                        onClick={() =>
-                                                            handleApprove(user)
-                                                        }
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleApprove(user);
+                                                        }}
                                                         disabled={
                                                             processingId !==
                                                             null
@@ -230,6 +282,78 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
                 </div>
             </main>
             <Footer />
+
+            <Dialog
+                open={!!selectedUser}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setSelectedUser(null);
+                        setPassword('');
+                        setPasswordConfirmation('');
+                        setPasswordErrors({});
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Change Password</DialogTitle>
+                        <DialogDescription>
+                            Set a new password for{' '}
+                            <span className="font-medium text-foreground">
+                                {selectedUser?.name}
+                            </span>
+                            .
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-2">
+                        <div className="grid gap-2">
+                            <Label htmlFor="new-password">
+                                New password
+                            </Label>
+                            <PasswordInput
+                                id="new-password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="Enter new password"
+                            />
+                            {passwordErrors.password && (
+                                <p className="text-sm text-destructive">
+                                    {passwordErrors.password}
+                                </p>
+                            )}
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="confirm-password">
+                                Confirm password
+                            </Label>
+                            <Input
+                                id="confirm-password"
+                                type="password"
+                                value={passwordConfirmation}
+                                onChange={(e) =>
+                                    setPasswordConfirmation(e.target.value)
+                                }
+                                placeholder="Confirm new password"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setSelectedUser(null)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handlePasswordChange}
+                            disabled={!password || !passwordConfirmation}
+                        >
+                            <Key className="mr-1 h-4 w-4" />
+                            Update Password
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

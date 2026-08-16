@@ -47,6 +47,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('users', [UserController::class, 'index'])->name('admin.users');
         Route::post('users/{user}/approve', [UserController::class, 'approve'])->name('admin.users.approve');
         Route::post('users/{user}/reject', [UserController::class, 'reject'])->name('admin.users.reject');
+        Route::put('users/{user}/password', [UserController::class, 'updatePassword'])->name('admin.users.password');
     });
 });
 
