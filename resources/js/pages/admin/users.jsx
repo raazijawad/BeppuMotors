@@ -139,6 +139,7 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
                                             <div className="flex shrink-0 gap-2">
                                                 <Button
                                                     size="sm"
+                                                    className="h-7 px-2.5 text-xs"
                                                     onClick={() =>
                                                         handleApprove(user)
                                                     }
@@ -153,6 +154,7 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
                                                 <Button
                                                     size="sm"
                                                     variant="destructive"
+                                                    className="h-7 px-2.5 text-xs"
                                                     onClick={() =>
                                                         handleReject(user)
                                                     }
@@ -176,22 +178,22 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
                             <CardHeader>
                                 <CardTitle>All users</CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <div className="grid gap-3">
+                            <CardContent className="px-3 sm:px-6">
+                                <div className="grid gap-2 sm:gap-3">
                                     {otherUsers.map((user) => (
                                         <div
                                             key={user.id}
-                                            className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+                                            className="flex items-center justify-between gap-2 rounded-lg border p-2.5 sm:gap-3 sm:p-4"
                                         >
-                                            <div className="min-w-0">
-                                                <p className="truncate font-medium">
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate text-xs font-medium sm:text-base">
                                                     {user.name}
                                                 </p>
-                                                <p className="truncate text-sm text-muted-foreground">
+                                                <p className="truncate text-[11px] text-muted-foreground sm:text-sm">
                                                     {user.email}
                                                 </p>
                                             </div>
-                                            <div className="flex shrink-0 items-center gap-2">
+                                            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
                                                 <Badge
                                                     variant={
                                                         statusVariants[
@@ -205,6 +207,7 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
+                                                        className="h-6 px-2 text-[11px]"
                                                         onClick={() =>
                                                             handleApprove(user)
                                                         }
