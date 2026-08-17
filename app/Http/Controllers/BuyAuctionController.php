@@ -43,4 +43,11 @@ class BuyAuctionController extends Controller
         $buyAuction->delete();
         return back();
     }
+
+    public function paid(BuyAuction $buyAuction): RedirectResponse
+    {
+        $buyAuction->update(['paid' => true]);
+
+        return back();
+    }
 }

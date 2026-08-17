@@ -9,7 +9,11 @@ class BuyAuction extends Model
 {
     protected $fillable = [
         'date', 'vehicle_name', 'company', 'colour', 'shopname',
-        'chassisnumber', 'description', 'for_who', 'price',
+        'chassisnumber', 'description', 'for_who', 'price', 'paid',
+    ];
+
+    protected $casts = [
+        'paid' => 'boolean',
     ];
 
     public function user(): BelongsTo
