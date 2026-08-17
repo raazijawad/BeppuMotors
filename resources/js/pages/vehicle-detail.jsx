@@ -6,6 +6,7 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const [selectedDay, setSelectedDay] = useState(today);
+    const [filterDate, setFilterDate] = useState('');
 
     const showList = view === 'list';
     const [showForm, setShowForm] = useState(false);
@@ -21,9 +22,12 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
         const newDate = e.target.value;
         setSelectedDay(newDate);
         setData('date', newDate);
-        const viewParam = showList ? '&view=list' : '';
-        router.get(`/vehicle-detail?date=${newDate}${viewParam}`, {}, { preserveState: true });
+        setFilterDate(newDate);
     };
+
+    const filteredIncomes = filterDate
+        ? incomes.filter((v) => v.date === filterDate)
+        : incomes;
 
     const handleAddIncome = (e) => {
         e.preventDefault();
@@ -57,13 +61,21 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-8 px-6 pt-4 pb-6 md:pt-8">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <input
                             type="date"
                             value={selectedDay}
                             onChange={handleDateChange}
                             className="rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                         />
+                        {filterDate && (
+                            <button
+                                onClick={() => { setFilterDate(''); setSelectedDay(today); }}
+                                className="rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm font-medium dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                            >
+                                Reset
+                            </button>
+                        )}
                     </div>
 
                     {showList ? (
@@ -77,7 +89,7 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                                     + Add Income
                                 </button>
                             </div>
-                            {incomes.length === 0 ? (
+                            {filteredIncomes.length === 0 ? (
                                 <p className="text-xs text-[#706f6c] dark:text-[#A1A09A] md:text-sm">No income added yet.</p>
                             ) : (
                                 <div className="flex flex-col gap-0">
@@ -87,7 +99,7 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                                         <div className="flex-1 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Details</div>
                                         <div className="w-20 text-right text-[10px] font-semibold text-green-600 md:w-24 md:text-xs">Amount</div>
                                     </div>
-                                    {incomes.map((v) => (
+                                    {filteredIncomes.map((v) => (
                                         <div key={v.id} className="flex items-center border-b border-[#19140035]/50 py-1 dark:border-[#3E3E3A]/50">
                                             <div className="w-20 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">{v.date || ''}</div>
                                             <div className="w-14 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">
@@ -135,7 +147,7 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Customers</span>
                             </Link>
-                            {['Oction'].map((label, i) => (
+                            {['Auction'].map((label, i) => (
                                 <div
                                     key={i + 2}
                                     className="flex h-44 items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:h-28"

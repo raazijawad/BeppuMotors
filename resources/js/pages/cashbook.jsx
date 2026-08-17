@@ -261,6 +261,14 @@ export default function Cashbook({ entries = [], drawers = [], selectedMonth = n
                                         onChange={(e) => setDrawerDate(e.target.value)}
                                         className="w-full cursor-pointer bg-transparent text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs"
                                     />
+                                    {drawerDate !== today && (
+                                        <button
+                                            onClick={() => setDrawerDate(today)}
+                                            className="mt-1 text-[9px] font-medium text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white md:text-[10px]"
+                                        >
+                                            Reset
+                                        </button>
+                                    )}
                                 </div>
                                 <div className="flex-1 px-3 py-2 text-center text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Amount</div>
                             </div>
