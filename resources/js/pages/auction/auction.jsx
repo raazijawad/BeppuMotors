@@ -16,16 +16,20 @@ export default function Auction() {
                     </span>
                 </div>
             </nav>
-            <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-20 md:gap-6 md:pt-8">
-                    <div className="flex gap-4 pt-4">
-                        <button className="flex-1 rounded-lg bg-gradient-to-r from-[#00447C] to-[#00284a] px-6 py-3 text-sm font-semibold text-white shadow-md hover:opacity-90">
-                            Buy
-                        </button>
-                        <button className="flex-1 rounded-lg border border-[#00447C] px-6 py-3 text-sm font-semibold text-[#00447C] shadow-md hover:bg-[#00447C] hover:text-white">
-                            Sell
-                        </button>
-                    </div>
+            <main className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-[#FDFDFC] pb-20 text-[#1b1b18] dark:bg-[#0a0a0a]">
+                <div className="flex w-full max-w-md flex-col gap-4 px-6 md:flex-row md:gap-6 md:px-10">
+                    <Link
+                        href="/auction/buy"
+                        className="flex h-32 items-center justify-center rounded-lg bg-gradient-to-r from-[#00447C] to-[#00284a] text-sm font-semibold text-white shadow-md hover:opacity-90 md:h-36"
+                    >
+                        Buy
+                    </Link>
+                    <Link
+                        href="/auction/sell"
+                        className="flex h-32 items-center justify-center rounded-lg border border-[#00447C] text-sm font-semibold text-[#00447C] shadow-md hover:bg-[#00447C] hover:text-white md:h-36"
+                    >
+                        Sell
+                    </Link>
                 </div>
             </main>
             <Footer />

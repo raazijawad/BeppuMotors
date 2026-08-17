@@ -16,7 +16,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('vehicle-detail', [IncomeController::class, 'index'])->name('vehicle-detail');
     Route::get('cashbook', [CashBookController::class, 'index'])->name('cashbook');
     Route::inertia('drawer', 'drawer')->name('drawer');
-    Route::inertia('auction', 'auction')->name('auction');
+    Route::inertia('auction', 'auction/auction')->name('auction');
+    Route::get('auction/buy', [\App\Http\Controllers\BuyAuctionController::class, 'index'])->name('auction.buy');
+    Route::post('auction/buy', [\App\Http\Controllers\BuyAuctionController::class, 'store'])->name('auction.buy.store');
+    Route::inertia('auction/sell', 'auction/SellAuction')->name('auction.sell');
     Route::get('customer', [CustomerController::class, 'index'])->name('customer');
     Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
