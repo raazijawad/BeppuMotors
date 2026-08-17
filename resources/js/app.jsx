@@ -18,6 +18,7 @@ createInertiaApp({
                 name === 'expenses' ||
                 name === 'cashbook' ||
                 name === 'drawer' ||
+                name === 'auction' ||
                 name === 'stock' ||
                 name === 'customer' ||
                 name === 'profile' ||
