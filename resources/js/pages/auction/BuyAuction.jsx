@@ -42,9 +42,9 @@ export default function BuyAuction({ buyAuctions = [] }) {
                 </div>
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 pt-4 pb-6 sm:px-6 md:px-8 md:pt-6 lg:px-10">
+                <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pt-4 pb-6 sm:px-6 md:px-8 md:pt-6 lg:px-12">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-base">Buy Auction Items</span>
+                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Buy Auction Items</span>
                         <button
                             onClick={() => setShowForm(true)}
                             className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
@@ -54,37 +54,37 @@ export default function BuyAuction({ buyAuctions = [] }) {
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
-                        <table className="w-full text-left text-[10px] md:text-xs lg:text-sm">
+                        <table className="w-full text-left text-[10px] md:text-xs">
                             <thead className="border-b border-[#19140035] dark:border-[#3E3E3A]">
                                 <tr className="bg-[#FDFDFC] dark:bg-[#0a0a0a]">
-                                    <th className="px-2 py-2 md:px-3 lg:px-4 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Date</th>
-                                    <th className="px-2 py-2 md:px-3 lg:px-4 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Vehicle Name</th>
-                                    <th className="px-2 py-2 md:px-3 lg:px-4 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Company</th>
-                                    <th className="px-2 py-2 md:px-3 lg:px-4 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Colour</th>
-                                    <th className="px-2 py-2 md:px-3 lg:px-4 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Shop Name</th>
-                                    <th className="px-2 py-2 md:px-3 lg:px-4 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Chassis Number</th>
-                                    <th className="px-2 py-2 md:px-3 lg:px-4 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Description</th>
-                                    <th className="px-2 py-2 md:px-3 lg:px-4 font-semibold text-[#706f6c] dark:text-[#A1A09A]">For Who</th>
-                                    <th className="px-2 py-2 md:px-3 lg:px-4 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Price</th>
+                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Date</th>
+                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Vehicle Name</th>
+                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Company</th>
+                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Colour</th>
+                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Shop Name</th>
+                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Chassis Number</th>
+                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Description</th>
+                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">For Who</th>
+                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Price</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {buyAuctions.length === 0 ? (
                                     <tr>
-                                        <td colSpan={9} className="px-2 py-6 text-center text-[#706f6c] dark:text-[#A1A09A]">No buy auction items yet.</td>
+                                        <td colSpan={9} className="px-3 py-6 text-center text-[#706f6c] dark:text-[#A1A09A]">No buy auction items yet.</td>
                                     </tr>
                                 ) : (
                                     buyAuctions.map((item) => (
                                         <tr key={item.id} className="border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 hover:bg-gray-50 dark:hover:bg-[#1a1a19]">
-                                            <td className="px-2 py-1.5 md:px-3 lg:px-4">{item.date}</td>
-                                            <td className="px-2 py-1.5 md:px-3 lg:px-4 font-medium">{item.vehicle_name}</td>
-                                            <td className="px-2 py-1.5 md:px-3 lg:px-4">{item.company}</td>
-                                            <td className="px-2 py-1.5 md:px-3 lg:px-4">{item.colour}</td>
-                                            <td className="px-2 py-1.5 md:px-3 lg:px-4">{item.shopname}</td>
-                                            <td className="px-2 py-1.5 md:px-3 lg:px-4">{item.chassisnumber}</td>
-                                            <td className="px-2 py-1.5 md:px-3 lg:px-4 max-w-[120px] truncate">{item.description}</td>
-                                            <td className="px-2 py-1.5 md:px-3 lg:px-4">{item.for_who}</td>
-                                            <td className="px-2 py-1.5 md:px-3 lg:px-4 font-semibold text-green-600">{parseFloat(item.price)}</td>
+                                            <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.date}</td>
+                                            <td className="px-3 py-1.5 md:px-4 lg:px-5 font-medium">{item.vehicle_name}</td>
+                                            <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.company}</td>
+                                            <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.colour}</td>
+                                            <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.shopname}</td>
+                                            <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.chassisnumber}</td>
+                                            <td className="px-3 py-1.5 md:px-4 lg:px-5 max-w-[120px] truncate">{item.description}</td>
+                                            <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.for_who}</td>
+                                            <td className="px-3 py-1.5 md:px-4 lg:px-5 font-semibold text-green-600">{parseFloat(item.price)}</td>
                                         </tr>
                                     ))
                                 )}
