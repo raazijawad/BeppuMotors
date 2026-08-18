@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('auction/buy', [\App\Http\Controllers\BuyAuctionController::class, 'index'])->name('auction.buy');
     Route::post('auction/buy', [\App\Http\Controllers\BuyAuctionController::class, 'store'])->name('auction.buy.store');
     Route::post('auction/buy/{buyAuction}/paid', [\App\Http\Controllers\BuyAuctionController::class, 'paid'])->name('auction.buy.paid');
+    Route::delete('auction/buy/{buyAuction}', [\App\Http\Controllers\BuyAuctionController::class, 'destroy'])->name('auction.buy.destroy');
     Route::inertia('auction/sell', 'auction/SellAuction')->name('auction.sell');
     Route::get('customer', [CustomerController::class, 'index'])->name('customer');
     Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
