@@ -34,13 +34,14 @@ class BuyAuctionController extends Controller
             'price' => 'required|numeric|min:0',
         ]);
 
-        $request->user()->buyAuctions()->create($validated);
+        $buyAuction = $request->user()->buyAuctions()->create($validated);
 
         $request->user()->expenses()->create([
             'expense_name' => $validated['vehicle_name'],
             'amount' => $validated['price'],
             'description' => $validated['description'] ?? null,
             'date' => $validated['date'],
+            'buy_auction_id' => $buyAuction->id,
         ]);
 
         return back();
@@ -48,12 +49,7 @@ class BuyAuctionController extends Controller
 
     public function destroy(BuyAuction $buyAuction): RedirectResponse
     {
-        Expense::where('user_id', $buyAuction->user_id)
-            ->where('expense_name', $buyAuction->vehicle_name)
-            ->where('date', $buyAuction->date)
-            ->where('amount', $buyAuction->price)
-            ->delete();
-
+        Expense::where('buy_auction_id', $buyAuction->id)->delete();
         $buyAuction->delete();
         return back();
     }

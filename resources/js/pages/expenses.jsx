@@ -1,5 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Car } from 'lucide-react';
+import { Car, Gavel } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
@@ -12,6 +12,7 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
     const [editingExpense, setEditingExpense] = useState(null);
     const [showStockFields, setShowStockFields] = useState(false);
     const [filterDate, setFilterDate] = useState('');
+    const [auctionData, setAuctionData] = useState(null);
 
     const { data, setData, post, put, processing, reset } = useForm({
         expense_name: '',
@@ -41,7 +42,9 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
     const openEditForm = (expense) => {
         setEditingExpense(expense);
         const stock = expense.stock;
+        const auction = expense.buyAuction || expense.buy_auction;
         setShowStockFields(!!stock);
+        setAuctionData(auction || null);
         setData({
             expense_name: expense.expense_name,
             amount: expense.amount,
@@ -324,6 +327,54 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                     </div>
                                 )}
                             </div>
+                            {auctionData && (
+                                <div className="mb-4 rounded-lg border border-[#19140035] bg-gray-50 p-4 dark:border-[#3E3E3A] dark:bg-[#1a1a19]">
+                                    <div className="mb-3 flex items-center gap-2">
+                                        <Gavel className="h-4 w-4 text-[#00447C]" />
+                                        <p className="text-xs font-semibold text-[#706f6c] dark:text-[#A1A09A]">Auction Details</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                                        <div>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Company</p>
+                                            <p className="text-xs font-medium">{auctionData.company || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Colour</p>
+                                            <p className="text-xs font-medium">{auctionData.colour || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Shop Name</p>
+                                            <p className="text-xs font-medium">{auctionData.shopname || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Chassis Number</p>
+                                            <p className="text-xs font-medium">{auctionData.chassisnumber || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Description</p>
+                                            <p className="text-xs font-medium">{auctionData.description || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">For Who</p>
+                                            <p className="text-xs font-medium">{auctionData.for_who || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Price</p>
+                                            <p className="text-xs font-medium">{auctionData.price || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Paid</p>
+                                            <p className="text-xs font-medium">
+                                                {auctionData.paid ? (
+                                                    <span className="text-green-600">Yes</span>
+                                                ) : (
+                                                    <span className="text-red-600">No</span>
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                             <div className="flex gap-2">
                                 <button
                                     type="submit"

@@ -14,7 +14,7 @@ class ExpenseController extends Controller
     {
         $date = $request->query('date');
 
-        $expenses = Expense::with('stock')->latest()->get();
+        $expenses = Expense::with(['stock', 'buyAuction'])->latest()->get();
 
         return Inertia::render('expenses', [
             'expenses' => $expenses,
