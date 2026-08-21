@@ -21,7 +21,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('auction/buy', [\App\Http\Controllers\BuyAuctionController::class, 'store'])->name('auction.buy.store');
     Route::post('auction/buy/{buyAuction}/paid', [\App\Http\Controllers\BuyAuctionController::class, 'paid'])->name('auction.buy.paid');
     Route::delete('auction/buy/{buyAuction}', [\App\Http\Controllers\BuyAuctionController::class, 'destroy'])->name('auction.buy.destroy');
-    Route::inertia('auction/sell', 'auction/SellAuction')->name('auction.sell');
+    Route::get('auction/sell', [\App\Http\Controllers\SellAuctionController::class, 'index'])->name('auction.sell');
+    Route::post('auction/sell', [\App\Http\Controllers\SellAuctionController::class, 'store'])->name('auction.sell.store');
+    Route::put('auction/sell/{sellAuction}', [\App\Http\Controllers\SellAuctionController::class, 'update'])->name('auction.sell.update');
+    Route::delete('auction/sell/{sellAuction}', [\App\Http\Controllers\SellAuctionController::class, 'destroy'])->name('auction.sell.destroy');
     Route::get('customer', [CustomerController::class, 'index'])->name('customer');
     Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');

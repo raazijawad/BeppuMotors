@@ -22,4 +22,9 @@ class Stock extends Model
     {
         return $this->hasMany(Invoice::class);
     }
+
+    public function sellAuctions(): HasMany
+    {
+        return $this->hasMany(SellAuction::class);
+    }
 }

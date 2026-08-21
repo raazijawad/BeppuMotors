@@ -12,7 +12,7 @@ class StockController extends Controller
 {
     public function index(Request $request): Response
     {
-        $stocks = Stock::doesntHave('invoices')->latest()->get();
+        $stocks = Stock::doesntHave('invoices')->doesntHave('sellAuctions')->latest()->get();
 
         return Inertia::render('stock', [
             'stocks' => $stocks,
