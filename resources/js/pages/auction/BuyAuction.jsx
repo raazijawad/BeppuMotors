@@ -1,6 +1,5 @@
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
 import Footer from '@/components/footer';
 
 export default function BuyAuction({ buyAuctions = [] }) {
@@ -68,8 +67,8 @@ export default function BuyAuction({ buyAuctions = [] }) {
                                     <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Chassis Number</th>
                                     <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Description</th>
                                     <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">For Who</th>
-                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Price</th>
-                                    <th className="px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Paid</th>
+                                    <th className="border-r border-[#19140035] dark:border-[#3E3E3A] px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Price</th>
+                                    <th className="border-r border-[#19140035] dark:border-[#3E3E3A] px-3 py-2 md:px-4 lg:px-5 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Paid</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,27 +87,16 @@ export default function BuyAuction({ buyAuctions = [] }) {
                                             <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.chassisnumber}</td>
                                             <td className="px-3 py-1.5 md:px-4 lg:px-5 min-w-[150px] whitespace-nowrap">{item.description}</td>
                                             <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.for_who}</td>
-                                            <td className="px-3 py-1.5 md:px-4 lg:px-5 font-semibold text-green-600">{parseFloat(item.price)}</td>
-                                            <td className="px-3 py-1.5 md:px-4 lg:px-5">
-                                                <div className="flex items-center gap-2">
-                                                    {item.paid ? (
-                                                        <span className="text-[10px] font-semibold text-green-600 md:text-xs">Paid</span>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => setConfirmPaidId(item.id)}
-                                                            className="rounded-md bg-green-600 px-2.5 py-1 text-[10px] font-medium text-white hover:bg-green-700 md:px-3 md:text-xs"
-                                                        >
-                                                            Paid
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => setConfirmDeleteId(item.id)}
-                                                        className="rounded-md p-1 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                                                    </button>
-                                                </div>
+                                            <td className="border-r border-[#19140035] dark:border-[#3E3E3A] px-3 py-1.5 md:px-4 lg:px-5 font-semibold text-green-600">{parseFloat(item.price)}</td>
+                                            <td
+                                                onClick={() => !item.paid && setConfirmPaidId(item.id)}
+                                                className="border-r border-[#19140035] dark:border-[#3E3E3A] px-3 py-1.5 text-center md:px-4 lg:px-5 cursor-pointer"
+                                            >
+                                                {item.paid ? (
+                                                    <span className="text-[10px] font-semibold text-green-600 md:text-xs">Paid</span>
+                                                ) : (
+                                                    <span className="text-[10px] font-medium text-green-600 hover:text-green-700 md:text-xs">Paid</span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))
@@ -221,7 +209,9 @@ export default function BuyAuction({ buyAuctions = [] }) {
                     </div>
                 </div>
             )}
-            <Footer />
+            <div className={(confirmPaidId || confirmDeleteId) ? 'blur-sm pointer-events-none' : ''}>
+                <Footer />
+            </div>
         </div>
     );
 }

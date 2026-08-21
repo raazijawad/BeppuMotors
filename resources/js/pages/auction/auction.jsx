@@ -17,16 +17,16 @@ export default function Auction() {
                 </div>
             </nav>
             <main className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-[#FDFDFC] pb-20 text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex w-full max-w-md flex-col gap-4 px-6 md:flex-row md:gap-6 md:px-10">
+                <div className="flex w-full max-w-md flex-col items-center gap-4 px-6 md:max-w-4xl md:flex-row md:gap-8 md:px-10 lg:max-w-6xl">
                     <Link
                         href="/auction/buy"
-                        className="flex h-32 items-center justify-center rounded-lg bg-gradient-to-r from-[#00447C] to-[#00284a] text-sm font-semibold text-white shadow-md hover:opacity-90 md:h-36"
+                        className="flex h-32 w-full items-center justify-center rounded-lg bg-gradient-to-r from-[#00447C] to-[#00284a] text-sm font-semibold text-white shadow-md hover:opacity-90 md:h-44 md:w-auto md:flex-1 md:rounded-xl md:text-lg md:shadow-lg lg:h-52 lg:text-xl"
                     >
                         Buy
                     </Link>
                     <Link
                         href="/auction/sell"
-                        className="flex h-32 items-center justify-center rounded-lg border border-[#00447C] text-sm font-semibold text-[#00447C] shadow-md hover:bg-[#00447C] hover:text-white md:h-36"
+                        className="flex h-32 w-full items-center justify-center rounded-lg border border-[#00447C] text-sm font-semibold text-[#00447C] shadow-md hover:bg-[#00447C] hover:text-white md:h-44 md:w-auto md:flex-1 md:rounded-xl md:text-lg md:shadow-lg lg:h-52 lg:text-xl"
                     >
                         Sell
                     </Link>
