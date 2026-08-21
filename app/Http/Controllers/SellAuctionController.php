@@ -49,6 +49,13 @@ class SellAuctionController extends Controller
         return back();
     }
 
+    public function markSold(SellAuction $sellAuction): RedirectResponse
+    {
+        $sellAuction->update(['sold' => true]);
+
+        return back();
+    }
+
     public function destroy(SellAuction $sellAuction): RedirectResponse
     {
         $sellAuction->delete();

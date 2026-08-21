@@ -24,6 +24,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('auction/sell', [\App\Http\Controllers\SellAuctionController::class, 'index'])->name('auction.sell');
     Route::post('auction/sell', [\App\Http\Controllers\SellAuctionController::class, 'store'])->name('auction.sell.store');
     Route::put('auction/sell/{sellAuction}', [\App\Http\Controllers\SellAuctionController::class, 'update'])->name('auction.sell.update');
+    Route::post('auction/sell/{sellAuction}/sold', [\App\Http\Controllers\SellAuctionController::class, 'markSold'])->name('auction.sell.sold');
     Route::delete('auction/sell/{sellAuction}', [\App\Http\Controllers\SellAuctionController::class, 'destroy'])->name('auction.sell.destroy');
     Route::get('customer', [CustomerController::class, 'index'])->name('customer');
     Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');

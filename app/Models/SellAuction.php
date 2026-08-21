@@ -10,6 +10,7 @@ class SellAuction extends Model
     protected $fillable = [
         'stock_id',
         'auction_price',
+        'sold',
     ];
 
     public function user(): BelongsTo

@@ -5,6 +5,7 @@ import Footer from '@/components/footer';
 export default function SellAuction({ sellAuctions = [], stocks = [] }) {
     const [showPicker, setShowPicker] = useState(false);
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+    const [confirmSoldId, setConfirmSoldId] = useState(null);
     const [editingPrice, setEditingPrice] = useState(null);
     const [priceValue, setPriceValue] = useState('');
     const [selectedStock, setSelectedStock] = useState(null);
@@ -95,7 +96,10 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                     </tr>
                                 ) : (
                                     sellAuctions.map((item) => (
-                                        <tr key={item.id} className="border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 hover:bg-gray-50 dark:hover:bg-[#1a1a19]">
+                                        <tr
+                                            key={item.id}
+                                            className={`border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 ${item.sold ? 'bg-green-100 dark:bg-green-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a19]'}`}
+                                        >
                                             <td className="px-2 py-1.5 font-medium">{item.stock?.name}</td>
                                             <td className="px-2 py-1.5">{item.stock?.company}</td>
                                             <td className="px-2 py-1.5">{item.stock?.colour}</td>
@@ -114,12 +118,24 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                                 {item.auction_price !== null && item.auction_price !== undefined ? parseFloat(item.auction_price) : 'Set Price'}
                                             </td>
                                             <td className="px-2 py-1.5 text-right">
-                                                <button
-                                                    onClick={() => setConfirmDeleteId(item.id)}
-                                                    className="rounded-md px-2 py-1 text-[10px] font-medium text-red-600 hover:bg-red-50 md:text-xs dark:hover:bg-red-900/30"
-                                                >
-                                                    Unsold
-                                                </button>
+                                                {item.sold ? (
+                                                    <span className="text-[10px] font-semibold text-green-700 dark:text-green-400 md:text-xs">Sold</span>
+                                                ) : (
+                                                    <div className="flex justify-end gap-1">
+                                                        <button
+                                                            onClick={() => setConfirmSoldId(item.id)}
+                                                            className="rounded-md px-2 py-1 text-[10px] font-medium text-green-600 hover:bg-green-50 md:text-xs dark:hover:bg-green-900/30"
+                                                        >
+                                                            Sold
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setConfirmDeleteId(item.id)}
+                                                            className="rounded-md px-2 py-1 text-[10px] font-medium text-red-600 hover:bg-red-50 md:text-xs dark:hover:bg-red-900/30"
+                                                        >
+                                                            Unsold
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
                                     ))
@@ -232,6 +248,32 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                 </div>
             )}
 
+            {confirmSoldId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg dark:border-[#3E3E3A] dark:bg-[#161615] md:p-6">
+                        <h2 className="mb-4 text-base font-semibold md:text-lg">Confirm Sold</h2>
+                        <p className="mb-4 text-sm text-[#706f6c] dark:text-[#A1A09A]">Are you sure you want to mark this vehicle as sold?</p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    router.post(`/auction/sell/${confirmSoldId}/sold`);
+                                    setConfirmSoldId(null);
+                                }}
+                                className="rounded-md bg-green-600 px-4 py-2 text-xs font-medium text-white hover:bg-green-700 md:text-sm"
+                            >
+                                Confirm Sold
+                            </button>
+                            <button
+                                onClick={() => setConfirmSoldId(null)}
+                                className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A] md:text-sm"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {editingPrice && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg dark:border-[#3E3E3A] dark:bg-[#161615] md:p-6">
@@ -255,7 +297,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                 </div>
             )}
 
-            <div className={(showPicker || confirmDeleteId || editingPrice || selectedStock) ? 'blur-sm pointer-events-none' : ''}>
+            <div className={(showPicker || confirmDeleteId || confirmSoldId || editingPrice || selectedStock) ? 'blur-sm pointer-events-none' : ''}>
                 <Footer />
             </div>
         </div>
