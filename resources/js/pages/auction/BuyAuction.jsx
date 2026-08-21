@@ -265,7 +265,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                     </div>
                 </div>
             )}
-            <div className={(confirmPaidId || confirmDeleteId) ? 'blur-sm pointer-events-none' : ''}>
+            <div className={(showForm || confirmPaidId || confirmDeleteId) ? 'blur-sm pointer-events-none' : ''}>
                 <Footer />
             </div>
         </div>

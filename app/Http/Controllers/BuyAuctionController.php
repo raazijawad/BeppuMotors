@@ -6,6 +6,7 @@ use App\Models\BuyAuction;
 use App\Models\Expense;
 use App\Notifications\UnpaidAuctionReminder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -73,8 +74,7 @@ class BuyAuctionController extends Controller
     {
         $buyAuction->update(['paid' => true]);
 
-        $buyAuction->user->notifications()
-            ->where('type', UnpaidAuctionReminder::class)
+        DatabaseNotification::where('type', UnpaidAuctionReminder::class)
             ->where('data->buy_auction_id', $buyAuction->id)
             ->delete();
 

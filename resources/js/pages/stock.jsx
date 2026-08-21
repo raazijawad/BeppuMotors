@@ -160,7 +160,9 @@ export default function Stock({ stocks = [] }) {
                     </div>
                 </div>
             )}
-            <Footer />
+            <div className={showForm ? 'blur-sm pointer-events-none' : ''}>
+                <Footer />
+            </div>
         </div>
     );
 }
