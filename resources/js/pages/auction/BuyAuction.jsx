@@ -1,11 +1,52 @@
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
 
-export default function BuyAuction({ buyAuctions = [] }) {
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function getMonthLabel(ym) {
+    const [y, m] = ym.split('-');
+    return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
+}
+
+function addMonths(ym, delta) {
+    const [y, m] = ym.split('-').map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const [activeMonth, setActiveMonth] = useState(selectedMonth || currentMonth);
     const [showForm, setShowForm] = useState(false);
     const [confirmPaidId, setConfirmPaidId] = useState(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+    const [highlightId, setHighlightId] = useState(null);
+
+    const changeMonth = (delta) => {
+        const newMonth = addMonths(activeMonth, delta);
+        setActiveMonth(newMonth);
+        router.get('/auction/buy', { date: `${newMonth}-01` }, { preserveState: true, replace: true });
+    };
+
+    useEffect(() => {
+        const highlight = new URLSearchParams(window.location.search).get('highlight');
+        if (!highlight) return;
+
+        window.history.replaceState({}, '', '/auction/buy');
+
+        const target = buyAuctions.find((item) => String(item.id) === highlight && !item.paid);
+        if (target) {
+            setConfirmPaidId(target.id);
+            setHighlightId(target.id);
+            setTimeout(() => {
+                document.getElementById(`buy-auction-row-${target.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const { data, setData, post, processing, reset } = useForm({
         date: '',
@@ -46,7 +87,17 @@ export default function BuyAuction({ buyAuctions = [] }) {
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 pt-4 pb-32 sm:px-6 md:px-8 md:pt-6 lg:px-16">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Buy Auction Items</span>
+                        <div className="flex items-center gap-1">
+                            <button onClick={() => changeMonth(-1)} className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5">
+                                <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
+                            </button>
+                            <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                {getMonthLabel(activeMonth)}
+                            </span>
+                            <button onClick={() => changeMonth(1)} className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] md:p-1.5">
+                                <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
+                            </button>
+                        </div>
                         <button
                             onClick={() => setShowForm(true)}
                             className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
@@ -78,7 +129,11 @@ export default function BuyAuction({ buyAuctions = [] }) {
                                     </tr>
                                 ) : (
                                     buyAuctions.map((item) => (
-                                        <tr key={item.id} className={`border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 ${item.paid ? 'bg-green-100 dark:bg-green-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a19]'}`}>
+                                        <tr
+                                            key={item.id}
+                                            id={`buy-auction-row-${item.id}`}
+                                            className={`border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 ${item.paid ? 'bg-green-100 dark:bg-green-900/30' : highlightId === item.id ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a19]'}`}
+                                        >
                                             <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.date}</td>
                                             <td className="px-3 py-1.5 md:px-4 lg:px-5 font-medium">{item.vehicle_name}</td>
                                             <td className="px-3 py-1.5 md:px-4 lg:px-5">{item.company}</td>
@@ -169,13 +224,14 @@ export default function BuyAuction({ buyAuctions = [] }) {
                                 onClick={() => {
                                     router.post(`/auction/buy/${confirmPaidId}/paid`);
                                     setConfirmPaidId(null);
+                                    setHighlightId(null);
                                 }}
                                 className="rounded-md bg-green-600 px-4 py-2 text-xs font-medium text-white hover:bg-green-700 md:text-sm"
                             >
                                 Confirm Paid
                             </button>
                             <button
-                                onClick={() => setConfirmPaidId(null)}
+                                onClick={() => { setConfirmPaidId(null); setHighlightId(null); }}
                                 className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A] md:text-sm"
                             >
                                 Cancel

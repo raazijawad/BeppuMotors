@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BuyAuction;
 use App\Models\Income;
+use App\Notifications\UnpaidAuctionReminder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,10 +18,35 @@ class IncomeController extends Controller
 
         $incomes = Income::latest()->get();
 
+        $notifications = $request->user()
+            ->unreadNotifications()
+            ->where('type', UnpaidAuctionReminder::class)
+            ->latest()
+            ->get();
+
+        $vehicles = BuyAuction::whereIn(
+            'id',
+            $notifications->pluck('data.buy_auction_id')->filter()->unique()
+        )->get()->keyBy('id');
+
+        $auctionNotifications = $notifications
+            ->map(fn ($notification) => [
+                'id' => $notification->id,
+                'buy_auction_id' => $notification->data['buy_auction_id'] ?? null,
+                'vehicle_name' => $notification->data['vehicle_name'] ?? null,
+                'price' => $notification->data['price'] ?? null,
+                'date' => $vehicles[$notification->data['buy_auction_id'] ?? null]->date ?? null,
+                'shopname' => $vehicles[$notification->data['buy_auction_id'] ?? null]->shopname ?? null,
+                'description' => $vehicles[$notification->data['buy_auction_id'] ?? null]->description ?? null,
+            ])
+            ->filter(fn ($notification) => isset($vehicles[$notification['buy_auction_id']]))
+            ->values();
+
         return Inertia::render('vehicle-detail', [
             'incomes' => $incomes,
             'selectedDate' => $date,
             'view' => $request->query('view'),
+            'auctionNotifications' => $auctionNotifications,
         ]);
     }
 

@@ -1,12 +1,14 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Bell } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
-export default function VehicleDetail({ incomes = [], selectedDate = null, view = null }) {
+export default function VehicleDetail({ incomes = [], selectedDate = null, view = null, auctionNotifications = [] }) {
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const [selectedDay, setSelectedDay] = useState(today);
     const [filterDate, setFilterDate] = useState('');
+    const [showNotifications, setShowNotifications] = useState(false);
 
     const showList = view === 'list';
     const [showForm, setShowForm] = useState(false);
@@ -57,6 +59,58 @@ export default function VehicleDetail({ incomes = [], selectedDate = null, view 
                     <span className="ml-4 text-sm font-semibold text-white">
                         Vehicle Details Page
                     </span>
+                    <div className="relative ml-auto mr-4 md:mr-8">
+                        <button
+                            onClick={() => setShowNotifications((v) => !v)}
+                            className="relative flex h-9 w-9 items-center justify-center rounded-full text-white hover:bg-white/10"
+                            aria-label="Notifications"
+                        >
+                            <Bell className="h-5 w-5" />
+                            {auctionNotifications.length > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                                    {auctionNotifications.length}
+                                </span>
+                            )}
+                        </button>
+                        {showNotifications && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
+                                <div className="absolute right-0 top-11 z-50 w-72 overflow-hidden rounded-lg border border-[#19140035] bg-white shadow-lg dark:border-[#3E3E3A] dark:bg-[#161615] md:w-80">
+                                    <div className="border-b border-[#19140035] px-4 py-2.5 text-sm font-semibold dark:border-[#3E3E3A]">
+                                        Unpaid Auction Reminders
+                                    </div>
+                                    {auctionNotifications.length === 0 ? (
+                                        <p className="px-4 py-6 text-center text-xs text-[#706f6c] dark:text-[#A1A09A]">
+                                            No unpaid auction reminders.
+                                        </p>
+                                    ) : (
+                                        <div className="max-h-80 overflow-y-auto">
+                                            {auctionNotifications.map((n) => (
+                                                <button
+                                                    key={n.id}
+                                                    onClick={() => {
+                                                        setShowNotifications(false);
+                                                        router.get(`/auction/buy?highlight=${n.buy_auction_id}`);
+                                                    }}
+                                                    className="flex w-full flex-col gap-0.5 border-b border-[#19140035]/50 px-4 py-2.5 text-left hover:bg-gray-50 dark:border-[#3E3E3A]/50 dark:hover:bg-[#1a1a19]"
+                                                >
+                                                    <span className="flex min-w-0 items-center gap-2">
+                                                        <span className="shrink-0 text-xs font-medium md:text-sm">{n.vehicle_name}</span>
+                                                        <span className="min-w-0 flex-1 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:text-xs">{n.description}</span>
+                                                        <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-500 dark:bg-red-900/40">Unpaid</span>
+                                                    </span>
+                                                    <span className="flex items-center justify-between text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:text-xs">
+                                                        <span>{n.shopname || n.date || ''}</span>
+                                                        <span className="font-semibold text-green-600">{parseFloat(n.price)}</span>
+                                                    </span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">

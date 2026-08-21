@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BuyAuction;
 use App\Models\Expense;
+use App\Notifications\UnpaidAuctionReminder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,10 +14,24 @@ class BuyAuctionController extends Controller
 {
     public function index(Request $request): Response
     {
-        $buyAuctions = BuyAuction::latest()->get();
+        $date = $request->query('date');
+        $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
+
+        $highlightId = $request->query('highlight');
+        if ($highlightId) {
+            $highlight = BuyAuction::find($highlightId);
+            if ($highlight) {
+                $month = substr($highlight->date, 0, 7);
+            }
+        }
+
+        $buyAuctions = BuyAuction::where('date', 'like', $month . '%')
+            ->latest()
+            ->get();
 
         return Inertia::render('auction/BuyAuction', [
             'buyAuctions' => $buyAuctions,
+            'selectedMonth' => $month,
         ]);
     }
 
@@ -57,6 +72,11 @@ class BuyAuctionController extends Controller
     public function paid(BuyAuction $buyAuction): RedirectResponse
     {
         $buyAuction->update(['paid' => true]);
+
+        $buyAuction->user->notifications()
+            ->where('type', UnpaidAuctionReminder::class)
+            ->where('data->buy_auction_id', $buyAuction->id)
+            ->delete();
 
         return back();
     }
