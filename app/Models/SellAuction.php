@@ -13,6 +13,10 @@ class SellAuction extends Model
         'sold',
     ];
 
+    protected $casts = [
+        'sold' => 'boolean',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
