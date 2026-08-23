@@ -6,6 +6,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
     const [showPicker, setShowPicker] = useState(false);
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [confirmSoldId, setConfirmSoldId] = useState(null);
+    const [confirmDocumentId, setConfirmDocumentId] = useState(null);
     const [editingPrice, setEditingPrice] = useState(null);
     const [priceValue, setPriceValue] = useState('');
     const [selectedStock, setSelectedStock] = useState(null);
@@ -125,13 +126,14 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                     </th>
                                     <th className="border-l border-[#19140035] px-2 py-2 dark:border-[#3E3E3A]"></th>
                                     <th className="border-l border-[#19140035] px-2 py-2 dark:border-[#3E3E3A]"></th>
+                                    <th className="border-l border-[#19140035] px-2 py-2 dark:border-[#3E3E3A]"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {sellAuctions.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={14}
+                                            colSpan={15}
                                             className="px-2 py-6 text-center text-[#706f6c] dark:text-[#A1A09A]"
                                         >
                                             No vehicles added for sale yet.
@@ -226,6 +228,20 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                                 className={`border-l border-[#19140035] px-2 py-1.5 text-right font-medium text-red-600 dark:border-[#3E3E3A] ${item.sold ? '' : 'cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/30'}`}
                                             >
                                                 {item.sold ? null : 'Unsold'}
+                                            </td>
+                                            <td
+                                                onClick={() => {
+                                                    if (
+                                                        !item.sold &&
+                                                        !item.document_submitted
+                                                    )
+                                                        setConfirmDocumentId(
+                                                            item.id,
+                                                        );
+                                                }}
+                                                className={`border-l border-[#19140035] px-2 py-1.5 text-center font-semibold dark:border-[#3E3E3A] ${item.document_submitted ? 'bg-[#00447C] text-white' : 'cursor-pointer bg-white text-[#00447C] hover:bg-[#00447C]/10 dark:bg-transparent dark:text-blue-400'}`}
+                                            >
+                                                Document
                                             </td>
                                         </tr>
                                     ))
@@ -436,6 +452,38 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                 </div>
             )}
 
+            {confirmDocumentId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <h2 className="mb-4 text-base font-semibold md:text-lg">
+                            Confirm Documents
+                        </h2>
+                        <p className="mb-4 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                            Have the documents been submitted for this vehicle?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    router.post(
+                                        `/auction/sell/${confirmDocumentId}/documents`,
+                                    );
+                                    setConfirmDocumentId(null);
+                                }}
+                                className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] md:text-sm"
+                            >
+                                Submitted
+                            </button>
+                            <button
+                                onClick={() => setConfirmDocumentId(null)}
+                                className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium md:text-sm dark:border-[#3E3E3A]"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {editingPrice && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
@@ -483,6 +531,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                     showPicker ||
                     confirmDeleteId ||
                     confirmSoldId ||
+                    confirmDocumentId ||
                     editingPrice ||
                     selectedStock
                         ? 'pointer-events-none blur-sm'

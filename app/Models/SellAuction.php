@@ -11,10 +11,12 @@ class SellAuction extends Model
         'stock_id',
         'auction_price',
         'sold',
+        'document_submitted',
     ];
 
     protected $casts = [
         'sold' => 'boolean',
+        'document_submitted' => 'boolean',
     ];
 
     public function user(): BelongsTo

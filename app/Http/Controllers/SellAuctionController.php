@@ -56,6 +56,13 @@ class SellAuctionController extends Controller
         return back();
     }
 
+    public function markDocumentSubmitted(SellAuction $sellAuction): RedirectResponse
+    {
+        $sellAuction->update(['document_submitted' => true]);
+
+        return back();
+    }
+
     public function destroy(SellAuction $sellAuction): RedirectResponse
     {
         $sellAuction->delete();

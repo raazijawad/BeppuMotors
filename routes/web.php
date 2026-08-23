@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\BuyAuctionController;
 use App\Http\Controllers\CashBookController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DrawerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\SellAuctionController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -17,15 +19,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('cashbook', [CashBookController::class, 'index'])->name('cashbook');
     Route::inertia('drawer', 'drawer')->name('drawer');
     Route::inertia('auction', 'auction/auction')->name('auction');
-    Route::get('auction/buy', [\App\Http\Controllers\BuyAuctionController::class, 'index'])->name('auction.buy');
-    Route::post('auction/buy', [\App\Http\Controllers\BuyAuctionController::class, 'store'])->name('auction.buy.store');
-    Route::post('auction/buy/{buyAuction}/paid', [\App\Http\Controllers\BuyAuctionController::class, 'paid'])->name('auction.buy.paid');
-    Route::delete('auction/buy/{buyAuction}', [\App\Http\Controllers\BuyAuctionController::class, 'destroy'])->name('auction.buy.destroy');
-    Route::get('auction/sell', [\App\Http\Controllers\SellAuctionController::class, 'index'])->name('auction.sell');
-    Route::post('auction/sell', [\App\Http\Controllers\SellAuctionController::class, 'store'])->name('auction.sell.store');
-    Route::put('auction/sell/{sellAuction}', [\App\Http\Controllers\SellAuctionController::class, 'update'])->name('auction.sell.update');
-    Route::post('auction/sell/{sellAuction}/sold', [\App\Http\Controllers\SellAuctionController::class, 'markSold'])->name('auction.sell.sold');
-    Route::delete('auction/sell/{sellAuction}', [\App\Http\Controllers\SellAuctionController::class, 'destroy'])->name('auction.sell.destroy');
+    Route::get('auction/buy', [BuyAuctionController::class, 'index'])->name('auction.buy');
+    Route::post('auction/buy', [BuyAuctionController::class, 'store'])->name('auction.buy.store');
+    Route::post('auction/buy/{buyAuction}/paid', [BuyAuctionController::class, 'paid'])->name('auction.buy.paid');
+    Route::delete('auction/buy/{buyAuction}', [BuyAuctionController::class, 'destroy'])->name('auction.buy.destroy');
+    Route::get('auction/sell', [SellAuctionController::class, 'index'])->name('auction.sell');
+    Route::post('auction/sell', [SellAuctionController::class, 'store'])->name('auction.sell.store');
+    Route::put('auction/sell/{sellAuction}', [SellAuctionController::class, 'update'])->name('auction.sell.update');
+    Route::post('auction/sell/{sellAuction}/sold', [SellAuctionController::class, 'markSold'])->name('auction.sell.sold');
+    Route::post('auction/sell/{sellAuction}/documents', [SellAuctionController::class, 'markDocumentSubmitted'])->name('auction.sell.documents');
+    Route::delete('auction/sell/{sellAuction}', [SellAuctionController::class, 'destroy'])->name('auction.sell.destroy');
     Route::get('customer', [CustomerController::class, 'index'])->name('customer');
     Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
