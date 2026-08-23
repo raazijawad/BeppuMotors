@@ -102,6 +102,8 @@ export default function Customer({ customers = [], stocks = [] }) {
         ? new Set((selectedCustomer.invoices || []).map((inv) => inv.stock_id))
         : new Set();
 
+    const invoiceActive = selectedVehicles.length > 0 || viewInvoice !== null;
+
     const invoiceNo = `INV-${(selectedCustomer?.invoices?.length || 0) + 1}`;
 
     return (
@@ -359,7 +361,7 @@ export default function Customer({ customers = [], stocks = [] }) {
                     </div>
                 </div>
             )}
-            <Footer />
+            <Footer blurred={invoiceActive} />
         </div>
     );
 }
