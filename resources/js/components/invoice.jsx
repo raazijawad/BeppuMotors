@@ -111,7 +111,24 @@ export default function Invoice({
                     }}
                 >
                     {/* Outer frame */}
-                    <div className="m-[8mm] min-h-[281mm] border border-black" />
+                    <div className="m-[5mm] min-h-[287mm] border border-black p-[6mm]">
+                        <div className="relative flex min-h-[40mm] items-center justify-center">
+                            <img
+                                src="/beppumotors%20logo.jpeg"
+                                alt="Beppu Motors"
+                                className="absolute top-0 left-0 h-[45mm] w-auto object-contain mix-blend-multiply"
+                            />
+                            <h1
+                                className="text-[50px] font-bold"
+                                style={{
+                                    fontFamily: 'Georgia, serif',
+                                    transform: 'scaleX(0.75)',
+                                }}
+                            >
+                                Beppu Motors
+                            </h1>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
