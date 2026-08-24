@@ -141,6 +141,16 @@ export default function Invoice({
                                     Machineries &amp; Spare Parts
                                 </p>
                             </div>
+                            <div className="absolute top-[2mm] right-0 text-left text-[14px] leading-snug">
+                                <p className="text-[16px] font-black font-bold">
+                                    Beppu Motors Co.Ltd.
+                                </p><br />
+                                <p>874-0004</p>
+                                <p>Oita-Ken,Beppu Shi</p>
+                                <p>Oazo Noda 1015-1 Japan</p><br />
+                                <p className="mt-[1mm]">TEL0977-76-7035</p>
+                                <p>FAX0977-76-7036</p>
+                            </div>
                         </div>
                     </div>
                 </div>
