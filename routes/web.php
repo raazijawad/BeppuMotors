@@ -4,6 +4,7 @@ use App\Http\Controllers\BuyAuctionController;
 use App\Http\Controllers\CashBookController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DrawerController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\SellAuctionController;
@@ -16,6 +17,10 @@ Route::inertia('pending', 'auth/pending')->name('registration.pending');
 Route::middleware(['auth'])->group(function () {
     Route::inertia('/', 'home')->name('home');
     Route::get('vehicle-detail', [IncomeController::class, 'index'])->name('vehicle-detail');
+    Route::get('export', [ExportController::class, 'index'])->name('export');
+    Route::post('export/countries', [ExportController::class, 'storeCountry'])->name('export.countries.store');
+    Route::get('export/{exportCountry}', [ExportController::class, 'show'])->name('export.show');
+    Route::post('export/{exportCountry}/customers', [ExportController::class, 'storeCustomer'])->name('export.customers.store');
     Route::get('cashbook', [CashBookController::class, 'index'])->name('cashbook');
     Route::inertia('drawer', 'drawer')->name('drawer');
     Route::inertia('auction', 'auction/auction')->name('auction');

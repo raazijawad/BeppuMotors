@@ -353,6 +353,14 @@ export default function VehicleDetail({
                                     Cash Book
                                 </span>
                             </Link>
+                            <Link
+                                href="/export"
+                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                            >
+                                <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                    Export
+                                </span>
+                            </Link>
                         </div>
                     )}
                 </div>
@@ -484,7 +492,7 @@ export default function VehicleDetail({
                                 <p className="text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
                                     Description
                                 </p>
-                                <p className="whitespace-pre-wrap text-sm md:text-base">
+                                <p className="text-sm whitespace-pre-wrap md:text-base">
                                     {viewingIncome.description || '-'}
                                 </p>
                             </div>

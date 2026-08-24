@@ -134,4 +134,20 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasMany(SellAuction::class);
     }
+
+    /**
+     * @return HasMany<ExportCountry, $this>
+     */
+    public function exportCountries(): HasMany
+    {
+        return $this->hasMany(ExportCountry::class);
+    }
+
+    /**
+     * @return HasMany<ExportCustomer, $this>
+     */
+    public function exportCustomers(): HasMany
+    {
+        return $this->hasMany(ExportCustomer::class);
+    }
 }

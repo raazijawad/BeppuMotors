@@ -2,7 +2,7 @@ import { Link } from '@inertiajs/react';
 import { Home, BookOpen, User, UserCheck } from 'lucide-react';
 
 const navLinks = [
-    { name: 'Home', icon: Home, href: '/' },
+    { name: 'Home', icon: Home, href: '/vehicle-detail' },
     { name: 'Cashbook', icon: BookOpen, href: '/cashbook' },
     { name: 'User', icon: UserCheck, href: '/admin/users' },
     { name: 'Profile', icon: User, href: '/profile' },
