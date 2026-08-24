@@ -118,15 +118,29 @@ export default function Invoice({
                                 alt="Beppu Motors"
                                 className="absolute top-0 left-0 h-[45mm] w-auto object-contain mix-blend-multiply"
                             />
-                            <h1
-                                className="text-[50px] font-bold"
-                                style={{
-                                    fontFamily: 'Georgia, serif',
-                                    transform: 'scaleX(0.75)',
-                                }}
-                            >
-                                Beppu Motors
-                            </h1>
+                            <div className="flex flex-col items-center">
+                                <h1
+                                    className="text-[55px] font-bold"
+                                    style={{
+                                        fontFamily: 'Georgia, serif',
+                                        transform:
+                                            'translateY(3mm) scaleX(0.75)',
+                                    }}
+                                >
+                                    Beppu Motors
+                                </h1>
+                                <p
+                                    className="mt-[2mm] text-center text-[16px] italic"
+                                    style={{
+                                        transform:
+                                            'translateY(0mm) scaleX(0.75)',
+                                    }}
+                                >
+                                    Exports And Dealers in Motor Vehicles,
+                                    <br />
+                                    Machineries &amp; Spare Parts
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
