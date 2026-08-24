@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\BuyAuction;
 use App\Models\Income;
+use App\Models\SellAuction;
+use App\Notifications\DocumentNotSubmittedReminder;
 use App\Notifications\UnpaidAuctionReminder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,11 +44,44 @@ class IncomeController extends Controller
             ->filter(fn ($notification) => isset($vehicles[$notification['buy_auction_id']]))
             ->values();
 
+        $documentReminderNotifications = $request->user()
+            ->unreadNotifications()
+            ->where('type', DocumentNotSubmittedReminder::class)
+            ->latest()
+            ->get();
+
+        $sellAuctions = SellAuction::with('stock')
+            ->whereIn(
+                'id',
+                $documentReminderNotifications
+                    ->pluck('data.sell_auction_id')
+                    ->filter()
+                    ->unique(),
+            )
+            ->get()
+            ->keyBy('id');
+
+        $documentNotifications = $documentReminderNotifications
+            ->map(fn ($notification) => [
+                'id' => $notification->id,
+                'sell_auction_id' => $notification->data['sell_auction_id'] ?? null,
+                'vehicle_name' => $sellAuctions[$notification->data['sell_auction_id'] ?? null]?->stock?->name
+                    ?? ($notification->data['vehicle_name'] ?? null),
+                'chassisnumber' => $notification->data['chassisnumber'] ?? null,
+                'price' => $notification->data['auction_price'] ?? null,
+            ])
+            ->filter(
+                fn ($notification) => isset($sellAuctions[$notification['sell_auction_id']])
+                    && ! $sellAuctions[$notification['sell_auction_id']]->document_submitted,
+            )
+            ->values();
+
         return Inertia::render('vehicle-detail', [
             'incomes' => $incomes,
             'selectedDate' => $date,
             'view' => $request->query('view'),
             'auctionNotifications' => $auctionNotifications,
+            'documentNotifications' => $documentNotifications,
         ]);
     }
 

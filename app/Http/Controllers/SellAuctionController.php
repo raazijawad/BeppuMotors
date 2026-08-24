@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\SellAuction;
 use App\Models\Stock;
+use App\Notifications\DocumentNotSubmittedReminder;
+use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -25,13 +28,26 @@ class SellAuctionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'stock_id' => 'required|integer|exists:stocks,id',
+            'stock_id' => [
+                'required',
+                'integer',
+                'exists:stocks,id',
+                function (string $attribute, mixed $value, Closure $fail) {
+                    $stock = Stock::find($value);
+
+                    if (
+                        ! $stock ||
+                        $stock->invoices()->exists() ||
+                        $stock->sellAuctions()->exists()
+                    ) {
+                        $fail(
+                            'This vehicle is no longer available. It may already have an invoice or be added to another auction.',
+                        );
+                    }
+                },
+            ],
             'auction_price' => 'required|numeric|min:0',
         ]);
-
-        Stock::doesntHave('invoices')
-            ->doesntHave('sellAuctions')
-            ->findOrFail($validated['stock_id']);
 
         $request->user()->sellAuctions()->create($validated);
 
@@ -60,13 +76,26 @@ class SellAuctionController extends Controller
     {
         $sellAuction->update(['document_submitted' => true]);
 
+        $this->deleteDocumentReminders($sellAuction->id);
+
         return back();
     }
 
     public function destroy(SellAuction $sellAuction): RedirectResponse
     {
+        $this->deleteDocumentReminders($sellAuction->id);
         $sellAuction->delete();
 
         return back();
+    }
+
+    private function deleteDocumentReminders(int $sellAuctionId): void
+    {
+        DatabaseNotification::where(
+            'type',
+            DocumentNotSubmittedReminder::class,
+        )
+            ->where('data->sell_auction_id', $sellAuctionId)
+            ->delete();
     }
 }

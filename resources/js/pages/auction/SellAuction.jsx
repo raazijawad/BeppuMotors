@@ -11,10 +11,12 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
     const [priceValue, setPriceValue] = useState('');
     const [selectedStock, setSelectedStock] = useState(null);
     const [auctionPriceValue, setAuctionPriceValue] = useState('');
+    const [auctionError, setAuctionError] = useState('');
 
     const openSelectModal = (s) => {
         setSelectedStock(s);
         setAuctionPriceValue('');
+        setAuctionError('');
     };
 
     const handleAuctionSubmit = (e) => {
@@ -28,6 +30,12 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                     setShowPicker(false);
                     setSelectedStock(null);
                     setAuctionPriceValue('');
+                    setAuctionError('');
+                },
+                onError: (errors) => {
+                    setAuctionError(
+                        errors.stock_id ?? 'Failed to add vehicle.',
+                    );
                 },
             },
         );
@@ -386,6 +394,11 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                             to sell auction.
                         </p>
                         <form onSubmit={handleAuctionSubmit}>
+                            {auctionError && (
+                                <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                                    {auctionError}
+                                </p>
+                            )}
                             <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
                                 Auction Price
                             </label>
