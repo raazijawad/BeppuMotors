@@ -109,7 +109,10 @@ export default function Invoice({
                         transform: `scale(${scale})`,
                         transformOrigin: 'top left',
                     }}
-                ></div>
+                >
+                    {/* Outer frame */}
+                    <div className="m-[8mm] min-h-[281mm] border border-black" />
+                </div>
             </div>
         </div>
     );
