@@ -127,6 +127,9 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(BuyAuction::class);
     }
 
+    /**
+     * @return HasMany<SellAuction, $this>
+     */
     public function sellAuctions(): HasMany
     {
         return $this->hasMany(SellAuction::class);

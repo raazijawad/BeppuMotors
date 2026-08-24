@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import Footer from '@/components/footer';
 
 export default function SellAuction({ sellAuctions = [], stocks = [] }) {
@@ -216,11 +217,19 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                                 </td>
                                             ) : (
                                                 <td
-                                                    onClick={() =>
+                                                    onClick={() => {
+                                                        if (
+                                                            !item.document_submitted
+                                                        ) {
+                                                            toast.error(
+                                                                'Document not submitted. Cannot be sold — please submit the document first.',
+                                                            );
+                                                            return;
+                                                        }
                                                         setConfirmSoldId(
                                                             item.id,
-                                                        )
-                                                    }
+                                                        );
+                                                    }}
                                                     className="cursor-pointer border-l border-[#19140035] px-2 py-1.5 text-center font-medium text-green-600 hover:bg-green-50 dark:border-[#3E3E3A] dark:hover:bg-green-900/30"
                                                 >
                                                     Sold

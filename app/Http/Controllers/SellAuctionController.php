@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Income;
 use App\Models\SellAuction;
 use App\Models\Stock;
+use App\Models\User;
 use App\Notifications\DocumentNotSubmittedReminder;
 use Closure;
 use Illuminate\Http\RedirectResponse;
@@ -50,7 +51,15 @@ class SellAuctionController extends Controller
             'auction_price' => 'required|numeric|min:0',
         ]);
 
-        $request->user()->sellAuctions()->create($validated);
+        $sellAuction = $request->user()->sellAuctions()->create($validated);
+
+        $sellAuction->loadMissing('stock');
+
+        User::query()->each(
+            fn (User $user) => $user->notify(
+                new DocumentNotSubmittedReminder($sellAuction),
+            ),
+        );
 
         return back();
     }
@@ -73,6 +82,17 @@ class SellAuctionController extends Controller
     public function markSold(SellAuction $sellAuction): RedirectResponse
     {
         if ($sellAuction->sold) {
+            return back();
+        }
+
+        if (! $sellAuction->document_submitted) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => __(
+                    'Document not submitted. Cannot be sold — please submit the document first.',
+                ),
+            ]);
+
             return back();
         }
 
