@@ -13,9 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float $amount
  * @property string|null $description
  * @property string|null $date
+ * @property int|null $sell_auction_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at */
-#[Fillable(['income_name', 'amount', 'description', 'date'])]
+#[Fillable(['income_name', 'amount', 'description', 'date', 'sell_auction_id'])]
 class Income extends Model
 {
     use HasFactory;
@@ -30,5 +31,10 @@ class Income extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function sellAuction(): BelongsTo
+    {
+        return $this->belongsTo(SellAuction::class);
     }
 }

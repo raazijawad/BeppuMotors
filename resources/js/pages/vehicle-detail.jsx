@@ -21,6 +21,7 @@ export default function VehicleDetail({
 
     const showList = view === 'list';
     const [showForm, setShowForm] = useState(false);
+    const [viewingIncome, setViewingIncome] = useState(null);
 
     const { data, setData, post, processing, reset } = useForm({
         income_name: '',
@@ -250,7 +251,8 @@ export default function VehicleDetail({
                                     {filteredIncomes.map((v) => (
                                         <div
                                             key={v.id}
-                                            className="flex items-center border-b border-[#19140035]/50 py-1 dark:border-[#3E3E3A]/50"
+                                            onClick={() => setViewingIncome(v)}
+                                            className="flex cursor-pointer items-center border-b border-[#19140035]/50 py-1 hover:bg-gray-50 dark:border-[#3E3E3A]/50 dark:hover:bg-[#1a1a19]"
                                         >
                                             <div className="w-20 truncate text-[10px] text-[#706f6c] md:w-24 md:text-xs dark:text-[#A1A09A]">
                                                 {v.date || ''}
@@ -426,6 +428,73 @@ export default function VehicleDetail({
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+            {viewingIncome && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-md rounded-lg border border-[#19140035] bg-white p-6 shadow-lg md:mx-0 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <h2 className="mb-4 text-lg font-semibold">
+                            Income Details
+                        </h2>
+                        <div className="mb-4 flex flex-col gap-3">
+                            <div>
+                                <p className="text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                    Income Name
+                                </p>
+                                <p className="text-sm font-semibold md:text-base">
+                                    {viewingIncome.income_name}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                    Amount
+                                </p>
+                                <p className="text-sm font-semibold text-green-600 md:text-base">
+                                    +{viewingIncome.amount}
+                                </p>
+                            </div>
+                            <div className="flex gap-8">
+                                <div>
+                                    <p className="text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                        Date
+                                    </p>
+                                    <p className="text-sm md:text-base">
+                                        {viewingIncome.date || '-'}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                        Time
+                                    </p>
+                                    <p className="text-sm md:text-base">
+                                        {viewingIncome.created_at
+                                            ? new Date(
+                                                  viewingIncome.created_at,
+                                              ).toLocaleTimeString('en-US', {
+                                                  hour: '2-digit',
+                                                  minute: '2-digit',
+                                                  hour12: true,
+                                              })
+                                            : '-'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                    Description
+                                </p>
+                                <p className="whitespace-pre-wrap text-sm md:text-base">
+                                    {viewingIncome.description || '-'}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setViewingIncome(null)}
+                            className="rounded-md bg-[#00447C] px-4 py-2 text-sm font-medium text-white hover:bg-[#003d6f]"
+                        >
+                            Close
+                        </button>
                     </div>
                 </div>
             )}

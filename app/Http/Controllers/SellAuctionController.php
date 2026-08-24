@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Income;
 use App\Models\SellAuction;
 use App\Models\Stock;
 use App\Notifications\DocumentNotSubmittedReminder;
@@ -62,12 +63,32 @@ class SellAuctionController extends Controller
 
         $sellAuction->update($validated);
 
+        Income::where('sell_auction_id', $sellAuction->id)->update([
+            'amount' => $validated['auction_price'],
+        ]);
+
         return back();
     }
 
     public function markSold(SellAuction $sellAuction): RedirectResponse
     {
+        if ($sellAuction->sold) {
+            return back();
+        }
+
         $sellAuction->update(['sold' => true]);
+
+        $sellAuction->loadMissing('stock');
+
+        $sellAuction->user->incomes()->firstOrCreate(
+            ['sell_auction_id' => $sellAuction->id],
+            [
+                'income_name' => $sellAuction->stock?->name ?? 'Sell Auction',
+                'amount' => $sellAuction->auction_price,
+                'description' => trim(($sellAuction->stock?->chassisnumber ?? '').' (Sold via auction)') ?: null,
+                'date' => now()->toDateString(),
+            ],
+        );
 
         return back();
     }
@@ -84,6 +105,7 @@ class SellAuctionController extends Controller
     public function destroy(SellAuction $sellAuction): RedirectResponse
     {
         $this->deleteDocumentReminders($sellAuction->id);
+        Income::where('sell_auction_id', $sellAuction->id)->delete();
         $sellAuction->delete();
 
         return back();
