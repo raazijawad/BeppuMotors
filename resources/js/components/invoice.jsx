@@ -152,6 +152,7 @@ export default function Invoice({
                                 <p>FAX0977-76-7036</p>
                             </div>
                         </div>
+                        <hr className="mt-[5mm] border-black" style={{ borderWidth: '1px' }} />
                     </div>
                 </div>
             </div>
