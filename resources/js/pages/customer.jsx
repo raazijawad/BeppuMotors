@@ -50,6 +50,15 @@ export default function Customer({ customers = [], stocks = [] }) {
         setSelectedVehicles((prev) => [...prev, { ...stock, amount: '' }]);
     };
 
+    // toggle vehicle selection in the sale modal
+    const handleToggleVehicle = (stock) => {
+        setSelectedVehicles((prev) => {
+            const exists = prev.some((v) => v.id === stock.id);
+            if (exists) return prev.filter((v) => v.id !== stock.id);
+            return [...prev, { ...stock, amount: '' }];
+        });
+    };
+
     // remove vehicle from invoice function
     const handleRemoveVehicle = (stockId) => {
         setSelectedVehicles((prev) => prev.filter((v) => v.id !== stockId));
@@ -119,19 +128,22 @@ export default function Customer({ customers = [], stocks = [] }) {
         ? new Set((selectedCustomer.invoices || []).map((inv) => inv.stock_id))
         : new Set();
 
+    const availableStocks = stocks.filter((s) => !purchasedStockIds.has(s.id));
+
     const invoices = selectedCustomer?.invoices || [];
 
-    // group saved invoices by date so a multi-vehicle sale shows as one entry
+    // group saved invoices by sale so a multi-vehicle sale shows as one entry
     const saleGroups = (() => {
         const groups = [];
-        const byDate = new Map();
+        const bySale = new Map();
         for (const inv of invoices) {
-            if (!byDate.has(inv.date)) {
-                const g = { date: inv.date, invoices: [] };
-                byDate.set(inv.date, g);
+            const key = inv.sale_id || inv.date;
+            if (!bySale.has(key)) {
+                const g = { key, date: inv.date, invoices: [] };
+                bySale.set(key, g);
                 groups.push(g);
             }
-            byDate.get(inv.date).invoices.push(inv);
+            bySale.get(key).invoices.push(inv);
         }
         return groups;
     })();
@@ -144,7 +156,7 @@ export default function Customer({ customers = [], stocks = [] }) {
         g.invoices.reduce((s, inv) => s + (parseFloat(inv.amount) || 0), 0);
     const fmt = (n) =>
         n.toLocaleString(undefined, { maximumFractionDigits: 2 });
-const summarize = (items, getName) => {
+    const summarize = (items, getName) => {
         const names = items.map(getName).filter(Boolean);
         return names.join(', ') || 'Vehicle';
     };
@@ -327,7 +339,7 @@ const summarize = (items, getName) => {
                                             )}
                                             {saleGroups.map((g) => (
                                                 <tr
-                                                    key={g.date}
+                                                    key={g.key}
                                                     onClick={() =>
                                                         setViewInvoice(g)
                                                     }
@@ -438,28 +450,24 @@ const summarize = (items, getName) => {
                                 &times;
                             </button>
                         </div>
-                        {stocks.filter(
-                            (s) =>
-                                !purchasedStockIds.has(s.id) &&
-                                !selectedVehicles.some((v) => v.id === s.id),
-                        ).length === 0 ? (
+                        {availableStocks.length === 0 ? (
                             <p className="py-6 text-center text-sm text-[#706f6c] dark:text-[#A1A09A]">
                                 No available vehicles to sell.
                             </p>
                         ) : (
                             <div className="flex max-h-80 flex-col gap-2 overflow-y-auto pr-1">
-                                {stocks
-                                    .filter(
-                                        (s) =>
-                                            !purchasedStockIds.has(s.id) &&
-                                            !selectedVehicles.some(
-                                                (v) => v.id === s.id,
-                                            ),
-                                    )
-                                    .map((stock) => (
+                                {availableStocks.map((stock) => {
+                                    const isSelected = selectedVehicles.some(
+                                        (v) => v.id === stock.id,
+                                    );
+                                    return (
                                         <div
                                             key={stock.id}
-                                            className="flex items-center justify-between gap-2 rounded-md border border-[#19140035] px-3 py-2 dark:border-[#3E3E3A]"
+                                            className={`flex items-center justify-between gap-2 rounded-md border px-3 py-2 ${
+                                                isSelected
+                                                    ? 'border-[#00447C]/40 bg-[#00447C]/5 opacity-50 dark:bg-[#00447C]/10'
+                                                    : 'border-[#19140035] dark:border-[#3E3E3A]'
+                                            }`}
                                         >
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-semibold">
@@ -474,14 +482,21 @@ const summarize = (items, getName) => {
                                             </div>
                                             <button
                                                 onClick={() =>
-                                                    handleSelectVehicle(stock)
+                                                    handleToggleVehicle(stock)
                                                 }
-                                                className="rounded-md bg-[#00447C] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f]"
+                                                className={`rounded-md px-3 py-1.5 text-xs font-medium ${
+                                                    isSelected
+                                                        ? 'border border-[#00447C]/40 bg-transparent text-[#00447C] hover:bg-[#00447C]/10 dark:text-[#6cb2e6]'
+                                                        : 'bg-[#00447C] text-white hover:bg-[#003d6f]'
+                                                }`}
                                             >
-                                                Select
+                                                {isSelected
+                                                    ? 'Unselect'
+                                                    : 'Select'}
                                             </button>
                                         </div>
-                                    ))}
+                                    );
+                                })}
                             </div>
                         )}
                         <div className="mt-4 flex items-center justify-between border-t border-[#19140035]/50 pt-3 dark:border-[#3E3E3A]/50">
@@ -491,7 +506,11 @@ const summarize = (items, getName) => {
                                 selected
                             </p>
                             <button
-                                onClick={() => setShowSaleModal(false)}
+                                onClick={() => {
+                                    setShowSaleModal(false);
+                                    if (selectedVehicles.length > 0)
+                                        setViewDraft(true);
+                                }}
                                 className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] md:text-sm"
                             >
                                 Done

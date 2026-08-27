@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\Stock;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -46,12 +47,15 @@ class CustomerController extends Controller
             'date' => 'required|date',
         ]);
 
+        $saleId = (string) Str::uuid();
+
         foreach ($validated['lines'] as $line) {
             $customer->invoices()->create([
                 'user_id' => $request->user()->id,
                 'stock_id' => $line['stock_id'],
                 'amount' => $line['amount'],
                 'date' => $validated['date'],
+                'sale_id' => $saleId,
             ]);
         }
 
