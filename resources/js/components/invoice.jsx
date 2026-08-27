@@ -161,6 +161,27 @@ export default function Invoice({
                                 <p className="mt-[-4mm] text-[28px] font-bold text-red-600" style={{ fontFamily: 'serif', letterSpacing: '0em', whiteSpace: 'nowrap', transform: 'scaleX(0.7)' }}>モータース</p>
                                 <p className="mt-[-4mm] text-[29px] font-bold text-red-600" style={{ fontFamily: 'serif', letterSpacing: '0.1em', whiteSpace: 'nowrap', transform: 'scaleX(0.8)' }}>株式会社</p>
                             </div>
+                            <div className="absolute left-0 top-[15mm]">
+                                <p className="text-[16px] font-light" style={{ fontFamily: 'Georgia, serif' }}>To,</p>
+                                <p className="mt-2 text-[20px] font-bold" style={{ fontFamily: 'Georgia, serif', borderBottom: '1px solid black', display: 'inline-block' }}>NAKATSU SHOKAI</p>
+                                <p className="mt-[2mm] text-[14px]" style={{ fontFamily: 'Georgia, serif' }}>Thank you very much for your business with us.<br/>We are pleased to submit our<br/>invoice as follows:</p>
+                                <table className="mt-[3mm] w-[192mm] border-collapse" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                                    <thead>
+                                        <tr>
+                                            <th className="border border-black p-[1mm] text-center text-[14px] font-bold">No</th>
+                                            <th className="border border-black p-[1mm] text-center text-[14px] font-bold">Vehicle Name</th>
+                                            <th className="border border-black p-[1mm] text-center text-[14px] font-bold">Chassis No.</th>
+                                            <th className="border border-black p-[1mm] text-center text-[14px] font-bold">Amount (¥)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div className="absolute left-[100mm] top-[23mm] text-left">
+                                <p className="text-[16px]" style={{ fontFamily: '"Times New Roman", Times, serif' }}>Date : June 29, 2026</p>
+                                <p className="text-[16px]" style={{ fontFamily: '"Times New Roman", Times, serif' }}>Invoice : T8320001016146</p>
+                            </div>
                         </div>
                     </div>
                 </div>
