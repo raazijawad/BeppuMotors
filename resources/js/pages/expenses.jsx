@@ -91,10 +91,13 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
     return (
         <div className="flex h-screen flex-col overflow-hidden">
             <Head title="Expenses" />
-            <nav className="relative h-16 md:h-20 w-full border-b border-white/10">
+            <nav className="relative h-16 w-full border-b border-white/10 md:h-20">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00447C] via-[#003d6f] to-[#00284a]"></div>
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
-                    <Link href={`/vehicle-detail?date=${activeDate}`} className="text-sm font-medium text-white/70 hover:text-white">
+                    <Link
+                        href={`/vehicle-detail?date=${activeDate}`}
+                        className="text-sm font-medium text-white/70 hover:text-white"
+                    >
                         &larr; Back
                     </Link>
                     <span className="ml-4 text-sm font-semibold text-white">
@@ -121,9 +124,11 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                         )}
                     </div>
 
-                    <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-3 shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:p-4">
+                    <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-3 shadow-sm md:p-4 dark:border-[#3E3E3A] dark:bg-[#161615]">
                         <div className="mb-3 flex items-center justify-between md:mb-4">
-                            <h2 className="text-base font-semibold md:text-lg">Expense List</h2>
+                            <h2 className="text-base font-semibold md:text-lg">
+                                Expense List
+                            </h2>
                             <button
                                 onClick={openAddForm}
                                 className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
@@ -132,14 +137,24 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                             </button>
                         </div>
                         {filteredExpenses.length === 0 ? (
-                            <p className="text-xs text-[#706f6c] dark:text-[#A1A09A] md:text-sm">No expenses added yet.</p>
+                            <p className="text-xs text-[#706f6c] md:text-sm dark:text-[#A1A09A]">
+                                No expenses added yet.
+                            </p>
                         ) : (
                             <div className="flex flex-col gap-0">
                                 <div className="flex items-center border-b border-[#19140035] pb-1 dark:border-[#3E3E3A]">
-                                    <div className="w-20 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">Date</div>
-                                    <div className="w-14 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">Time</div>
-                                    <div className="flex-1 text-[10px] font-semibold text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Details</div>
-                                    <div className="w-20 text-right text-[10px] font-semibold text-red-600 md:w-24 md:text-xs">Amount</div>
+                                    <div className="w-20 text-[10px] font-semibold text-[#706f6c] md:w-24 md:text-xs dark:text-[#A1A09A]">
+                                        Date
+                                    </div>
+                                    <div className="w-14 text-[10px] font-semibold text-[#706f6c] md:w-16 md:text-xs dark:text-[#A1A09A]">
+                                        Time
+                                    </div>
+                                    <div className="flex-1 text-[10px] font-semibold text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                        Details
+                                    </div>
+                                    <div className="w-20 text-right text-[10px] font-semibold text-red-600 md:w-24 md:text-xs">
+                                        Amount
+                                    </div>
                                 </div>
                                 {filteredExpenses.map((v) => (
                                     <div
@@ -147,15 +162,41 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                         onClick={() => openEditForm(v)}
                                         className="flex cursor-pointer items-center border-b border-[#19140035]/50 py-1 hover:bg-gray-50 dark:border-[#3E3E3A]/50 dark:hover:bg-[#1a1a19]"
                                     >
-                                        <div className="w-20 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-24 md:text-xs">{v.date || ''}</div>
-                                        <div className="w-14 truncate text-[10px] text-[#706f6c] dark:text-[#A1A09A] md:w-16 md:text-xs">
-                                            {v.created_at ? new Date(v.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : ''}
+                                        <div className="w-20 truncate text-[10px] text-[#706f6c] md:w-24 md:text-xs dark:text-[#A1A09A]">
+                                            {v.date || ''}
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="truncate text-[10px] font-medium md:text-xs">{v.expense_name}</p>
-                                            {v.description && <p className="truncate text-[9px] text-[#706f6c] dark:text-[#A1A09A] md:text-[10px]">{v.description}</p>}
+                                        <div className="w-14 truncate text-[10px] text-[#706f6c] md:w-16 md:text-xs dark:text-[#A1A09A]">
+                                            {v.created_at
+                                                ? new Date(
+                                                      v.created_at,
+                                                  ).toLocaleTimeString(
+                                                      'en-US',
+                                                      {
+                                                          hour: '2-digit',
+                                                          minute: '2-digit',
+                                                          hour12: true,
+                                                      },
+                                                  )
+                                                : ''}
                                         </div>
-                                        <div className="w-20 text-right text-[10px] font-semibold text-red-600 md:w-24 md:text-xs">-{v.amount}</div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-[10px] font-medium md:text-xs">
+                                                {v.expense_name}
+                                            </p>
+                                            {v.buy_auction && (
+                                                <p className="text-[9px] font-medium text-[#00447C] md:text-[10px] dark:text-[#6ab0e3]">
+                                                    Bought via Auction
+                                                </p>
+                                            )}
+                                            {v.description && (
+                                                <p className="truncate text-[9px] text-[#706f6c] md:text-[10px] dark:text-[#A1A09A]">
+                                                    {v.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="w-20 text-right text-[10px] font-semibold text-red-600 md:w-24 md:text-xs">
+                                            -{v.amount}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -166,12 +207,20 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
 
             {showForm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className={`mx-4 w-full ${showStockFields ? 'md:max-w-4xl' : 'max-w-md'} max-h-[90vh] overflow-y-auto rounded-lg border border-[#19140035] bg-white p-6 shadow-lg dark:border-[#3E3E3A] dark:bg-[#161615]`}>
+                    <div
+                        className={`mx-4 w-full ${showStockFields ? 'md:max-w-4xl' : 'max-w-md'} max-h-[90vh] overflow-y-auto rounded-lg border border-[#19140035] bg-white p-6 shadow-lg dark:border-[#3E3E3A] dark:bg-[#161615]`}
+                    >
                         <div className="mb-4 flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">{editingExpense ? 'Edit Expense' : 'Expense Information'}</h2>
+                            <h2 className="text-lg font-semibold">
+                                {editingExpense
+                                    ? 'Edit Expense'
+                                    : 'Expense Information'}
+                            </h2>
                             <button
                                 type="button"
-                                onClick={() => setShowStockFields(!showStockFields)}
+                                onClick={() =>
+                                    setShowStockFields(!showStockFields)
+                                }
                                 title="Add vehicle to stock"
                                 className={`rounded-md p-1.5 transition-colors ${showStockFields ? 'bg-[#00447C] text-white' : 'text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] dark:hover:text-white'}`}
                             >
@@ -179,7 +228,9 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                             </button>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            <div className={`${showStockFields ? 'md:grid md:grid-cols-2 md:gap-6' : ''}`}>
+                            <div
+                                className={`${showStockFields ? 'md:grid md:grid-cols-2 md:gap-6' : ''}`}
+                            >
                                 <div>
                                     <div className="mb-4">
                                         <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -188,7 +239,12 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                         <input
                                             type="text"
                                             value={data.expense_name}
-                                            onChange={(e) => setData('expense_name', e.target.value)}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'expense_name',
+                                                    e.target.value,
+                                                )
+                                            }
                                             className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                             placeholder="Enter expense name"
                                         />
@@ -200,7 +256,12 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                         <input
                                             type="text"
                                             value={data.amount}
-                                            onChange={(e) => setData('amount', e.target.value)}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'amount',
+                                                    e.target.value,
+                                                )
+                                            }
                                             className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                             placeholder="Enter amount"
                                         />
@@ -211,7 +272,12 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                         </label>
                                         <textarea
                                             value={data.description}
-                                            onChange={(e) => setData('description', e.target.value)}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'description',
+                                                    e.target.value,
+                                                )
+                                            }
                                             className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                             placeholder="Enter description"
                                             rows={3}
@@ -220,105 +286,177 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                     <input type="hidden" value={data.date} />
                                 </div>
                                 {showStockFields && (
-                                    <div className="mb-4 rounded-lg border border-[#19140035] p-3 dark:border-[#3E3E3A] md:mb-0">
-                                        <p className="mb-3 text-xs font-semibold text-[#706f6c] dark:text-[#A1A09A]">Vehicle / Stock Details</p>
+                                    <div className="mb-4 rounded-lg border border-[#19140035] p-3 md:mb-0 dark:border-[#3E3E3A]">
+                                        <p className="mb-3 text-xs font-semibold text-[#706f6c] dark:text-[#A1A09A]">
+                                            Vehicle / Stock Details
+                                        </p>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">Name</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    Name
+                                                </label>
                                                 <input
                                                     type="text"
                                                     value={data.name}
-                                                    onChange={(e) => setData('name', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'name',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="Vehicle name"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">Company</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    Company
+                                                </label>
                                                 <input
                                                     type="text"
                                                     value={data.company}
-                                                    onChange={(e) => setData('company', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'company',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="Company"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">Colour</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    Colour
+                                                </label>
                                                 <input
                                                     type="text"
                                                     value={data.colour}
-                                                    onChange={(e) => setData('colour', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'colour',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="Colour"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">Shop Name</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    Shop Name
+                                                </label>
                                                 <input
                                                     type="text"
                                                     value={data.shopname}
-                                                    onChange={(e) => setData('shopname', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'shopname',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="Shop name"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">Chassis Number</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    Chassis Number
+                                                </label>
                                                 <input
                                                     type="text"
                                                     value={data.chassisnumber}
-                                                    onChange={(e) => setData('chassisnumber', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'chassisnumber',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="Chassis number"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">Price</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    Price
+                                                </label>
                                                 <input
                                                     type="number"
                                                     value={data.price}
-                                                    onChange={(e) => setData('price', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'price',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="0"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">T Price</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    T Price
+                                                </label>
                                                 <input
                                                     type="number"
                                                     value={data.t_price}
-                                                    onChange={(e) => setData('t_price', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            't_price',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="0"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">N Price</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    N Price
+                                                </label>
                                                 <input
                                                     type="number"
                                                     value={data.n_price}
-                                                    onChange={(e) => setData('n_price', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'n_price',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="0"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">A Price</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    A Price
+                                                </label>
                                                 <input
                                                     type="number"
                                                     value={data.a_price}
-                                                    onChange={(e) => setData('a_price', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'a_price',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="0"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">Expected Profit</label>
+                                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                    Expected Profit
+                                                </label>
                                                 <input
                                                     type="number"
                                                     value={data.expected_profit}
-                                                    onChange={(e) => setData('expected_profit', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'expected_profit',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                                     placeholder="0"
                                                 />
@@ -331,44 +469,81 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                 <div className="mb-4 rounded-lg border border-[#19140035] bg-gray-50 p-4 dark:border-[#3E3E3A] dark:bg-[#1a1a19]">
                                     <div className="mb-3 flex items-center gap-2">
                                         <Gavel className="h-4 w-4 text-[#00447C]" />
-                                        <p className="text-xs font-semibold text-[#706f6c] dark:text-[#A1A09A]">Auction Details</p>
+                                        <p className="text-xs font-semibold text-[#706f6c] dark:text-[#A1A09A]">
+                                            Auction Details
+                                        </p>
                                     </div>
                                     <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                                         <div>
-                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Company</p>
-                                            <p className="text-xs font-medium">{auctionData.company || '-'}</p>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">
+                                                Company
+                                            </p>
+                                            <p className="text-xs font-medium">
+                                                {auctionData.company || '-'}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Colour</p>
-                                            <p className="text-xs font-medium">{auctionData.colour || '-'}</p>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">
+                                                Colour
+                                            </p>
+                                            <p className="text-xs font-medium">
+                                                {auctionData.colour || '-'}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Shop Name</p>
-                                            <p className="text-xs font-medium">{auctionData.shopname || '-'}</p>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">
+                                                Shop Name
+                                            </p>
+                                            <p className="text-xs font-medium">
+                                                {auctionData.shopname || '-'}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Chassis Number</p>
-                                            <p className="text-xs font-medium">{auctionData.chassisnumber || '-'}</p>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">
+                                                Chassis Number
+                                            </p>
+                                            <p className="text-xs font-medium">
+                                                {auctionData.chassisnumber ||
+                                                    '-'}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Description</p>
-                                            <p className="text-xs font-medium">{auctionData.description || '-'}</p>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">
+                                                Description
+                                            </p>
+                                            <p className="text-xs font-medium">
+                                                {auctionData.description || '-'}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">For Who</p>
-                                            <p className="text-xs font-medium">{auctionData.for_who || '-'}</p>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">
+                                                For Who
+                                            </p>
+                                            <p className="text-xs font-medium">
+                                                {auctionData.for_who || '-'}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Price</p>
-                                            <p className="text-xs font-medium">{auctionData.price || '-'}</p>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">
+                                                Price
+                                            </p>
+                                            <p className="text-xs font-medium">
+                                                {auctionData.price || '-'}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">Paid</p>
+                                            <p className="text-[10px] text-[#706f6c] dark:text-[#A1A09A]">
+                                                Paid
+                                            </p>
                                             <p className="text-xs font-medium">
                                                 {auctionData.paid ? (
-                                                    <span className="text-green-600">Yes</span>
+                                                    <span className="text-green-600">
+                                                        Yes
+                                                    </span>
                                                 ) : (
-                                                    <span className="text-red-600">No</span>
+                                                    <span className="text-red-600">
+                                                        No
+                                                    </span>
                                                 )}
                                             </p>
                                         </div>
@@ -385,7 +560,11 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => { setShowForm(false); setEditingExpense(null); reset(); }}
+                                    onClick={() => {
+                                        setShowForm(false);
+                                        setEditingExpense(null);
+                                        reset();
+                                    }}
                                     className="rounded-md border border-[#19140035] px-4 py-2 text-sm font-medium dark:border-[#3E3E3A]"
                                 >
                                     Cancel

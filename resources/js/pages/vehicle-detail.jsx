@@ -193,8 +193,8 @@ export default function VehicleDetail({
                     </div>
                 </div>
             </nav>
-            <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex w-full flex-col gap-8 px-6 pt-4 pb-32 md:pt-8">
+            <main className="flex flex-1 flex-col overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
+                <div className="flex w-full flex-1 flex-col gap-8 px-6 pt-4 pb-32 md:pt-8">
                     <div className="flex items-center gap-3">
                         <input
                             type="date"
