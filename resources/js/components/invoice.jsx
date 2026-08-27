@@ -294,16 +294,16 @@ export default function Invoice({
                                     <tbody>
                                         {lines.map((v, idx) => (
                                             <tr key={v.id ?? idx}>
-                                                <td className="border border-black p-[2mm] text-center text-[13px]">
+                                                <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                     {idx + 1}
                                                 </td>
-                                                <td className="border border-black p-[2mm] text-center text-[13px]">
+                                                <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                     {v.name}
                                                 </td>
-                                                <td className="border border-black p-[2mm] text-center text-[13px]">
+                                                <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                     {v.chassisnumber}
                                                 </td>
-                                                <td className="border border-black p-[2mm] text-center text-[13px]">
+                                                <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                     {editable ? (
                                                         <input
                                                             type="text"
@@ -316,7 +316,7 @@ export default function Invoice({
                                                                         .value,
                                                                 )
                                                             }
-                                                            className="w-[60mm] bg-transparent text-center text-[13px] focus:outline-none"
+                                                            className="w-[60mm] bg-transparent text-center text-[20px] leading-none focus:outline-none"
                                                         />
                                                     ) : parseFloat(v.amount) ? (
                                                         fmtYen(
@@ -337,16 +337,16 @@ export default function Invoice({
                                             ),
                                         }).map((_, i) => (
                                             <tr key={`empty-${i}`}>
-                                                <td className="border border-black p-[2mm] text-center text-[13px]">
+                                                <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                     &nbsp;
                                                 </td>
-                                                <td className="border border-black p-[2mm] text-center text-[13px]">
+                                                <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                     &nbsp;
                                                 </td>
-                                                <td className="border border-black p-[2mm] text-center text-[13px]">
+                                                <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                     &nbsp;
                                                 </td>
-                                                <td className="border border-black p-[2mm] text-center text-[13px]">
+                                                <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                     &nbsp;
                                                 </td>
                                             </tr>
@@ -387,7 +387,7 @@ export default function Invoice({
                                             >
                                                 1. &nbsp;10% of Total amount
                                             </td>
-                                            <td className="border border-black p-[2mm] text-center text-[20px]">
+                                            <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                 {fmtYen(total * 0.1)}
                                             </td>
                                         </tr>
@@ -399,7 +399,7 @@ export default function Invoice({
                                                 2. &nbsp;Amount After Text
                                                 Deduction (Total -10%)
                                             </td>
-                                            <td className="border border-black p-[2mm] text-center text-[20px]">
+                                            <td className="border border-black p-[2mm] text-center text-[20px] leading-none">
                                                 {fmtYen(total * 0.9)}
                                             </td>
                                         </tr>
