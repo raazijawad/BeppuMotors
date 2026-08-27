@@ -153,6 +153,15 @@ export default function Invoice({
                             </div>
                         </div>
                         <hr className="mt-[5mm] border-black" style={{ borderWidth: '1px' }} />
+                        <h2 className="mt-[1mm] text-center text-[28px] font-bold" style={{ fontFamily: 'Georgia, serif' }}>INVOICE</h2>
+                        <div className="relative">
+                            <p className="text-center text-[26px] ml-10 text-blue-800" style={{ letterSpacing: '0.8em' }}>請求書（控）</p>
+                            <div className="absolute top-[-4mm] right-[2mm] flex flex-col items-center justify-center rounded-md border-[2px] border-red-600 text-center" style={{ width: '30mm', height: '30mm' }}>
+                                <p className="mt-[-1mm] text-[32px] font-medium text-red-600" style={{ fontFamily: 'serif', letterSpacing: '0.3em' }}>別府</p>
+                                <p className="mt-[-4mm] text-[28px] font-bold text-red-600" style={{ fontFamily: 'serif', letterSpacing: '0em', whiteSpace: 'nowrap', transform: 'scaleX(0.7)' }}>モータース</p>
+                                <p className="mt-[-4mm] text-[29px] font-bold text-red-600" style={{ fontFamily: 'serif', letterSpacing: '0.1em', whiteSpace: 'nowrap', transform: 'scaleX(0.8)' }}>株式会社</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
