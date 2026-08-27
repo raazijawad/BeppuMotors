@@ -185,6 +185,15 @@ export default function Invoice({
                                         <tr><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td></tr>
                                         <tr><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td></tr>
                                         <tr><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td></tr>
+                                        <tr><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="border border-black p-[2mm] text-center text-[13px]">&nbsp;</td></tr>
+                                        <tr><td colSpan={3} className="border-y border-l border-black p-[2mm] text-center text-[13px]">&nbsp;</td><td className="relative border-y border-r border-black p-[2mm] text-center text-[13px]">&nbsp;<div className="absolute top-0 bottom-0" style={{ left: '12mm', borderLeft: '1px solid black' }} /></td></tr>
+                                    </tbody>
+                                </table>
+                                <table className="mt-[4mm] w-[192mm] border-collapse" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                                    <tbody>
+                                        <tr><td className="border border-black p-[2mm]">&nbsp;</td><td className="border border-black p-[2mm]">&nbsp;</td></tr>
+                                        <tr><td className="border border-black p-[2mm]">&nbsp;</td><td className="border border-black p-[2mm]">&nbsp;</td></tr>
+                                        <tr><td className="border border-black p-[2mm]">&nbsp;</td><td className="border border-black p-[2mm]">&nbsp;</td></tr>
                                     </tbody>
                                 </table>
                             </div>
