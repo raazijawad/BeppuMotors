@@ -9,6 +9,7 @@ export default function Customer({ customers = [], stocks = [] }) {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [selectedVehicles, setSelectedVehicles] = useState([]);
     const [viewInvoice, setViewInvoice] = useState(null);
+    const [viewDraft, setViewDraft] = useState(false);
 
     const today = new Date().toISOString().slice(0, 10);
     const [invoiceDate, setInvoiceDate] = useState(today);
@@ -34,18 +35,19 @@ export default function Customer({ customers = [], stocks = [] }) {
     const handleOpenCustomer = (customer) => {
         setSelectedCustomer(customer);
         setSelectedVehicles([]);
+        setViewDraft(false);
     };
 
     // back to customers list function
     const handleBackToCustomers = () => {
         setSelectedCustomer(null);
         setSelectedVehicles([]);
+        setViewDraft(false);
     };
 
     // add vehicle to invoice function
     const handleSelectVehicle = (stock) => {
         setSelectedVehicles((prev) => [...prev, { ...stock, amount: '' }]);
-        setShowSaleModal(false);
     };
 
     // remove vehicle from invoice function
@@ -78,6 +80,7 @@ export default function Customer({ customers = [], stocks = [] }) {
             {
                 onSuccess: (page) => {
                     setSelectedVehicles([]);
+                    setViewDraft(false);
                     const fresh = (page.props.customers || []).find(
                         (c) => c.id === selectedCustomer.id,
                     );
@@ -96,20 +99,57 @@ export default function Customer({ customers = [], stocks = [] }) {
         }
     };
 
-    // delete invoice function
-    const handleDeleteInvoice = (invoice) => {
-        if (confirm('Delete this invoice?')) {
-            router.delete(`/invoices/${invoice.id}`, {
+    // delete a whole sale (multiple invoices sharing the same date)
+    const handleDeleteSale = (group) => {
+        if (
+            !confirm(
+                `Delete this invoice (${group.invoices.length} vehicle${group.invoices.length === 1 ? '' : 's'})?`,
+            )
+        ) {
+            return;
+        }
+        group.invoices.forEach((inv) => {
+            router.delete(`/invoices/${inv.id}`, {
                 preserveScroll: true,
             });
-        }
+        });
     };
 
     const purchasedStockIds = selectedCustomer
         ? new Set((selectedCustomer.invoices || []).map((inv) => inv.stock_id))
         : new Set();
 
-    const invoiceActive = selectedVehicles.length > 0 || viewInvoice !== null;
+    const invoices = selectedCustomer?.invoices || [];
+
+    // group saved invoices by date so a multi-vehicle sale shows as one entry
+    const saleGroups = (() => {
+        const groups = [];
+        const byDate = new Map();
+        for (const inv of invoices) {
+            if (!byDate.has(inv.date)) {
+                const g = { date: inv.date, invoices: [] };
+                byDate.set(inv.date, g);
+                groups.push(g);
+            }
+            byDate.get(inv.date).invoices.push(inv);
+        }
+        return groups;
+    })();
+
+    const draftTotal = selectedVehicles.reduce(
+        (s, v) => s + (parseFloat(v.amount) || 0),
+        0,
+    );
+    const groupTotal = (g) =>
+        g.invoices.reduce((s, inv) => s + (parseFloat(inv.amount) || 0), 0);
+    const fmt = (n) =>
+        n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+const summarize = (items, getName) => {
+        const names = items.map(getName).filter(Boolean);
+        return names.join(', ') || 'Vehicle';
+    };
+    const invoiceActive =
+        (viewDraft && selectedVehicles.length > 0) || viewInvoice !== null;
 
     const invoiceNo = `INV-${(selectedCustomer?.invoices?.length || 0) + 1}`;
 
@@ -250,62 +290,72 @@ export default function Customer({ customers = [], stocks = [] }) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {selectedVehicles.length > 0 &&
-                                                selectedVehicles.map((v) => (
-                                                    <tr
-                                                        key={v.id}
-                                                        className="border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50"
-                                                    >
-                                                        <td className="px-2 py-1.5 text-[#706f6c] dark:text-[#A1A09A]">
-                                                            {invoiceDate}
-                                                        </td>
-                                                        <td className="px-2 py-1.5 font-medium">
-                                                            {v.name}
-                                                        </td>
-                                                        <td className="px-2 py-1.5">
-                                                            {v.amount}
-                                                        </td>
-                                                        <td className="px-2 py-1.5 text-right">
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleRemoveVehicle(
-                                                                        v.id,
-                                                                    )
-                                                                }
-                                                                className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
-                                                            >
-                                                                Remove
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            {(
-                                                selectedCustomer.invoices || []
-                                            ).map((inv) => (
+                                            {selectedVehicles.length > 0 && (
                                                 <tr
-                                                    key={inv.id}
                                                     onClick={() =>
-                                                        setViewInvoice(inv)
+                                                        setViewDraft(true)
                                                     }
                                                     className="cursor-pointer border-b border-[#19140035]/50 hover:bg-gray-50 dark:border-[#3E3E3A]/50 dark:hover:bg-[#1a1a19]"
                                                     title="View invoice"
                                                 >
-                                                    <td className="px-2 py-1.5">
-                                                        {inv.date}
+                                                    <td className="px-2 py-1.5 text-[#706f6c] dark:text-[#A1A09A]">
+                                                        {invoiceDate}
                                                     </td>
                                                     <td className="px-2 py-1.5 font-medium">
-                                                        {inv.stock?.name ||
-                                                            'Vehicle'}
+                                                        {summarize(
+                                                            selectedVehicles,
+                                                            (v) => v.name,
+                                                        )}
                                                     </td>
                                                     <td className="px-2 py-1.5">
-                                                        {parseFloat(inv.amount)}
+                                                        {fmt(draftTotal)}
                                                     </td>
                                                     <td className="px-2 py-1.5 text-right">
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                handleDeleteInvoice(
-                                                                    inv,
+                                                                setSelectedVehicles(
+                                                                    [],
+                                                                );
+                                                            }}
+                                                            className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                            {saleGroups.map((g) => (
+                                                <tr
+                                                    key={g.date}
+                                                    onClick={() =>
+                                                        setViewInvoice(g)
+                                                    }
+                                                    className="cursor-pointer border-b border-[#19140035]/50 hover:bg-gray-50 dark:border-[#3E3E3A]/50 dark:hover:bg-[#1a1a19]"
+                                                    title="View invoice"
+                                                >
+                                                    <td className="px-2 py-1.5">
+                                                        {g.date}
+                                                    </td>
+                                                    <td className="px-2 py-1.5 font-medium">
+                                                        {summarize(
+                                                            g.invoices,
+                                                            (inv) =>
+                                                                inv.stock?.name,
+                                                        )}
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        {fmt(groupTotal(g))}
+                                                    </td>
+                                                    <td className="px-2 py-1.5 text-right">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setViewInvoice(
+                                                                    null,
+                                                                );
+                                                                handleDeleteSale(
+                                                                    g,
                                                                 );
                                                             }}
                                                             className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
@@ -316,10 +366,7 @@ export default function Customer({ customers = [], stocks = [] }) {
                                                 </tr>
                                             ))}
                                             {selectedVehicles.length === 0 &&
-                                                (
-                                                    selectedCustomer.invoices ||
-                                                    []
-                                                ).length === 0 && (
+                                                saleGroups.length === 0 && (
                                                     <tr>
                                                         <td
                                                             colSpan={4}
@@ -336,37 +383,38 @@ export default function Customer({ customers = [], stocks = [] }) {
                                 </div>
                             </div>
 
-                            {selectedVehicles.length > 0 && (
-                                <Invoice
-                                    customer={selectedCustomer}
-                                    lines={selectedVehicles}
-                                    invoiceNo={invoiceNo}
-                                    date={invoiceDate}
-                                    showSave
-                                    saving={processing}
-                                    onSave={handleSaveInvoice}
-                                    onClose={() => setSelectedVehicles([])}
-                                    onAmountChange={handleAmountChange}
-                                    onRemove={handleRemoveVehicle}
-                                    stocks={stocks}
-                                    onAddVehicle={handleSelectVehicle}
-                                />
-                            )}
+                            {viewDraft &&
+                                selectedVehicles.length > 0 &&
+                                !showSaleModal && (
+                                    <Invoice
+                                        customer={selectedCustomer}
+                                        lines={selectedVehicles}
+                                        invoiceNo={invoiceNo}
+                                        date={invoiceDate}
+                                        showSave
+                                        saving={processing}
+                                        onSave={handleSaveInvoice}
+                                        onClose={() => {
+                                            setViewDraft(false);
+                                            setSelectedVehicles([]);
+                                        }}
+                                        onAmountChange={handleAmountChange}
+                                        onRemove={handleRemoveVehicle}
+                                        stocks={stocks}
+                                        onAddVehicle={handleSelectVehicle}
+                                    />
+                                )}
 
                             {viewInvoice && (
                                 <Invoice
                                     customer={selectedCustomer}
-                                    lines={[
-                                        {
-                                            ...(viewInvoice.stock || {}),
-                                            id: viewInvoice.stock_id,
-                                            name:
-                                                viewInvoice.stock?.name ||
-                                                'Vehicle',
-                                            amount: viewInvoice.amount,
-                                        },
-                                    ]}
-                                    invoiceNo={`INV-${viewInvoice.id}`}
+                                    lines={viewInvoice.invoices.map((inv) => ({
+                                        ...(inv.stock || {}),
+                                        id: inv.stock_id,
+                                        name: inv.stock?.name || 'Vehicle',
+                                        amount: inv.amount,
+                                    }))}
+                                    invoiceNo={`INV-${viewInvoice.invoices[0].id}`}
                                     date={viewInvoice.date}
                                     onClose={() => setViewInvoice(null)}
                                 />
@@ -436,6 +484,19 @@ export default function Customer({ customers = [], stocks = [] }) {
                                     ))}
                             </div>
                         )}
+                        <div className="mt-4 flex items-center justify-between border-t border-[#19140035]/50 pt-3 dark:border-[#3E3E3A]/50">
+                            <p className="text-xs text-[#706f6c] dark:text-[#A1A09A]">
+                                {selectedVehicles.length} vehicle
+                                {selectedVehicles.length === 1 ? '' : 's'}{' '}
+                                selected
+                            </p>
+                            <button
+                                onClick={() => setShowSaleModal(false)}
+                                className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] md:text-sm"
+                            >
+                                Done
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
