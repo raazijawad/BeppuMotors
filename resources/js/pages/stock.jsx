@@ -89,7 +89,7 @@ export default function Stock({ stocks = [] }) {
                                             <td className="px-2 py-1.5">{parseFloat(s.price)}</td>
                                             <td className="px-2 py-1.5">{parseFloat(s.t_price)}</td>
                                             <td className="px-2 py-1.5">{parseFloat(s.n_price)}</td>
-                                            <td className="px-2 py-1.5">{parseFloat(s.a_price)}</td>
+                                            <td className="px-2 py-1.5">{s.a_price}</td>
                                             <td className="px-2 py-1.5 font-semibold text-green-600">{parseFloat(s.expected_profit)}</td>
                                         </tr>
                                     ))
@@ -146,7 +146,7 @@ export default function Stock({ stocks = [] }) {
                             </div>
                             <div className="col-span-2 sm:col-span-1">
                                 <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">A Price</label>
-                                <input type="number" value={data.a_price} onChange={(e) => setData('a_price', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" required />
+                                <input type="text" value={data.a_price} onChange={(e) => setData('a_price', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" required />
                             </div>
                             <div className="col-span-2 sm:col-span-1">
                                 <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Expected Profit</label>

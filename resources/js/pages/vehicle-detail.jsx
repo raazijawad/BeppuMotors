@@ -300,14 +300,14 @@ export default function VehicleDetail({
                             </button>
                         </div>
                     ) : (
-                        <div className="grid w-full grid-cols-2 gap-4 gap-y-8 md:grid-cols-6 md:gap-4">
+                        <div className="mt-8 grid w-full grid-cols-2 gap-4 gap-y-5 md:grid-cols-6 md:gap-4">
                             <div
                                 onClick={() =>
                                     router.get(
                                         `/vehicle-detail?date=${selectedDay}&view=list`,
                                     )
                                 }
-                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                                className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     +
@@ -315,7 +315,7 @@ export default function VehicleDetail({
                             </div>
                             <Link
                                 href={`/expenses?date=${selectedDay}`}
-                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                                className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     -
@@ -323,7 +323,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/stock?date=${selectedDay}`}
-                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                                className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     Stock
@@ -331,7 +331,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/customer"
-                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                                className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     Customers
@@ -339,7 +339,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/auction"
-                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                                className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     Auction
@@ -347,7 +347,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/cashbook?date=${selectedDay}`}
-                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                                className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     Cash Book
@@ -355,7 +355,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/export"
-                                className="flex h-44 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                                className="col-span-2 flex h-20 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:col-span-1 md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     Export

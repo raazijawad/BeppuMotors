@@ -31,7 +31,7 @@ class StockController extends Controller
             'price' => 'required|numeric|min:0',
             't_price' => 'required|numeric|min:0',
             'n_price' => 'required|numeric|min:0',
-            'a_price' => 'required|numeric|min:0',
+            'a_price' => 'required|string|max:255',
             'expected_profit' => 'required|numeric|min:0',
         ]);
 
