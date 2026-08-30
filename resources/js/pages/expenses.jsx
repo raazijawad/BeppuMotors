@@ -58,7 +58,7 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
             price: stock ? parseFloat(stock.price) : '',
             t_price: stock ? parseFloat(stock.t_price) : '',
             n_price: stock ? parseFloat(stock.n_price) : '',
-            a_price: stock ? parseFloat(stock.a_price) : '',
+            a_price: stock ? stock.a_price : '',
             expected_profit: stock ? parseFloat(stock.expected_profit) : '',
         });
         setShowForm(true);
@@ -432,7 +432,7 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                                     A Price
                                                 </label>
                                                 <input
-                                                    type="number"
+                                                    type="text"
                                                     value={data.a_price}
                                                     onChange={(e) =>
                                                         setData(
