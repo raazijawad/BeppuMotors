@@ -48,7 +48,7 @@ class SellAuctionController extends Controller
                     }
                 },
             ],
-            'auction_price' => 'required|numeric|min:0',
+            'auction_price' => 'nullable|numeric|min:0',
         ]);
 
         $sellAuction = $request->user()->sellAuctions()->create($validated);

@@ -42,6 +42,28 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
         );
     };
 
+    const handleHoldSubmit = (e) => {
+        e.preventDefault();
+        if (!selectedStock) return;
+        router.post(
+            '/auction/sell',
+            { stock_id: selectedStock.id, auction_price: null },
+            {
+                onSuccess: () => {
+                    setShowPicker(false);
+                    setSelectedStock(null);
+                    setAuctionPriceValue('');
+                    setAuctionError('');
+                },
+                onError: (errors) => {
+                    setAuctionError(
+                        errors.stock_id ?? 'Failed to add vehicle.',
+                    );
+                },
+            },
+        );
+    };
+
     const openPriceModal = (item) => {
         setEditingPrice(item.id);
         setPriceValue(item.auction_price ?? '');
@@ -418,7 +440,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                     setAuctionPriceValue(e.target.value)
                                 }
                                 className="mb-4 w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                required
+                                placeholder="Optional — set later"
                                 autoFocus
                             />
                             <div className="flex gap-2">
@@ -428,6 +450,14 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                     className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"
                                 >
                                     Add to Sell Auction
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleHoldSubmit}
+                                    disabled={router.processing}
+                                    className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium text-[#706f6c] hover:bg-gray-50 md:text-sm dark:border-[#3E3E3A] dark:text-[#A1A09A] dark:hover:bg-[#1a1a19]"
+                                >
+                                    Hold
                                 </button>
                                 <button
                                     type="button"
