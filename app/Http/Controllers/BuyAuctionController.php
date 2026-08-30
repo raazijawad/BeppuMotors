@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BuyAuction;
 use App\Models\Expense;
+use App\Models\User;
 use App\Notifications\UnpaidAuctionReminder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Notifications\DatabaseNotification;
@@ -60,12 +61,23 @@ class BuyAuctionController extends Controller
             'buy_auction_id' => $buyAuction->id,
         ]);
 
+        User::query()->each(
+            fn (User $user) => $user->notify(
+                new UnpaidAuctionReminder($buyAuction),
+            ),
+        );
+
         return back();
     }
 
     public function destroy(BuyAuction $buyAuction): RedirectResponse
     {
         Expense::where('buy_auction_id', $buyAuction->id)->delete();
+
+        DatabaseNotification::where('type', UnpaidAuctionReminder::class)
+            ->where('data->buy_auction_id', $buyAuction->id)
+            ->delete();
+
         $buyAuction->delete();
         return back();
     }
