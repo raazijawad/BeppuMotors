@@ -2,6 +2,7 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 import Invoice from '@/components/invoice';
+import Ledger from '@/components/ledger';
 
 export default function Customer({ customers = [], stocks = [] }) {
     const [showForm, setShowForm] = useState(false);
@@ -10,6 +11,7 @@ export default function Customer({ customers = [], stocks = [] }) {
     const [selectedVehicles, setSelectedVehicles] = useState([]);
     const [viewInvoice, setViewInvoice] = useState(null);
     const [viewDraft, setViewDraft] = useState(false);
+    const [showLedger, setShowLedger] = useState(false);
 
     const today = new Date().toISOString().slice(0, 10);
     const [invoiceDate, setInvoiceDate] = useState(today);
@@ -161,7 +163,9 @@ export default function Customer({ customers = [], stocks = [] }) {
         return names.join(', ') || 'Vehicle';
     };
     const invoiceActive =
-        (viewDraft && selectedVehicles.length > 0) || viewInvoice !== null;
+        (viewDraft && selectedVehicles.length > 0) ||
+        viewInvoice !== null ||
+        showLedger;
 
     const invoiceNo = `INV-${(selectedCustomer?.invoices?.length || 0) + 1}`;
 
@@ -272,6 +276,7 @@ export default function Customer({ customers = [], stocks = [] }) {
                                         + Sale a Car
                                     </button>
                                     <button
+                                        onClick={() => setShowLedger(true)}
                                         className="rounded-md border border-[#19140035] px-2.5 py-1.5 text-xs font-medium text-[#00447C] hover:bg-gray-50 md:px-4 md:py-2 md:text-sm dark:border-[#3E3E3A] dark:text-[#6cb2e6] dark:hover:bg-[#1a1a19]"
                                     >
                                         Ledger
@@ -434,6 +439,13 @@ export default function Customer({ customers = [], stocks = [] }) {
                                     invoiceNo={`INV-${viewInvoice.invoices[0].id}`}
                                     date={viewInvoice.date}
                                     onClose={() => setViewInvoice(null)}
+                                />
+                            )}
+
+                            {showLedger && (
+                                <Ledger
+                                    customer={selectedCustomer}
+                                    onClose={() => setShowLedger(false)}
                                 />
                             )}
                         </>

@@ -5,6 +5,7 @@ import Footer from '@/components/footer';
 
 export default function VehicleDetail({
     incomes = [],
+    customers = [],
     selectedDate = null,
     view = null,
     auctionNotifications = [],
@@ -28,6 +29,7 @@ export default function VehicleDetail({
         amount: '',
         description: '',
         date: selectedDate || today,
+        customer_id: '',
     });
 
     const handleDateChange = (e) => {
@@ -373,6 +375,27 @@ export default function VehicleDetail({
                             Income Information
                         </h2>
                         <form onSubmit={handleAddIncome}>
+                            <div className="mb-4">
+                                <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                    Customer
+                                </label>
+                                <select
+                                    value={data.customer_id}
+                                    onChange={(e) =>
+                                        setData('customer_id', e.target.value)
+                                    }
+                                    className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                >
+                                    <option value="">
+                                        Select customer (optional)
+                                    </option>
+                                    {customers.map((c) => (
+                                        <option key={c.id} value={c.id}>
+                                            {c.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                             <div className="mb-4">
                                 <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     Income Name

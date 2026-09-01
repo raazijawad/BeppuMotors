@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BuyAuction;
+use App\Models\Customer;
 use App\Models\Income;
 use App\Models\SellAuction;
 use App\Notifications\DocumentNotSubmittedReminder;
@@ -18,7 +19,9 @@ class IncomeController extends Controller
     {
         $date = $request->query('date');
 
-        $incomes = Income::latest()->get();
+        $incomes = Income::with('customer')->latest()->get();
+
+        $customers = Customer::orderBy('name')->get();
 
         $notifications = $request->user()
             ->unreadNotifications()
@@ -78,6 +81,7 @@ class IncomeController extends Controller
 
         return Inertia::render('vehicle-detail', [
             'incomes' => $incomes,
+            'customers' => $customers,
             'selectedDate' => $date,
             'view' => $request->query('view'),
             'auctionNotifications' => $auctionNotifications,
@@ -92,6 +96,7 @@ class IncomeController extends Controller
             'amount' => 'required|numeric|min:0',
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
+            'customer_id' => 'nullable|exists:customers,id',
         ]);
 
         $request->user()->incomes()->create($validated);

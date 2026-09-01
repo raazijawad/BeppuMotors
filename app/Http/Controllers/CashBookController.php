@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Drawer;
-use App\Models\Income;
 use App\Models\Expense;
+use App\Models\Income;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,7 +16,7 @@ class CashBookController extends Controller
         $date = $request->query('date');
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
-        $incomes = Income::where('date', 'like', $month . '%')->get()->map(fn ($i) => [
+        $incomes = Income::with('customer')->where('date', 'like', $month.'%')->get()->map(fn ($i) => [
             'id' => $i->id,
             'type' => 'income',
             'name' => $i->income_name,
@@ -24,8 +24,9 @@ class CashBookController extends Controller
             'description' => $i->description,
             'date' => $i->date,
             'created_at' => $i->created_at,
+            'customer' => $i->customer?->name,
         ]);
-        $expenses = Expense::where('date', 'like', $month . '%')->get()->map(fn ($e) => [
+        $expenses = Expense::with('customer')->where('date', 'like', $month.'%')->get()->map(fn ($e) => [
             'id' => $e->id,
             'type' => 'expense',
             'name' => $e->expense_name,
@@ -33,6 +34,7 @@ class CashBookController extends Controller
             'description' => $e->description,
             'date' => $e->date,
             'created_at' => $e->created_at,
+            'customer' => $e->customer?->name,
         ]);
 
         $entries = $incomes->concat($expenses)->sortBy('created_at')->values();

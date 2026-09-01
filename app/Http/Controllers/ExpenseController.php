@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Expense;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,10 +15,13 @@ class ExpenseController extends Controller
     {
         $date = $request->query('date');
 
-        $expenses = Expense::with(['stock', 'buyAuction'])->latest()->get();
+        $expenses = Expense::with(['stock', 'buyAuction', 'customer'])->latest()->get();
+
+        $customers = Customer::orderBy('name')->get();
 
         return Inertia::render('expenses', [
             'expenses' => $expenses,
+            'customers' => $customers,
             'selectedDate' => $date,
         ]);
     }
@@ -29,6 +33,7 @@ class ExpenseController extends Controller
             'amount' => 'required|numeric|min:0',
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
+            'customer_id' => 'nullable|exists:customers,id',
         ]);
 
         $expense = $request->user()->expenses()->create($validated);
@@ -68,6 +73,7 @@ class ExpenseController extends Controller
             'amount' => 'required|numeric|min:0',
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
+            'customer_id' => 'nullable|exists:customers,id',
         ]);
 
         $expense->update($validated);

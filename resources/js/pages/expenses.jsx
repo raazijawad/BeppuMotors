@@ -3,7 +3,11 @@ import { Car, Gavel } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
-export default function Expenses({ expenses = [], selectedDate = null }) {
+export default function Expenses({
+    expenses = [],
+    customers = [],
+    selectedDate = null,
+}) {
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const activeDate = selectedDate || today;
@@ -19,6 +23,7 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
         amount: '',
         description: '',
         date: activeDate,
+        customer_id: '',
         name: '',
         company: '',
         colour: '',
@@ -50,6 +55,7 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
             amount: expense.amount,
             description: expense.description || '',
             date: expense.date,
+            customer_id: expense.customer_id || '',
             name: stock?.name || '',
             company: stock?.company || '',
             colour: stock?.colour || '',
@@ -232,6 +238,30 @@ export default function Expenses({ expenses = [], selectedDate = null }) {
                                 className={`${showStockFields ? 'md:grid md:grid-cols-2 md:gap-6' : ''}`}
                             >
                                 <div>
+                                    <div className="mb-4">
+                                        <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                            Customer
+                                        </label>
+                                        <select
+                                            value={data.customer_id}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'customer_id',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                        >
+                                            <option value="">
+                                                Select customer (optional)
+                                            </option>
+                                            {customers.map((c) => (
+                                                <option key={c.id} value={c.id}>
+                                                    {c.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                     <div className="mb-4">
                                         <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                             Expense Name

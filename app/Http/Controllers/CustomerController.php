@@ -15,7 +15,7 @@ class CustomerController extends Controller
 {
     public function index(Request $request): Response
     {
-        $customers = Customer::with('invoices.stock')->latest()->get();
+        $customers = Customer::with(['invoices.stock', 'incomes', 'expenses'])->latest()->get();
 
         $stocks = Stock::doesntHave('invoices')->latest()->get();
 
@@ -65,12 +65,14 @@ class CustomerController extends Controller
     public function destroy(Customer $customer): RedirectResponse
     {
         $customer->delete();
+
         return back();
     }
 
     public function destroyInvoice(Invoice $invoice): RedirectResponse
     {
         $invoice->delete();
+
         return back();
     }
 }

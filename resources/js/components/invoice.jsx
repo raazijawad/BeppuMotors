@@ -434,7 +434,16 @@ export default function Invoice({
                                             '"Times New Roman", Times, serif',
                                     }}
                                 >
-                                    Invoice : {invoiceNo || ''}
+                                    Invoice No. : T8320001016146
+                                </p>
+                                <p
+                                    className="text-[16px]"
+                                    style={{
+                                        fontFamily:
+                                            '"Times New Roman", Times, serif',
+                                    }}
+                                >
+                                    Bill No. : {invoiceNo || ''}
                                 </p>
                             </div>
                         </div>
