@@ -272,6 +272,11 @@ export default function Customer({ customers = [], stocks = [] }) {
                                         + Sale a Car
                                     </button>
                                     <button
+                                        className="rounded-md border border-[#19140035] px-2.5 py-1.5 text-xs font-medium text-[#00447C] hover:bg-gray-50 md:px-4 md:py-2 md:text-sm dark:border-[#3E3E3A] dark:text-[#6cb2e6] dark:hover:bg-[#1a1a19]"
+                                    >
+                                        Ledger
+                                    </button>
+                                    <button
                                         onClick={() =>
                                             handleDeleteCustomer(
                                                 selectedCustomer,
