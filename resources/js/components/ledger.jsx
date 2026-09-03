@@ -8,6 +8,7 @@ const ROW_COUNT = 15;
 export default function Ledger({ customer = null, onClose = null }) {
     const sheetRef = useRef(null);
     const [scale, setScale] = useState(0.5);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         const updateScale = () => {
@@ -74,7 +75,7 @@ export default function Ledger({ customer = null, onClose = null }) {
         bySale.get(key).invoices.push(inv);
     }
 
-    const entries = [
+    const allEntries = [
         ...saleGroups.map((g) => ({
             id: g.key,
             date: g.date,
@@ -117,17 +118,26 @@ export default function Ledger({ customer = null, onClose = null }) {
             plus: parseFloat(e.amount) || 0,
             minus: null,
         })),
-    ]
-        .sort((a, b) => {
-            const da = String(a.date || '');
-            const db = String(b.date || '');
-            if (da !== db) return da.localeCompare(db);
-            const ca = a.created_at || 0;
-            const cb = b.created_at || 0;
-            if (ca !== cb) return ca - cb;
-            return String(a.id).localeCompare(String(b.id));
-        })
-        .slice(-ROW_COUNT);
+    ].sort((a, b) => {
+        const da = String(a.date || '');
+        const db = String(b.date || '');
+        if (da !== db) return da.localeCompare(db);
+        const ca = a.created_at || 0;
+        const cb = b.created_at || 0;
+        if (ca !== cb) return ca - cb;
+        return String(a.id).localeCompare(String(b.id));
+    });
+
+    const pageCount = Math.max(1, Math.ceil(allEntries.length / ROW_COUNT));
+    const safePage = Math.min(currentPage, pageCount);
+    const startIdx = Math.max(
+        0,
+        allEntries.length - safePage * ROW_COUNT,
+    );
+    const entries = allEntries.slice(startIdx, startIdx + ROW_COUNT);
+
+    const prevPage = () => setCurrentPage((p) => Math.max(1, p - 1));
+    const nextPage = () => setCurrentPage((p) => Math.min(pageCount, p + 1));
 
     return (
         <div className="fixed inset-0 z-50 flex flex-col items-center gap-2 overflow-hidden bg-neutral-900/80 p-4 backdrop-blur-sm">
@@ -222,6 +232,26 @@ export default function Ledger({ customer = null, onClose = null }) {
                         </table>
                     </div>
                 </div>
+            </div>
+
+            <div className="no-print flex shrink-0 items-center gap-3 rounded-lg bg-neutral-800 px-3 py-2">
+                <button
+                    onClick={prevPage}
+                    disabled={safePage <= 1}
+                    className="rounded-md bg-neutral-700 px-3 py-1 text-sm text-white transition-colors hover:bg-neutral-600 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                    &larr; Prev
+                </button>
+                <span className="text-sm text-neutral-200">
+                    Page {safePage} of {pageCount}
+                </span>
+                <button
+                    onClick={nextPage}
+                    disabled={safePage >= pageCount}
+                    className="rounded-md bg-neutral-700 px-3 py-1 text-sm text-white transition-colors hover:bg-neutral-600 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                    Next &rarr;
+                </button>
             </div>
         </div>
     );
