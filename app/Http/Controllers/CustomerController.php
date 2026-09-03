@@ -17,7 +17,7 @@ class CustomerController extends Controller
     {
         $customers = Customer::with(['invoices.stock', 'incomes', 'expenses'])->latest()->get();
 
-        $stocks = Stock::doesntHave('invoices')->latest()->get();
+        $stocks = Stock::doesntHave('invoices')->doesntHave('sellAuctions')->latest()->get();
 
         return Inertia::render('customer', [
             'customers' => $customers,

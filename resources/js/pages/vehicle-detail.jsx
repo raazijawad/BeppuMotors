@@ -377,9 +377,23 @@ export default function VehicleDetail({
             {showForm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="mx-4 w-full max-w-md rounded-lg border border-[#19140035] bg-white p-6 shadow-lg md:mx-0 dark:border-[#3E3E3A] dark:bg-[#161615]">
-                        <h2 className="mb-4 text-lg font-semibold">
-                            Income Information
-                        </h2>
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="text-lg font-semibold">
+                                Income Information
+                            </h2>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowForm(false);
+                                    setSelectedDrawer(null);
+                                    setShowDrawerSelect(false);
+                                    reset();
+                                }}
+                                className="text-sm text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
+                            >
+                                &times;
+                            </button>
+                        </div>
                         <form onSubmit={handleAddIncome}>
                             <div className="mb-4">
                                 <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -603,7 +617,9 @@ export default function VehicleDetail({
                     </div>
                 </div>
             )}
-            <Footer />
+            <div className={showForm ? 'pointer-events-none blur-sm' : ''}>
+                <Footer />
+            </div>
         </div>
     );
 }
