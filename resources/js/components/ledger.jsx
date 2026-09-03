@@ -38,9 +38,9 @@ export default function Ledger({ customer = null, onClose = null }) {
         style.textContent = `
             @media print {
                 @page { size: A4 portrait; margin: 0; }
-                html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
+                html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0 !important; padding: 0 !important; width: 210mm !important; height: 297mm !important; }
                 body > *:not([data-print-target="${uid}"]) { display: none !important; }
-                [data-print-target="${uid}"] { display: block !important; position: relative !important; inset: auto !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; box-sizing: border-box !important; }
+                [data-print-target="${uid}"] { display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; width: 210mm !important; height: 297mm !important; min-height: 297mm !important; transform: none !important; transform-origin: top left !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
                 [data-print-target="${uid}"] .no-print { display: none !important; }
             }
         `;
