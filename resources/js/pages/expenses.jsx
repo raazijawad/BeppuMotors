@@ -1,11 +1,12 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Car, Gavel } from 'lucide-react';
+import { Car, Gavel, Landmark, X } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
 export default function Expenses({
     expenses = [],
     customers = [],
+    drawers = [],
     selectedDate = null,
 }) {
     const now = new Date();
@@ -17,6 +18,8 @@ export default function Expenses({
     const [showStockFields, setShowStockFields] = useState(false);
     const [filterDate, setFilterDate] = useState('');
     const [auctionData, setAuctionData] = useState(null);
+    const [showDrawerSelect, setShowDrawerSelect] = useState(false);
+    const [selectedDrawer, setSelectedDrawer] = useState(null);
 
     const { data, setData, post, put, processing, reset } = useForm({
         expense_name: '',
@@ -24,6 +27,7 @@ export default function Expenses({
         description: '',
         date: activeDate,
         customer_id: '',
+        drawer_id: '',
         name: '',
         company: '',
         colour: '',
@@ -40,6 +44,8 @@ export default function Expenses({
         reset();
         setEditingExpense(null);
         setShowStockFields(false);
+        setSelectedDrawer(null);
+        setShowDrawerSelect(false);
         setData('date', activeDate);
         setShowForm(true);
     };
@@ -50,12 +56,15 @@ export default function Expenses({
         const auction = expense.buyAuction || expense.buy_auction;
         setShowStockFields(!!stock);
         setAuctionData(auction || null);
+        setSelectedDrawer(null);
+        setShowDrawerSelect(false);
         setData({
             expense_name: expense.expense_name,
             amount: expense.amount,
             description: expense.description || '',
             date: expense.date,
             customer_id: expense.customer_id || '',
+            drawer_id: '',
             name: stock?.name || '',
             company: stock?.company || '',
             colour: stock?.colour || '',
@@ -80,6 +89,8 @@ export default function Expenses({
             put(`/expenses/${editingExpense.id}`, {
                 onSuccess: () => {
                     reset();
+                    setSelectedDrawer(null);
+                    setShowDrawerSelect(false);
                     setEditingExpense(null);
                     setShowForm(false);
                 },
@@ -88,6 +99,8 @@ export default function Expenses({
             post('/expenses', {
                 onSuccess: () => {
                     reset();
+                    setSelectedDrawer(null);
+                    setShowDrawerSelect(false);
                     setShowForm(false);
                 },
             });
@@ -283,18 +296,84 @@ export default function Expenses({
                                         <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                             Amount
                                         </label>
-                                        <input
-                                            type="text"
-                                            value={data.amount}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'amount',
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                            placeholder="Enter amount"
-                                        />
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={data.amount}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        'amount',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                                placeholder="Enter amount"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowDrawerSelect(!showDrawerSelect)}
+                                                className={`shrink-0 rounded-md border px-2 ${selectedDrawer ? 'border-[#00447C] bg-[#00447C]/10 text-[#00447C] dark:border-[#6cb2e6] dark:bg-[#6cb2e6]/10 dark:text-[#6cb2e6]' : 'border-[#19140035] text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]'}`}
+                                            >
+                                                <Landmark className="h-5 w-5" />
+                                            </button>
+                                        </div>
+                                        {selectedDrawer && (
+                                            <p className="mt-1 text-[10px] text-[#00447C] md:text-xs dark:text-[#6cb2e6]">
+                                                Deduct from: {selectedDrawer.name}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedDrawer(null);
+                                                        setData('drawer_id', '');
+                                                    }}
+                                                    className="ml-1 inline-flex items-center text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </button>
+                                            </p>
+                                        )}
+                                        {showDrawerSelect && (
+                                            <div className="mt-2 max-h-40 overflow-y-auto rounded-md border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
+                                                {(() => {
+                                                    const grouped = drawers.reduce((acc, d) => {
+                                                        const rootId = d.parent_id ?? d.id;
+                                                        if (!acc[rootId]) acc[rootId] = [];
+                                                        acc[rootId].push(d);
+                                                        return acc;
+                                                    }, {});
+                                                    const latest = Object.values(grouped)
+                                                        .map((group) => {
+                                                            const filtered = group.filter((e) => e.date <= today);
+                                                            if (filtered.length === 0) return null;
+                                                            return filtered.reduce((a, b) => (a.date > b.date ? a : b));
+                                                        })
+                                                        .filter(Boolean)
+                                                        .sort((a, b) => a.name.localeCompare(b.name));
+                                                    if (latest.length === 0) {
+                                                        return (
+                                                            <p className="px-3 py-2 text-xs text-[#706f6c] dark:text-[#A1A09A]">
+                                                                No drawers found
+                                                            </p>
+                                                        );
+                                                    }
+                                                    return latest.map((drawer) => (
+                                                        <button
+                                                            key={drawer.id}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedDrawer(drawer);
+                                                                setData('drawer_id', drawer.id);
+                                                                setShowDrawerSelect(false);
+                                                            }}
+                                                            className="flex w-full items-center justify-between px-3 py-2 text-left text-xs hover:bg-gray-50 dark:hover:bg-[#2a2a28]"
+                                                        >
+                                                            <span className="font-medium">{drawer.name}</span>
+                                                            <span className="text-green-600">+{parseFloat(drawer.amount)}</span>
+                                                        </button>
+                                                    ));
+                                                })()}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="mb-4">
                                         <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -583,8 +662,8 @@ export default function Expenses({
                             <div className="flex gap-2">
                                 <button
                                     type="submit"
-                                    disabled={processing}
-                                    className="rounded-md bg-[#00447C] px-4 py-2 text-sm font-medium text-white hover:bg-[#003d6f]"
+                                    disabled={processing || (!editingExpense && !data.drawer_id)}
+                                    className="rounded-md bg-[#00447C] px-4 py-2 text-sm font-medium text-white hover:bg-[#003d6f] disabled:opacity-50"
                                 >
                                     {editingExpense ? 'Update' : 'Submit'}
                                 </button>
@@ -592,6 +671,8 @@ export default function Expenses({
                                     type="button"
                                     onClick={() => {
                                         setShowForm(false);
+                                        setSelectedDrawer(null);
+                                        setShowDrawerSelect(false);
                                         setEditingExpense(null);
                                         reset();
                                     }}

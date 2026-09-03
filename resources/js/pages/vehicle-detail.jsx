@@ -1,11 +1,12 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Bell } from 'lucide-react';
+import { Bell, Landmark, X } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
 export default function VehicleDetail({
     incomes = [],
     customers = [],
+    drawers = [],
     selectedDate = null,
     view = null,
     auctionNotifications = [],
@@ -23,6 +24,8 @@ export default function VehicleDetail({
     const showList = view === 'list';
     const [showForm, setShowForm] = useState(false);
     const [viewingIncome, setViewingIncome] = useState(null);
+    const [showDrawerSelect, setShowDrawerSelect] = useState(false);
+    const [selectedDrawer, setSelectedDrawer] = useState(null);
 
     const { data, setData, post, processing, reset } = useForm({
         income_name: '',
@@ -30,6 +33,7 @@ export default function VehicleDetail({
         description: '',
         date: selectedDate || today,
         customer_id: '',
+        drawer_id: '',
     });
 
     const handleDateChange = (e) => {
@@ -48,6 +52,8 @@ export default function VehicleDetail({
         post('/incomes', {
             onSuccess: () => {
                 reset();
+                setSelectedDrawer(null);
+                setShowDrawerSelect(false);
                 setShowForm(false);
             },
         });
@@ -414,15 +420,81 @@ export default function VehicleDetail({
                                 <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     Amount
                                 </label>
-                                <input
-                                    type="text"
-                                    value={data.amount}
-                                    onChange={(e) =>
-                                        setData('amount', e.target.value)
-                                    }
-                                    className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    placeholder="Enter amount"
-                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={data.amount}
+                                        onChange={(e) =>
+                                            setData('amount', e.target.value)
+                                        }
+                                        className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                        placeholder="Enter amount"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowDrawerSelect(!showDrawerSelect)}
+                                        className={`shrink-0 rounded-md border px-2 ${selectedDrawer ? 'border-[#00447C] bg-[#00447C]/10 text-[#00447C] dark:border-[#6cb2e6] dark:bg-[#6cb2e6]/10 dark:text-[#6cb2e6]' : 'border-[#19140035] text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]'}`}
+                                    >
+                                        <Landmark className="h-5 w-5" />
+                                    </button>
+                                </div>
+                                {selectedDrawer && (
+                                    <p className="mt-1 text-[10px] text-[#00447C] md:text-xs dark:text-[#6cb2e6]">
+                                        Add to: {selectedDrawer.name}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedDrawer(null);
+                                                setData('drawer_id', '');
+                                            }}
+                                            className="ml-1 inline-flex items-center text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                    </p>
+                                )}
+                                {showDrawerSelect && (
+                                    <div className="mt-2 max-h-40 overflow-y-auto rounded-md border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
+                                        {(() => {
+                                            const grouped = drawers.reduce((acc, d) => {
+                                                const rootId = d.parent_id ?? d.id;
+                                                if (!acc[rootId]) acc[rootId] = [];
+                                                acc[rootId].push(d);
+                                                return acc;
+                                            }, {});
+                                            const latest = Object.values(grouped)
+                                                .map((group) => {
+                                                    const filtered = group.filter((e) => e.date <= today);
+                                                    if (filtered.length === 0) return null;
+                                                    return filtered.reduce((a, b) => (a.date > b.date ? a : b));
+                                                })
+                                                .filter(Boolean)
+                                                .sort((a, b) => a.name.localeCompare(b.name));
+                                            if (latest.length === 0) {
+                                                return (
+                                                    <p className="px-3 py-2 text-xs text-[#706f6c] dark:text-[#A1A09A]">
+                                                        No drawers found
+                                                    </p>
+                                                );
+                                            }
+                                            return latest.map((drawer) => (
+                                                <button
+                                                    key={drawer.id}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedDrawer(drawer);
+                                                        setData('drawer_id', drawer.id);
+                                                        setShowDrawerSelect(false);
+                                                    }}
+                                                    className="flex w-full items-center justify-between px-3 py-2 text-left text-xs hover:bg-gray-50 dark:hover:bg-[#2a2a28]"
+                                                >
+                                                    <span className="font-medium">{drawer.name}</span>
+                                                    <span className="text-green-600">+{parseFloat(drawer.amount)}</span>
+                                                </button>
+                                            ));
+                                        })()}
+                                    </div>
+                                )}
                             </div>
                             <div className="mb-4">
                                 <label className="mb-1 block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -442,8 +514,8 @@ export default function VehicleDetail({
                             <div className="flex gap-2">
                                 <button
                                     type="submit"
-                                    disabled={processing}
-                                    className="rounded-md bg-[#00447C] px-4 py-2 text-sm font-medium text-white hover:bg-[#003d6f]"
+                                    disabled={processing || !data.drawer_id}
+                                    className="rounded-md bg-[#00447C] px-4 py-2 text-sm font-medium text-white hover:bg-[#003d6f] disabled:opacity-50"
                                 >
                                     Submit
                                 </button>
@@ -451,6 +523,8 @@ export default function VehicleDetail({
                                     type="button"
                                     onClick={() => {
                                         setShowForm(false);
+                                        setSelectedDrawer(null);
+                                        setShowDrawerSelect(false);
                                         reset();
                                     }}
                                     className="rounded-md border border-[#19140035] px-4 py-2 text-sm font-medium dark:border-[#3E3E3A]"

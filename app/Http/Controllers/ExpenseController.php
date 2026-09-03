@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Drawer;
 use App\Models\Expense;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,9 +20,12 @@ class ExpenseController extends Controller
 
         $customers = Customer::orderBy('name')->get();
 
+        $drawers = Drawer::latest()->get();
+
         return Inertia::render('expenses', [
             'expenses' => $expenses,
             'customers' => $customers,
+            'drawers' => $drawers,
             'selectedDate' => $date,
         ]);
     }
@@ -34,9 +38,23 @@ class ExpenseController extends Controller
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
             'customer_id' => 'nullable|exists:customers,id',
+            'drawer_id' => 'required|exists:drawers,id',
         ]);
 
         $expense = $request->user()->expenses()->create($validated);
+
+        if (!empty($validated['drawer_id'])) {
+            $drawer = Drawer::findOrFail($validated['drawer_id']);
+            $parentId = $drawer->parent_id ?? $drawer->id;
+            $newAmount = floatval($drawer->amount) - floatval($validated['amount']);
+
+            $request->user()->drawers()->create([
+                'name' => $drawer->name,
+                'amount' => $newAmount,
+                'date' => $validated['date'],
+                'parent_id' => $parentId,
+            ]);
+        }
 
         if ($request->filled('name')) {
             $stock = $request->user()->stocks()->create([

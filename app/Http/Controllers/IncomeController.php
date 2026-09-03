@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BuyAuction;
 use App\Models\Customer;
+use App\Models\Drawer;
 use App\Models\Income;
 use App\Models\SellAuction;
 use App\Notifications\DocumentNotSubmittedReminder;
@@ -22,6 +23,8 @@ class IncomeController extends Controller
         $incomes = Income::with('customer')->latest()->get();
 
         $customers = Customer::orderBy('name')->get();
+
+        $drawers = Drawer::latest()->get();
 
         $notifications = $request->user()
             ->unreadNotifications()
@@ -82,6 +85,7 @@ class IncomeController extends Controller
         return Inertia::render('vehicle-detail', [
             'incomes' => $incomes,
             'customers' => $customers,
+            'drawers' => $drawers,
             'selectedDate' => $date,
             'view' => $request->query('view'),
             'auctionNotifications' => $auctionNotifications,
@@ -97,9 +101,23 @@ class IncomeController extends Controller
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
             'customer_id' => 'nullable|exists:customers,id',
+            'drawer_id' => 'required|exists:drawers,id',
         ]);
 
         $request->user()->incomes()->create($validated);
+
+        if (!empty($validated['drawer_id'])) {
+            $drawer = Drawer::findOrFail($validated['drawer_id']);
+            $parentId = $drawer->parent_id ?? $drawer->id;
+            $newAmount = floatval($drawer->amount) + floatval($validated['amount']);
+
+            $request->user()->drawers()->create([
+                'name' => $drawer->name,
+                'amount' => $newAmount,
+                'date' => $validated['date'],
+                'parent_id' => $parentId,
+            ]);
+        }
 
         return back();
     }
