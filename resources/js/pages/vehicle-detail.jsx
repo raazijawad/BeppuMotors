@@ -1,22 +1,53 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Bell, Landmark, X } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, Landmark, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
+
+const MONTH_NAMES = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+];
+
+function getMonthLabel(ym) {
+    const [y, m] = ym.split('-');
+    return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
+}
+
+function addMonths(ym, delta) {
+    const [y, m] = ym.split('-').map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
 
 export default function VehicleDetail({
     incomes = [],
     customers = [],
     drawers = [],
     selectedDate = null,
+    selectedMonth = null,
     view = null,
     auctionNotifications = [],
     documentNotifications = [],
 }) {
     const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const [activeMonth, setActiveMonth] = useState(selectedMonth || currentMonth);
     const [selectedDay, setSelectedDay] = useState(today);
     const [filterDate, setFilterDate] = useState('');
     const [showNotifications, setShowNotifications] = useState(false);
+    const [searching, setSearching] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const totalNotificationCount =
         auctionNotifications.length + documentNotifications.length;
@@ -43,9 +74,26 @@ export default function VehicleDetail({
         setFilterDate(newDate);
     };
 
+    const monthIncomes = incomes.filter((v) => v.date?.startsWith(activeMonth));
+
     const filteredIncomes = filterDate
-        ? incomes.filter((v) => v.date === filterDate)
-        : incomes;
+        ? monthIncomes.filter((v) => v.date === filterDate)
+        : monthIncomes;
+
+    const searchFilteredIncomes = searchTerm
+        ? incomes.filter((v) => {
+              const term = searchTerm.toLowerCase();
+              return (
+                  v.date?.toLowerCase().includes(term) ||
+                  v.income_name?.toLowerCase().includes(term) ||
+                  v.customer?.name?.toLowerCase().includes(term) ||
+                  v.description?.toLowerCase().includes(term) ||
+                  String(v.amount).includes(term)
+              );
+          })
+        : monthIncomes;
+
+    const showIncomes = searching ? searchFilteredIncomes : filteredIncomes;
 
     const handleAddIncome = (e) => {
         e.preventDefault();
@@ -59,6 +107,30 @@ export default function VehicleDetail({
         });
     };
 
+    const changeMonth = (delta) => {
+        const newMonth = addMonths(activeMonth, delta);
+        setActiveMonth(newMonth);
+        setFilterDate('');
+        setSelectedDay(today);
+        router.get(
+            '/vehicle-detail',
+            { date: `${newMonth}-01`, view: showList ? 'list' : '' },
+            { preserveState: true, replace: true },
+        );
+    };
+
+    const resetMonth = () => {
+        if (activeMonth === currentMonth) return;
+        setActiveMonth(currentMonth);
+        setFilterDate('');
+        setSelectedDay(today);
+        router.get(
+            '/vehicle-detail',
+            { date: `${currentMonth}-01`, view: showList ? 'list' : '' },
+            { preserveState: true, replace: true },
+        );
+    };
+
     return (
         <div className="flex h-screen flex-col overflow-hidden">
             <Head title="Vehicle Detail" />
@@ -69,7 +141,7 @@ export default function VehicleDetail({
                         <button
                             onClick={() =>
                                 router.get(
-                                    `/vehicle-detail?date=${selectedDay}`,
+                                    `/vehicle-detail?date=${activeMonth}-01`,
                                 )
                             }
                             className="text-sm font-medium text-white/70 hover:text-white"
@@ -203,25 +275,73 @@ export default function VehicleDetail({
             </nav>
             <main className="flex flex-1 flex-col overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-1 flex-col gap-8 px-6 pt-4 pb-32 md:pt-8">
-                    <div className="flex items-center gap-3">
-                        <input
-                            type="date"
-                            value={selectedDay}
-                            onChange={handleDateChange}
-                            className="rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                        />
-                        {filterDate && (
+                    {showList && (
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => changeMonth(-1)}
+                                className={`rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:p-1.5 dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] ${searching ? 'hidden md:block' : ''}`}
+                            >
+                                <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
+                            </button>
+                            <span
+                                className={`text-center text-xs font-medium text-[#706f6c] md:text-sm dark:text-[#A1A09A] ${searching ? 'hidden md:inline' : ''}`}
+                            >
+                                {getMonthLabel(activeMonth)}
+                            </span>
+                            <button
+                                onClick={() => changeMonth(1)}
+                                className={`rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:p-1.5 dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] ${searching ? 'hidden md:block' : ''}`}
+                            >
+                                <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
+                            </button>
+                            {activeMonth !== currentMonth && (
+                                <button
+                                    onClick={resetMonth}
+                                    className={`ml-2 rounded-md border border-[#19140035] px-2 py-1 text-[10px] font-medium text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:text-xs dark:border-[#3E3E3A] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] ${searching ? 'hidden md:block' : ''}`}
+                                >
+                                    Reset
+                                </button>
+                            )}
                             <button
                                 onClick={() => {
-                                    setFilterDate('');
-                                    setSelectedDay(today);
+                                    setSearching(!searching);
+                                    if (searching) setSearchTerm('');
                                 }}
-                                className="rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm font-medium dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:p-1.5 dark:text-[#A1A09A] dark:hover:bg-[#2a2a28]"
                             >
-                                Reset
+                                {searching ? (
+                                    <X className="h-4 w-4 md:h-5 md:w-5" />
+                                ) : (
+                                    <Search className="h-4 w-4 md:h-5 md:w-5" />
+                                )}
                             </button>
-                        )}
-                    </div>
+                            <input
+                                autoFocus={searching}
+                                type="text"
+                                placeholder="Enter date or name or amount"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className={`rounded-md border border-[#19140035] bg-white px-3 py-1.5 text-xs text-[#1b1b18] md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white ${searching ? 'flex-1 md:w-48 md:flex-none' : 'hidden'}`}
+                            />
+                            <input
+                                type="date"
+                                value={selectedDay}
+                                onChange={handleDateChange}
+                                className={`ml-auto rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white ${searching ? 'hidden md:block' : ''}`}
+                            />
+                            {filterDate && (
+                                <button
+                                    onClick={() => {
+                                        setFilterDate('');
+                                        setSelectedDay(today);
+                                    }}
+                                    className="rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm font-medium dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                >
+                                    Reset
+                                </button>
+                            )}
+                        </div>
+                    )}
 
                     {showList ? (
                         <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-3 shadow-sm md:p-4 dark:border-[#3E3E3A] dark:bg-[#161615]">
@@ -236,7 +356,7 @@ export default function VehicleDetail({
                                     + Add Income
                                 </button>
                             </div>
-                            {filteredIncomes.length === 0 ? (
+                            {showIncomes.length === 0 ? (
                                 <p className="text-xs text-[#706f6c] md:text-sm dark:text-[#A1A09A]">
                                     No income added yet.
                                 </p>
@@ -256,7 +376,7 @@ export default function VehicleDetail({
                                             Amount
                                         </div>
                                     </div>
-                                    {filteredIncomes.map((v) => (
+                                    {showIncomes.map((v) => (
                                         <div
                                             key={v.id}
                                             onClick={() => setViewingIncome(v)}
@@ -299,7 +419,7 @@ export default function VehicleDetail({
                             <button
                                 onClick={() =>
                                     router.get(
-                                        `/vehicle-detail?date=${selectedDay}`,
+                                        `/vehicle-detail?date=${activeMonth}-01`,
                                     )
                                 }
                                 className="mt-3 rounded-md border border-[#19140035] px-2.5 py-1.5 text-xs font-medium md:mt-4 md:px-4 md:py-2 md:text-sm dark:border-[#3E3E3A]"
@@ -312,7 +432,7 @@ export default function VehicleDetail({
                             <div
                                 onClick={() =>
                                     router.get(
-                                        `/vehicle-detail?date=${selectedDay}&view=list`,
+                                        `/vehicle-detail?date=${activeMonth}-01&view=list`,
                                     )
                                 }
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
@@ -322,7 +442,7 @@ export default function VehicleDetail({
                                 </span>
                             </div>
                             <Link
-                                href={`/expenses?date=${selectedDay}`}
+                                href={`/expenses?date=${activeMonth}-01`}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -330,7 +450,7 @@ export default function VehicleDetail({
                                 </span>
                             </Link>
                             <Link
-                                href={`/stock?date=${selectedDay}`}
+                                href={`/stock?date=${activeMonth}-01`}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -354,7 +474,7 @@ export default function VehicleDetail({
                                 </span>
                             </Link>
                             <Link
-                                href={`/cashbook?date=${selectedDay}`}
+                                href={`/cashbook?date=${activeMonth}-01`}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">

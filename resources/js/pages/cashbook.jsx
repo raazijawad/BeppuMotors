@@ -51,9 +51,11 @@ export default function Cashbook({
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const [drawerDate, setDrawerDate] = useState(today);
 
+    const monthEntries = entries.filter((e) => e.date?.startsWith(activeMonth));
+
     const filteredEntries = selectedDate
-        ? entries.filter((e) => e.date === selectedDate)
-        : entries;
+        ? monthEntries.filter((e) => e.date === selectedDate)
+        : monthEntries;
 
     const totalIncome = filteredEntries
         .filter((e) => e.type === 'income')
@@ -77,7 +79,7 @@ export default function Cashbook({
                   String(e.amount).includes(term)
               );
           })
-        : entries;
+        : monthEntries;
 
     const showEntries = searching ? searchFilteredEntries : filteredEntries;
 
@@ -175,6 +177,18 @@ export default function Cashbook({
         );
     };
 
+    const resetMonth = () => {
+        if (activeMonth === currentMonth) return;
+        setActiveMonth(currentMonth);
+        setSelectedDate('');
+        setDrawerDate(today);
+        router.get(
+            '/cashbook',
+            { date: `${currentMonth}-01` },
+            { preserveState: true, replace: true },
+        );
+    };
+
     return (
         <div className="flex h-screen flex-col overflow-hidden">
             <Head title="Cash Book" />
@@ -212,6 +226,14 @@ export default function Cashbook({
                         >
                             <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
                         </button>
+                        {activeMonth !== currentMonth && (
+                            <button
+                                onClick={resetMonth}
+                                className={`rounded-md border border-[#19140035] px-2 py-1 text-[10px] font-medium text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:text-xs dark:border-[#3E3E3A] dark:text-[#A1A09A] dark:hover:bg-[#2a2a28] ${searching ? 'hidden md:block' : ''}`}
+                            >
+                                Reset
+                            </button>
+                        )}
                         <button
                             onClick={() => {
                                 setSearching(!searching);

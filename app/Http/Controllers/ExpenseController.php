@@ -15,6 +15,7 @@ class ExpenseController extends Controller
     public function index(Request $request): Response
     {
         $date = $request->query('date');
+        $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
         $expenses = Expense::with(['stock', 'buyAuction', 'customer'])->latest()->get();
 
@@ -27,6 +28,7 @@ class ExpenseController extends Controller
             'customers' => $customers,
             'drawers' => $drawers,
             'selectedDate' => $date,
+            'selectedMonth' => $month,
         ]);
     }
 

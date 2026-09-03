@@ -19,6 +19,7 @@ class IncomeController extends Controller
     public function index(Request $request): Response
     {
         $date = $request->query('date');
+        $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
         $incomes = Income::with('customer')->latest()->get();
 
@@ -87,6 +88,7 @@ class IncomeController extends Controller
             'customers' => $customers,
             'drawers' => $drawers,
             'selectedDate' => $date,
+            'selectedMonth' => $month,
             'view' => $request->query('view'),
             'auctionNotifications' => $auctionNotifications,
             'documentNotifications' => $documentNotifications,

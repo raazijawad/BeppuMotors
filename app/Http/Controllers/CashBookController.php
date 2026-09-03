@@ -16,7 +16,7 @@ class CashBookController extends Controller
         $date = $request->query('date');
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
-        $incomes = Income::with('customer')->where('date', 'like', $month.'%')->get()->map(fn ($i) => [
+        $incomes = Income::with('customer')->get()->map(fn ($i) => [
             'id' => $i->id,
             'type' => 'income',
             'name' => $i->income_name,
@@ -26,7 +26,7 @@ class CashBookController extends Controller
             'created_at' => $i->created_at,
             'customer' => $i->customer?->name,
         ]);
-        $expenses = Expense::with('customer')->where('date', 'like', $month.'%')->get()->map(fn ($e) => [
+        $expenses = Expense::with('customer')->get()->map(fn ($e) => [
             'id' => $e->id,
             'type' => 'expense',
             'name' => $e->expense_name,
