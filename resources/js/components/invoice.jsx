@@ -209,7 +209,7 @@ export default function Invoice({
                                 style={{ width: '30mm', height: '30mm' }}
                             >
                                 <p
-                                    className="mt-[-1mm] text-[32px] font-medium text-red-600"
+                                    className="mt-[-1mm] text-[32px] font-bold text-red-600"
                                     style={{
                                         fontFamily: 'serif',
                                         letterSpacing: '0.3em',
@@ -229,7 +229,7 @@ export default function Invoice({
                                     モータース
                                 </p>
                                 <p
-                                    className="mt-[-4mm] text-[29px] font-bold text-red-600"
+                                    className="mt-[-4mm] text-[29px] font-black text-red-600"
                                     style={{
                                         fontFamily: 'serif',
                                         letterSpacing: '0.1em',
