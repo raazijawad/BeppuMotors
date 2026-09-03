@@ -34,6 +34,22 @@ foreach ($runtimeEnvironment as $key => $value) {
 
 define('LARAVEL_START', microtime(true));
 
+$bootstrapCache = __DIR__.'/../bootstrap/cache';
+foreach (['services.php', 'packages.php'] as $cacheFile) {
+    $path = $bootstrapCache.'/'.$cacheFile;
+    if (file_exists($path)) {
+        $content = file_get_contents($path);
+        if ($content !== false && (
+            str_contains($content, 'PailServiceProvider')
+            || str_contains($content, 'SailServiceProvider')
+            || str_contains($content, 'TinkerServiceProvider')
+            || str_contains($content, 'CollisionServiceProvider')
+        )) {
+            @unlink($path);
+        }
+    }
+}
+
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;
 }
