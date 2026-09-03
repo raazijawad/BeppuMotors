@@ -6,6 +6,7 @@ import {
     Search,
     X,
     Pencil,
+    History,
 } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
@@ -89,6 +90,7 @@ export default function Cashbook({
     const [editAmount, setEditAmount] = useState('');
     const [drawerSubmitting, setDrawerSubmitting] = useState(false);
     const [editSubmitting, setEditSubmitting] = useState(false);
+    const [showDrawerHistory, setShowDrawerHistory] = useState(false);
 
     const isDrawerFormFilled =
         drawerName.trim() !== '' || drawerAmount.trim() !== '';
@@ -96,9 +98,15 @@ export default function Cashbook({
     const getLatestVersion = (entries, date) => {
         const filtered = entries.filter((e) => e.date <= date);
         if (filtered.length === 0) return null;
-        return filtered.reduce((latest, e) =>
-            e.date > latest.date ? e : latest,
-        );
+        return filtered.reduce((latest, e) => {
+            if (e.date > latest.date) return e;
+            if (e.date === latest.date) {
+                const eTime = new Date(e.created_at || 0).getTime();
+                const lTime = new Date(latest.created_at || 0).getTime();
+                if (eTime > lTime) return e;
+            }
+            return latest;
+        });
     };
 
     const groupedDrawers = drawers.reduce((acc, d) => {
@@ -390,6 +398,13 @@ export default function Cashbook({
                             </h2>
                             <div className="flex items-center gap-2">
                                 <button
+                                    onClick={() => setShowDrawerHistory(true)}
+                                    title="History"
+                                    className="rounded-md border border-[#19140035] p-1.5 text-[#706f6c] hover:text-[#1b1b18] md:p-2 dark:border-[#3E3E3A] dark:text-[#A1A09A] dark:hover:text-white"
+                                >
+                                    <History className="h-4 w-4 md:h-5 md:w-5" />
+                                </button>
+                                <button
                                     onClick={
                                         showDrawerForm
                                             ? isDrawerFormFilled &&
@@ -562,6 +577,101 @@ export default function Cashbook({
                                     )}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showDrawerHistory && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-xl rounded-lg border border-[#19140035] bg-white p-4 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="text-base font-semibold md:text-lg">
+                                Drawer History
+                            </h2>
+                            <button
+                                onClick={() => setShowDrawerHistory(false)}
+                                className="text-sm font-medium text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
+                            >
+                                &times;
+                            </button>
+                        </div>
+                        <div className="max-h-[70vh] overflow-y-auto rounded-lg border border-[#19140035] dark:border-[#3E3E3A]">
+                            {drawers.length === 0 ? (
+                                <p className="py-6 text-center text-xs text-[#706f6c] dark:text-[#A1A09A]">
+                                    No drawer history yet.
+                                </p>
+                            ) : (
+                                [...drawers]
+                                    .sort(
+                                        (a, b) =>
+                                            new Date(b.created_at) -
+                                            new Date(a.created_at),
+                                    )
+                                    .map((d) => {
+                                        const time = d.created_at
+                                            ? new Date(
+                                                  d.created_at,
+                                              ).toLocaleTimeString('en-US', {
+                                                  hour: 'numeric',
+                                                  minute: '2-digit',
+                                                  hour12: true,
+                                              })
+                                            : '';
+                                        const rootId = d.parent_id ?? d.id;
+                                        const prev = drawers
+                                            .filter(
+                                                (p) =>
+                                                    (p.parent_id ?? p.id) ===
+                                                        rootId &&
+                                                    new Date(p.created_at) <
+                                                        new Date(d.created_at),
+                                            )
+                                            .sort(
+                                                (a, b) =>
+                                                    new Date(b.created_at) -
+                                                    new Date(a.created_at),
+                                            )[0];
+                                        let changeMsg = d.message;
+                                        if (
+                                            !changeMsg &&
+                                            d.source_type === 'manual'
+                                        ) {
+                                            const lastAmount = prev
+                                                ? prev.amount
+                                                : d.amount;
+                                            changeMsg = `that ${lastAmount} to ${d.amount}`;
+                                        }
+                                        const msg =
+                                            changeMsg ||
+                                            `Amount set to ${d.amount}`;
+                                        return (
+                                            <div
+                                                key={d.id}
+                                                className="border-b border-[#19140035]/50 px-4 py-3 last:border-b-0 dark:border-[#3E3E3A]/50"
+                                            >
+                                                <p className="text-[11px] leading-relaxed text-[#1b1b18] md:text-sm dark:text-[#e5e5e3]">
+                                                    <span className="font-semibold">
+                                                        {d.date}
+                                                    </span>{' '}
+                                                    <span className="font-semibold text-[#00447C] dark:text-[#6cb2e6]">
+                                                        {d.name}
+                                                    </span>{' '}
+                                                    <span>
+                                                        {d.source_type ===
+                                                        'manual'
+                                                            ? `has changed the amount at ${time} ${msg}`
+                                                            : `${msg} at ${time}${
+                                                                  prev
+                                                                      ? ` that ${prev.amount} to ${d.amount}`
+                                                                      : ''
+                                                              }`}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        );
+                                    })
+                            )}
                         </div>
                     </div>
                 </div>

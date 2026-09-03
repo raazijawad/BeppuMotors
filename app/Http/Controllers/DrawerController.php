@@ -29,7 +29,11 @@ class DrawerController extends Controller
             'date' => 'required|date',
         ]);
 
-        $request->user()->drawers()->create($validated);
+        $request->user()->drawers()->create([
+            ...$validated,
+            'source_type' => 'initial',
+            'message' => "Created '{$validated['name']}' with amount {$validated['amount']}",
+        ]);
 
         return back();
     }
@@ -42,9 +46,14 @@ class DrawerController extends Controller
             'date' => 'required|date',
         ]);
 
+        $oldAmount = (float) $drawer->amount;
+        $newAmount = (float) $validated['amount'];
+
         $request->user()->drawers()->create([
             ...$validated,
             'parent_id' => $drawer->parent_id ?? $drawer->id,
+            'source_type' => 'manual',
+            'message' => "that {$oldAmount} to {$newAmount}",
         ]);
 
         return back();

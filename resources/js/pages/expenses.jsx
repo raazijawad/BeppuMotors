@@ -345,7 +345,15 @@ export default function Expenses({
                                                         .map((group) => {
                                                             const filtered = group.filter((e) => e.date <= today);
                                                             if (filtered.length === 0) return null;
-                                                            return filtered.reduce((a, b) => (a.date > b.date ? a : b));
+                                                            return filtered.reduce((a, b) => {
+                                                                if (b.date > a.date) return b;
+                                                                if (b.date === a.date) {
+                                                                    const aTime = new Date(a.created_at || 0).getTime();
+                                                                    const bTime = new Date(b.created_at || 0).getTime();
+                                                                    if (bTime > aTime) return b;
+                                                                }
+                                                                return a;
+                                                            });
                                                         })
                                                         .filter(Boolean)
                                                         .sort((a, b) => a.name.localeCompare(b.name));

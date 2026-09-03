@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Drawer extends Model
 {
-    protected $fillable = ['name', 'amount', 'date', 'parent_id'];
+    protected $fillable = ['name', 'amount', 'date', 'parent_id', 'source_type', 'message'];
 
     public function user(): BelongsTo
     {

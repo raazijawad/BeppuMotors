@@ -53,6 +53,8 @@ class ExpenseController extends Controller
                 'amount' => $newAmount,
                 'date' => $validated['date'],
                 'parent_id' => $parentId,
+                'source_type' => 'expense',
+                'message' => "Expense '{$validated['expense_name']}' deducted -{$validated['amount']}",
             ]);
         }
 

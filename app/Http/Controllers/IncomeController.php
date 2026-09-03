@@ -116,6 +116,8 @@ class IncomeController extends Controller
                 'amount' => $newAmount,
                 'date' => $validated['date'],
                 'parent_id' => $parentId,
+                'source_type' => 'income',
+                'message' => "Income '{$validated['income_name']}' added +{$validated['amount']}",
             ]);
         }
 
