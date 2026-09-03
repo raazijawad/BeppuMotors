@@ -17,6 +17,11 @@ foreach (['cache', 'sessions', 'views'] as $directory) {
 }
 
 $runtimeEnvironment = [
+    'APP_CONFIG_CACHE' => $runtimePath.'/config.php',
+    'APP_ROUTES_CACHE' => $runtimePath.'/routes-v7.php',
+    'APP_PACKAGES_CACHE' => $runtimePath.'/packages.php',
+    'APP_SERVICES_CACHE' => $runtimePath.'/services.php',
+    'APP_EVENTS_CACHE' => $runtimePath.'/events.php',
     'VIEW_COMPILED_PATH' => $runtimePath.'/views',
     'LOG_CHANNEL' => 'stderr',
     'SESSION_DRIVER' => getenv('SESSION_DRIVER') ?: 'cookie',
@@ -34,29 +39,18 @@ foreach ($runtimeEnvironment as $key => $value) {
 
 define('LARAVEL_START', microtime(true));
 
-$bootstrapCache = __DIR__.'/../bootstrap/cache';
-foreach (['services.php', 'packages.php'] as $cacheFile) {
-    $path = $bootstrapCache.'/'.$cacheFile;
-    if (file_exists($path)) {
-        $content = file_get_contents($path);
-        if ($content !== false && (
-            str_contains($content, 'PailServiceProvider')
-            || str_contains($content, 'SailServiceProvider')
-            || str_contains($content, 'TinkerServiceProvider')
-            || str_contains($content, 'CollisionServiceProvider')
-        )) {
-            @unlink($path);
-        }
-    }
-}
-
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;
 }
 
 require __DIR__.'/../vendor/autoload.php';
 
-/** @var Application $app */
-$app = require_once __DIR__.'/../bootstrap/app.php';
+try {
+    /** @var Application $app */
+    $app = require_once __DIR__.'/../bootstrap/app.php';
 
-$app->handleRequest(Request::capture());
+    $app->handleRequest(Request::capture());
+} catch (\Throwable $e) {
+    error_log('LAMBDA_FATAL: '.get_class($e).': '.$e->getMessage().' @ '.$e->getFile().':'.$e->getLine());
+    throw $e;
+}
