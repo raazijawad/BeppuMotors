@@ -95,7 +95,7 @@ export default function Invoice({
     const editable = typeof onAmountChange === 'function';
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col items-center gap-2 overflow-hidden bg-neutral-900/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex flex-col items-center gap-2 overflow-hidden bg-neutral-900/80 px-4 pt-[8vh] pb-4 backdrop-blur-sm">
             <div className="no-print flex shrink-0 items-center justify-end">
                 <div className="flex items-center gap-1.5">
                     <button
