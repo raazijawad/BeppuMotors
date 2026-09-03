@@ -29,6 +29,7 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'bill_prefix' => 'required|string|max:10',
             'phone' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
         ]);
@@ -49,6 +50,19 @@ class CustomerController extends Controller
 
         $saleId = (string) Str::uuid();
 
+        $lastNumber = $customer->invoices()
+            ->whereNotNull('bill_number')
+            ->latest('bill_number')
+            ->value('bill_number');
+
+        if ($lastNumber && preg_match('/(\d+)$/', $lastNumber, $m)) {
+            $next = (int) $m[1] + 1;
+        } else {
+            $next = 1;
+        }
+
+        $billNumber = ($customer->bill_prefix ?? '') . str_pad($next, 4, '0', STR_PAD_LEFT);
+
         foreach ($validated['lines'] as $line) {
             $customer->invoices()->create([
                 'user_id' => $request->user()->id,
@@ -56,6 +70,7 @@ class CustomerController extends Controller
                 'amount' => $line['amount'],
                 'date' => $validated['date'],
                 'sale_id' => $saleId,
+                'bill_number' => $billNumber,
             ]);
         }
 

@@ -78,11 +78,23 @@ export default function Ledger({ customer = null, onClose = null }) {
         ...saleGroups.map((g) => ({
             id: g.key,
             date: g.date,
+            created_at: g.invoices.reduce(
+                (max, inv) =>
+                    Math.max(
+                        max,
+                        new Date(inv.created_at || 0).getTime() || 0,
+                    ),
+                0,
+            ),
             bill:
+                g.invoices
+                    .map((inv) => inv.bill_number)
+                    .filter(Boolean)[0] ||
                 g.invoices
                     .map((inv) => inv.stock?.name)
                     .filter(Boolean)
-                    .join(', ') || 'Vehicle Sale',
+                    .join(', ') ||
+                'Vehicle Sale',
             plus: g.invoices.reduce(
                 (s, inv) => s + (parseFloat(inv.amount) || 0),
                 0,
@@ -92,6 +104,7 @@ export default function Ledger({ customer = null, onClose = null }) {
         ...(customer?.incomes || []).map((i) => ({
             id: 'inc-' + i.id,
             date: i.date,
+            created_at: new Date(i.created_at || 0).getTime() || 0,
             bill: i.income_name || '',
             plus: null,
             minus: parseFloat(i.amount) || 0,
@@ -99,16 +112,21 @@ export default function Ledger({ customer = null, onClose = null }) {
         ...(customer?.expenses || []).map((e) => ({
             id: 'exp-' + e.id,
             date: e.date,
+            created_at: new Date(e.created_at || 0).getTime() || 0,
             bill: e.expense_name || '',
             plus: parseFloat(e.amount) || 0,
             minus: null,
         })),
     ]
-        .sort(
-            (a, b) =>
-                String(a.date || '').localeCompare(String(b.date || '')) ||
-                String(a.id).localeCompare(String(b.id)),
-        )
+        .sort((a, b) => {
+            const da = String(a.date || '');
+            const db = String(b.date || '');
+            if (da !== db) return da.localeCompare(db);
+            const ca = a.created_at || 0;
+            const cb = b.created_at || 0;
+            if (ca !== cb) return ca - cb;
+            return String(a.id).localeCompare(String(b.id));
+        })
         .slice(-ROW_COUNT);
 
     return (

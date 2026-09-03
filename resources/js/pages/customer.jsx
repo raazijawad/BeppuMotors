@@ -18,6 +18,7 @@ export default function Customer({ customers = [], stocks = [] }) {
 
     const { data, setData, post, processing, reset } = useForm({
         name: '',
+        bill_prefix: '',
         phone: '',
         address: '',
     });
@@ -167,7 +168,21 @@ export default function Customer({ customers = [], stocks = [] }) {
         viewInvoice !== null ||
         showLedger;
 
-    const invoiceNo = `INV-${(selectedCustomer?.invoices?.length || 0) + 1}`;
+    const nextBillNumber = (() => {
+        const prefix = selectedCustomer?.bill_prefix || '';
+        const existing = (selectedCustomer?.invoices || [])
+            .map((inv) => inv.bill_number)
+            .filter(Boolean);
+        let maxNum = 0;
+        for (const bn of existing) {
+            const match = bn.match(/(\d+)$/);
+            if (match) {
+                const n = parseInt(match[1], 10);
+                if (n > maxNum) maxNum = n;
+            }
+        }
+        return `${prefix}${String(maxNum + 1).padStart(4, '0')}`;
+    })();
 
     return (
         <div className="flex h-screen flex-col overflow-hidden">
@@ -411,7 +426,7 @@ export default function Customer({ customers = [], stocks = [] }) {
                                     <Invoice
                                         customer={selectedCustomer}
                                         lines={selectedVehicles}
-                                        invoiceNo={invoiceNo}
+                                        invoiceNo={nextBillNumber}
                                         date={invoiceDate}
                                         showSave
                                         saving={processing}
@@ -436,7 +451,7 @@ export default function Customer({ customers = [], stocks = [] }) {
                                         name: inv.stock?.name || 'Vehicle',
                                         amount: inv.amount,
                                     }))}
-                                    invoiceNo={`INV-${viewInvoice.invoices[0].id}`}
+                                    invoiceNo={viewInvoice.invoices[0].bill_number || `INV-${viewInvoice.invoices[0].id}`}
                                     date={viewInvoice.date}
                                     onClose={() => setViewInvoice(null)}
                                 />
@@ -565,6 +580,21 @@ export default function Customer({ customers = [], stocks = [] }) {
                                     onChange={(e) =>
                                         setData('name', e.target.value)
                                     }
+                                    className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                    required
+                                />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                    Bill Number Starting
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.bill_prefix}
+                                    onChange={(e) =>
+                                        setData('bill_prefix', e.target.value)
+                                    }
+                                    placeholder="e.g. TYN"
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                     required
                                 />

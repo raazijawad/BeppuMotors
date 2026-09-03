@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Invoice extends Model
 {
     protected $fillable = [
-        'user_id', 'customer_id', 'stock_id', 'amount', 'date', 'sale_id',
+        'user_id', 'customer_id', 'stock_id', 'amount', 'date', 'sale_id', 'bill_number',
     ];
 
     public function user(): BelongsTo
