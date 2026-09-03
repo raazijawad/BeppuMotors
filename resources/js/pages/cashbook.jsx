@@ -206,7 +206,7 @@ export default function Cashbook({
                     </span>
                 </div>
             </nav>
-            <main className="h-[calc(100vh-10rem)] overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
+            <main className="h-[calc(100vh-4rem)] overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a] md:h-[calc(100vh-10rem)]">
                 <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-6 md:gap-6 md:pt-8">
                     <div className="flex items-center gap-1">
                         <button

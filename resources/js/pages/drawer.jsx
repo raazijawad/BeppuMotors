@@ -17,7 +17,7 @@ export default function Drawer() {
                 </div>
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-20 md:gap-6 md:pt-8">
+                <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-6 md:gap-6 md:pt-8 md:pb-20">
                     <p className="text-sm text-[#706f6c] dark:text-[#A1A09A] md:text-base">Drawer page coming soon.</p>
                 </div>
             </main>

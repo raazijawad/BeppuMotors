@@ -40,6 +40,17 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
     const [confirmPaidId, setConfirmPaidId] = useState(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [highlightId, setHighlightId] = useState(null);
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+    useEffect(() => {
+        const check = () =>
+            setIsSmallScreen(
+                window.innerWidth <= 375 && window.innerHeight <= 667,
+            );
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
 
     const changeMonth = (delta) => {
         const newMonth = addMonths(activeMonth, delta);
@@ -114,7 +125,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                 </div>
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 pt-4 pb-32 sm:px-6 md:px-8 md:pt-6 lg:px-16">
+                <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 pt-4 pb-6 sm:px-6 md:px-8 md:pt-6 md:pb-32 lg:px-16">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1">
                             <button
@@ -251,10 +262,16 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
             </main>
 
             {showForm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="mx-4 w-full max-w-lg rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:mx-0 md:p-6 lg:max-w-xl dark:border-[#3E3E3A] dark:bg-[#161615]">
-                        <div className="mb-4 flex items-center justify-between">
-                            <h2 className="text-base font-semibold md:text-lg">
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm"
+                    style={isSmallScreen ? { alignItems: 'flex-start', padding: '24px 8px 8px', overflow: 'hidden' } : undefined}
+                >
+                    <div
+                        className="mx-4 w-full max-w-lg overflow-y-auto rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:mx-0 md:p-6 lg:max-w-xl dark:border-[#3E3E3A] dark:bg-[#161615]"
+                        style={isSmallScreen ? { margin: '0 auto', padding: '8px', maxHeight: 'calc(100vh - 16px)' } : undefined}
+                    >
+                        <div className="mb-4 flex items-center justify-between" style={isSmallScreen ? { marginBottom: '4px' } : undefined}>
+                            <h2 className="text-base font-semibold md:text-lg" style={isSmallScreen ? { fontSize: '15px' } : undefined}>
                                 Buy Auction Item
                             </h2>
                             <button
@@ -269,10 +286,11 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                         </div>
                         <form
                             onSubmit={handleSubmit}
-                            className="grid grid-cols-2 gap-3 md:gap-4"
+                            className="grid grid-cols-1 gap-3 md:gap-4"
+                            style={isSmallScreen ? { gap: '4px' } : undefined}
                         >
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                            <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     Date
                                 </label>
                                 <input
@@ -282,11 +300,12 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('date', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
                                     required
                                 />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                            <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     Vehicle Name
                                 </label>
                                 <input
@@ -296,11 +315,12 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('vehicle_name', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
                                     required
                                 />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                            <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     Company
                                 </label>
                                 <input
@@ -310,10 +330,11 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('company', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                            <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     Colour
                                 </label>
                                 <input
@@ -323,10 +344,11 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('colour', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                            <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     Shop Name
                                 </label>
                                 <input
@@ -336,10 +358,11 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('shopname', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                            <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     Chassis Number
                                 </label>
                                 <input
@@ -349,10 +372,11 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('chassisnumber', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
-                            <div className="col-span-2">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                            <div className="col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     Description
                                 </label>
                                 <textarea
@@ -361,11 +385,12 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('description', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    rows={2}
+                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    rows={1}
                                 />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                            <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     For Who
                                 </label>
                                 <input
@@ -375,10 +400,11 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('for_who', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                            <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     Price
                                 </label>
                                 <input
@@ -388,14 +414,16 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('price', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
                                     required
                                 />
                             </div>
-                            <div className="col-span-2 flex gap-2 pt-2">
+                            <div className="col-span-1 flex gap-2 pt-2" style={isSmallScreen ? { gridColumn: 'span 1', gap: '6px', paddingTop: '2px' } : undefined}>
                                 <button
                                     type="submit"
                                     disabled={processing}
                                     className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"
+                                    style={isSmallScreen ? { padding: '5px 10px', fontSize: '12px' } : undefined}
                                 >
                                     Submit
                                 </button>
@@ -406,6 +434,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setShowForm(false);
                                     }}
                                     className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium md:text-sm dark:border-[#3E3E3A]"
+                                    style={isSmallScreen ? { padding: '5px 10px', fontSize: '12px' } : undefined}
                                 >
                                     Cancel
                                 </button>

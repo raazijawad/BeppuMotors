@@ -195,7 +195,7 @@ export default function Expenses({
                 </div>
             </nav>
             <main className="flex flex-1 flex-col overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex w-full flex-1 flex-col gap-3 px-6 pt-4 pb-32 md:gap-8 md:pt-8">
+                <div className="flex w-full flex-1 flex-col gap-3 px-6 pt-4 pb-6 md:gap-8 md:pt-8 md:pb-32">
                     <div className="flex items-center gap-1">
                         <button
                             onClick={() => changeMonth(-1)}

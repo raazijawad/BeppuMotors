@@ -16,7 +16,7 @@ export default function Auction() {
                     </span>
                 </div>
             </nav>
-            <main className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-[#FDFDFC] pb-20 text-[#1b1b18] dark:bg-[#0a0a0a]">
+            <main className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-[#FDFDFC] pb-6 text-[#1b1b18] dark:bg-[#0a0a0a] md:pb-20">
                 <div className="flex w-full max-w-md flex-col items-center gap-4 px-6 md:max-w-4xl md:flex-row md:gap-8 md:px-10 lg:max-w-6xl">
                     <Link
                         href="/auction/buy"

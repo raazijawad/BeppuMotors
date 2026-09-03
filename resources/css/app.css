@@ -141,3 +141,64 @@
         @apply bg-background text-foreground;
     }
 }
+
+@media (max-width: 375px) and (max-height: 667px) {
+    .add-stock-overlay {
+        align-items: flex-start !important;
+        padding: 4px !important;
+        overflow-y: auto !important;
+    }
+    .add-stock-modal {
+        margin: 0 auto !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 4px !important;
+    }
+    .add-stock-modal .stock-fields {
+        gap: 2px !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .add-stock-modal .stock-fields > div {
+        grid-column: span 1 !important;
+    }
+    .add-stock-modal .stock-fields > div:last-child {
+        grid-column: span 2 !important;
+        gap: 4px !important;
+        padding-top: 2px !important;
+    }
+    .add-stock-modal .stock-fields label {
+        font-size: 7px !important;
+        margin-bottom: 0 !important;
+        line-height: 1 !important;
+    }
+    .add-stock-modal .stock-fields input,
+    .add-stock-modal .stock-fields textarea {
+        font-size: 10px !important;
+        padding: 2px 4px !important;
+        height: auto !important;
+    }
+    .add-stock-modal .stock-fields textarea {
+        rows: 1 !important;
+        min-height: 20px !important;
+    }
+    .add-stock-modal .stock-title {
+        font-size: 11px !important;
+        margin-bottom: 0 !important;
+    }
+    .add-stock-modal .stock-header {
+        margin-bottom: 2px !important;
+        padding: 0 !important;
+    }
+    .add-stock-modal .stock-fields > div:last-child button {
+        padding: 2px 6px !important;
+        font-size: 9px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .add-stock-modal input:focus,
+    .add-stock-modal textarea:focus,
+    .add-stock-modal select:focus {
+        font-size: 16px !important;
+    }
+}

@@ -1,9 +1,17 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
 
 export default function Stock({ stocks = [] }) {
     const [showForm, setShowForm] = useState(false);
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+    useEffect(() => {
+        const check = () => setIsSmallScreen(window.innerWidth <= 375 && window.innerHeight <= 667);
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
 
     const { data, setData, post, processing, reset } = useForm({
         name: '',
@@ -101,60 +109,70 @@ export default function Stock({ stocks = [] }) {
             </main>
 
             {showForm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="mx-4 w-full max-w-lg rounded-lg border border-[#19140035] bg-white p-5 shadow-lg dark:border-[#3E3E3A] dark:bg-[#161615] md:p-6">
-                        <div className="mb-4 flex items-center justify-between">
-                            <h2 className="text-base font-semibold md:text-lg">Add Stock Item</h2>
+                <div
+                    className="add-stock-overlay fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm"
+                    style={isSmallScreen ? { alignItems: 'flex-start', padding: '40px 8px 8px' } : undefined}
+                >
+                    <div
+                        className="add-stock-modal mx-4 w-full max-w-lg rounded-lg border border-[#19140035] bg-white p-5 shadow-lg dark:border-[#3E3E3A] dark:bg-[#161615] md:p-6"
+                        style={isSmallScreen ? { padding: '6px', margin: '0 auto' } : undefined}
+                    >
+                        <div className={isSmallScreen ? "mb-1 flex items-center justify-between" : "mb-4 flex items-center justify-between"}>
+                            <h2 className={isSmallScreen ? "text-xs font-semibold" : "text-base font-semibold md:text-lg"}>Add Stock Item</h2>
                             <button onClick={() => setShowForm(false)} className="text-sm text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white">&times;</button>
                         </div>
-                        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Name</label>
-                                <input type="text" value={data.name} onChange={(e) => setData('name', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" required />
+                        <form
+                            onSubmit={handleSubmit}
+                            className="stock-fields grid grid-cols-2 gap-3"
+                            style={isSmallScreen ? { gridTemplateColumns: 'repeat(1, 1fr)', gap: '4px' } : undefined}
+                        >
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Name</label>
+                                <input type="text" value={data.name} onChange={(e) => setData('name', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Company</label>
-                                <input type="text" value={data.company} onChange={(e) => setData('company', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" />
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Company</label>
+                                <input type="text" value={data.company} onChange={(e) => setData('company', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Colour</label>
-                                <input type="text" value={data.colour} onChange={(e) => setData('colour', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" />
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Colour</label>
+                                <input type="text" value={data.colour} onChange={(e) => setData('colour', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Shop Name</label>
-                                <input type="text" value={data.shopname} onChange={(e) => setData('shopname', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" />
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Shop Name</label>
+                                <input type="text" value={data.shopname} onChange={(e) => setData('shopname', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Chassis Number</label>
-                                <input type="text" value={data.chassisnumber} onChange={(e) => setData('chassisnumber', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" />
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Chassis Number</label>
+                                <input type="text" value={data.chassisnumber} onChange={(e) => setData('chassisnumber', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} />
                             </div>
-                            <div className="col-span-2">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Description</label>
-                                <textarea value={data.description} onChange={(e) => setData('description', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" rows={2} />
+                            <div className="col-span-2" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Description</label>
+                                <textarea value={data.description} onChange={(e) => setData('description', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} rows={2} />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Price</label>
-                                <input type="number" value={data.price} onChange={(e) => setData('price', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" required />
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Price</label>
+                                <input type="number" value={data.price} onChange={(e) => setData('price', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">T Price</label>
-                                <input type="number" value={data.t_price} onChange={(e) => setData('t_price', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" required />
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>T Price</label>
+                                <input type="number" value={data.t_price} onChange={(e) => setData('t_price', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">N Price</label>
-                                <input type="number" value={data.n_price} onChange={(e) => setData('n_price', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" required />
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>N Price</label>
+                                <input type="number" value={data.n_price} onChange={(e) => setData('n_price', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">A Price</label>
-                                <input type="text" value={data.a_price} onChange={(e) => setData('a_price', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" required />
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>A Price</label>
+                                <input type="text" value={data.a_price} onChange={(e) => setData('a_price', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
                             </div>
-                            <div className="col-span-2 sm:col-span-1">
-                                <label className="mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs">Expected Profit</label>
-                                <input type="number" value={data.expected_profit} onChange={(e) => setData('expected_profit', e.target.value)} className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm" required />
+                            <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
+                                <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Expected Profit</label>
+                                <input type="number" value={data.expected_profit} onChange={(e) => setData('expected_profit', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
                             </div>
-                            <div className="col-span-2 flex gap-2 pt-2">
-                                <button type="submit" disabled={processing} className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm">Submit</button>
-                                <button type="button" onClick={() => { reset(); setShowForm(false); }} className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A] md:text-sm">Cancel</button>
+                            <div className="col-span-2 flex gap-2 pt-2" style={isSmallScreen ? { gridColumn: 'span 2', gap: '8px', paddingTop: '4px' } : undefined}>
+                                <button type="submit" disabled={processing} className={isSmallScreen ? "rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50" : "rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"}>Submit</button>
+                                <button type="button" onClick={() => { reset(); setShowForm(false); }} className={isSmallScreen ? "rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A]" : "rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A] md:text-sm"}>Cancel</button>
                             </div>
                         </form>
                     </div>

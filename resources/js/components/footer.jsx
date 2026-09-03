@@ -11,7 +11,7 @@ const navLinks = [
 export default function Footer({ blurred = false }) {
     return (
         <footer
-            className={`fixed right-0 bottom-0 left-0 z-50 transition-[filter] duration-300 ${blurred ? 'pointer-events-none blur-md' : ''}`}
+            className={`fixed right-0 bottom-0 left-0 z-50 hidden transition-[filter] duration-300 md:block ${blurred ? 'pointer-events-none blur-md' : ''}`}
         >
             <div className="absolute inset-0 bg-gradient-to-r from-[#00447C] via-[#003d6f] to-[#00284a]"></div>
 

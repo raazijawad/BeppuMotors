@@ -1,5 +1,5 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Bell, ChevronLeft, ChevronRight, Landmark, Search, X } from 'lucide-react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Bell, ChevronLeft, ChevronRight, Landmark, Search, User, UserCheck, X } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
@@ -42,6 +42,8 @@ export default function VehicleDetail({
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const user = usePage().props.auth?.user ?? null;
+    const isAdmin = user?.role === 'admin';
     const [activeMonth, setActiveMonth] = useState(selectedMonth || currentMonth);
     const [selectedDay, setSelectedDay] = useState(today);
     const [filterDate, setFilterDate] = useState('');
@@ -159,7 +161,27 @@ export default function VehicleDetail({
                     <span className="ml-4 text-sm font-semibold text-white">
                         Vehicle Details Page
                     </span>
-                    <div className="relative mr-4 ml-auto md:mr-8">
+                        <div className="relative mr-4 ml-auto flex items-center gap-1 md:mr-8">
+                        {!showList && (
+                        <>
+                        <Link
+                            href="/profile"
+                            className="relative flex h-9 w-9 items-center justify-center rounded-full text-white hover:bg-white/10 md:hidden"
+                            aria-label="Profile"
+                        >
+                            <User className="h-5 w-5" />
+                        </Link>
+                        {isAdmin && (
+                        <Link
+                            href="/admin/users"
+                            className="relative flex h-9 w-9 items-center justify-center rounded-full text-white hover:bg-white/10 md:hidden"
+                            aria-label="Users"
+                        >
+                            <UserCheck className="h-5 w-5" />
+                        </Link>
+                        )}
+                        </>
+                        )}
                         <button
                             onClick={() => setShowNotifications((v) => !v)}
                             className="relative flex h-9 w-9 items-center justify-center rounded-full text-white hover:bg-white/10"
@@ -274,7 +296,7 @@ export default function VehicleDetail({
                 </div>
             </nav>
             <main className="flex flex-1 flex-col overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex w-full flex-1 flex-col gap-8 px-6 pt-4 pb-32 md:pt-8">
+                <div className="flex w-full flex-1 flex-col gap-8 px-6 pt-4 pb-6 md:pt-8 md:pb-32">
                     {showList && (
                         <div className="flex items-center gap-1">
                             <button

@@ -135,7 +135,7 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
                 </div>
             </nav>
             <main className="flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex flex-col gap-6 px-6 pt-4 pb-24 md:pt-6">
+                <div className="flex flex-col gap-6 px-6 pt-4 pb-6 md:pt-6 md:pb-24">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-semibold">
