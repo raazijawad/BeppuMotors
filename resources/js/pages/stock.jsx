@@ -7,7 +7,7 @@ export default function Stock({ stocks = [] }) {
     const [isSmallScreen, setIsSmallScreen] = useState(false);
 
     useEffect(() => {
-        const check = () => setIsSmallScreen(window.innerWidth <= 375 && window.innerHeight <= 667);
+        const check = () => setIsSmallScreen(window.innerWidth <= 414 && window.innerHeight <= 900);
         check();
         window.addEventListener('resize', check);
         return () => window.removeEventListener('resize', check);

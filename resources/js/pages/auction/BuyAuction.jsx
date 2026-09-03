@@ -45,7 +45,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
     useEffect(() => {
         const check = () =>
             setIsSmallScreen(
-                window.innerWidth <= 375 && window.innerHeight <= 667,
+                window.innerWidth <= 414 && window.innerHeight <= 900,
             );
         check();
         window.addEventListener('resize', check);
@@ -300,7 +300,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('date', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                     required
                                 />
                             </div>
@@ -315,7 +315,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('vehicle_name', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                     required
                                 />
                             </div>
@@ -330,7 +330,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('company', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
                             <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
@@ -344,7 +344,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('colour', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
                             <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
@@ -358,7 +358,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('shopname', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
                             <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
@@ -372,7 +372,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('chassisnumber', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
                             <div className="col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
@@ -385,7 +385,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('description', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                     rows={1}
                                 />
                             </div>
@@ -400,7 +400,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('for_who', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
                             <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
@@ -414,7 +414,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         setData('price', e.target.value)
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
-                                    style={isSmallScreen ? { fontSize: '13px', padding: '5px 8px' } : undefined}
+                                    style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                     required
                                 />
                             </div>
