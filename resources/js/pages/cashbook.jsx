@@ -159,6 +159,7 @@ export default function Cashbook({
         const newMonth = addMonths(activeMonth, delta);
         setActiveMonth(newMonth);
         setSelectedDate('');
+        setDrawerDate(today);
         router.get(
             '/cashbook',
             { date: `${newMonth}-01` },
@@ -227,12 +228,18 @@ export default function Cashbook({
                         <input
                             type="date"
                             value={selectedDate}
-                            onChange={(e) => setSelectedDate(e.target.value)}
+                            onChange={(e) => {
+                                setSelectedDate(e.target.value);
+                                setDrawerDate(e.target.value || today);
+                            }}
                             className={`rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] text-[#706f6c] md:text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#A1A09A] ${searching ? 'hidden md:block' : ''}`}
                         />
                         {selectedDate && (
                             <button
-                                onClick={() => setSelectedDate('')}
+                                onClick={() => {
+                                    setSelectedDate('');
+                                    setDrawerDate(today);
+                                }}
                                 className="rounded-md px-2 py-1 text-[10px] font-medium text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:text-xs dark:text-[#A1A09A] dark:hover:bg-[#2a2a28]"
                             >
                                 Reset
