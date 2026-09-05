@@ -142,7 +142,7 @@ export default function VehicleDetail({
                     {showList ? (
                         <Link
                             href={`/vehicle-detail?date=${activeMonth}-01`}
-                            prefetch={['mount', 'hover']}
+                            prefetch={['mount', 'hover']} cacheFor={300000}
                             className="text-sm font-medium text-white/70 hover:text-white"
                         >
                             &larr; Back
@@ -150,7 +150,7 @@ export default function VehicleDetail({
                     ) : (
                         <Link
                             href="/"
-                            prefetch={['mount', 'hover']}
+                            prefetch={['mount', 'hover']} cacheFor={300000}
                             className="text-sm font-medium text-white/70 hover:text-white"
                         >
                             &larr; Back
@@ -438,7 +438,7 @@ export default function VehicleDetail({
                             )}
                             <Link
                                 href={`/vehicle-detail?date=${activeMonth}-01`}
-                                prefetch={['mount', 'hover']}
+                                prefetch={['mount', 'hover']} cacheFor={300000}
                                 className="mt-3 inline-block rounded-md border border-[#19140035] px-2.5 py-1.5 text-xs font-medium md:mt-4 md:px-4 md:py-2 md:text-sm dark:border-[#3E3E3A]"
                             >
                                 Back
@@ -448,7 +448,7 @@ export default function VehicleDetail({
                         <div className="mt-8 grid w-full grid-cols-2 gap-4 gap-y-5 md:grid-cols-6 md:gap-4">
                             <Link
                                 href={`/vehicle-detail?date=${activeMonth}-01&view=list`}
-                                prefetch={['mount', 'hover']}
+                                prefetch={['mount', 'hover']} cacheFor={300000}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -457,7 +457,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/expenses?date=${activeMonth}-01`}
-                                prefetch={['mount', 'hover']}
+                                prefetch={['mount', 'hover']} cacheFor={300000}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -466,7 +466,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/stock?date=${activeMonth}-01`}
-                                prefetch={['mount', 'hover']}
+                                prefetch={['mount', 'hover']} cacheFor={300000}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -475,7 +475,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/customer"
-                                prefetch={['mount', 'hover']}
+                                prefetch={['mount', 'hover']} cacheFor={300000}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -484,7 +484,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/auction"
-                                prefetch={['mount', 'hover']}
+                                prefetch={['mount', 'hover']} cacheFor={300000}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -493,7 +493,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/cashbook?date=${activeMonth}-01`}
-                                prefetch={['mount', 'hover']}
+                                prefetch={['mount', 'hover']} cacheFor={300000}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -502,7 +502,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/export"
-                                prefetch={['mount', 'hover']}
+                                prefetch={['mount', 'hover']} cacheFor={300000}
                                 className="col-span-2 flex h-20 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:col-span-1 md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">

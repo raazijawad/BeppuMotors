@@ -22,7 +22,7 @@ export function NavMain({ items = [] }) {
                             isActive={isCurrentUrl(item.href)}
                             tooltip={{ children: item.title }}
                         >
-                            <Link href={item.href} prefetch>
+                            <Link href={item.href} prefetch cacheFor={300000}>
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>
                             </Link>

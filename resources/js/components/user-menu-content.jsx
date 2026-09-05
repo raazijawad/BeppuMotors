@@ -32,7 +32,7 @@ export function UserMenuContent({ user }) {
                     <Link
                         className="block w-full cursor-pointer"
                         href={edit()}
-                        prefetch
+                        prefetch cacheFor={300000}
                         onClick={cleanup}
                     >
                         <Settings className="mr-2" />

@@ -14,7 +14,8 @@ export default function Home() {
                     <div className="flex w-full max-w-md flex-col gap-4 md:max-w-2xl md:gap-6">
                         <Link
                             href="/vehicle-detail"
-                            prefetch
+                            prefetch={['mount', 'hover']}
+                            cacheFor={300000}
                             className="flex h-28 items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615] md:h-52"
                         >
                             <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">

@@ -197,7 +197,7 @@ export default function Cashbook({
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
                     <Link
                         href={`/vehicle-detail?date=${activeMonth}-01`}
-                        prefetch={['mount', 'hover']}
+                        prefetch={['mount', 'hover']} cacheFor={300000}
                         className="text-sm font-medium text-white/70 hover:text-white"
                     >
                         &larr; Back
