@@ -115,6 +115,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
                     <Link
                         href="/auction"
+                        prefetch={['mount', 'hover']}
                         className="text-sm font-medium text-white/70 hover:text-white"
                     >
                         &larr; Back

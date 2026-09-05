@@ -140,19 +140,17 @@ export default function VehicleDetail({
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00447C] via-[#003d6f] to-[#00284a]"></div>
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
                     {showList ? (
-                        <button
-                            onClick={() =>
-                                router.get(
-                                    `/vehicle-detail?date=${activeMonth}-01`,
-                                )
-                            }
+                        <Link
+                            href={`/vehicle-detail?date=${activeMonth}-01`}
+                            prefetch={['mount', 'hover']}
                             className="text-sm font-medium text-white/70 hover:text-white"
                         >
                             &larr; Back
-                        </button>
+                        </Link>
                     ) : (
                         <Link
                             href="/"
+                            prefetch={['mount', 'hover']}
                             className="text-sm font-medium text-white/70 hover:text-white"
                         >
                             &larr; Back
@@ -438,16 +436,13 @@ export default function VehicleDetail({
                                     ))}
                                 </div>
                             )}
-                            <button
-                                onClick={() =>
-                                    router.get(
-                                        `/vehicle-detail?date=${activeMonth}-01`,
-                                    )
-                                }
-                                className="mt-3 rounded-md border border-[#19140035] px-2.5 py-1.5 text-xs font-medium md:mt-4 md:px-4 md:py-2 md:text-sm dark:border-[#3E3E3A]"
+                            <Link
+                                href={`/vehicle-detail?date=${activeMonth}-01`}
+                                prefetch={['mount', 'hover']}
+                                className="mt-3 inline-block rounded-md border border-[#19140035] px-2.5 py-1.5 text-xs font-medium md:mt-4 md:px-4 md:py-2 md:text-sm dark:border-[#3E3E3A]"
                             >
                                 Back
-                            </button>
+                            </Link>
                         </div>
                     ) : (
                         <div className="mt-8 grid w-full grid-cols-2 gap-4 gap-y-5 md:grid-cols-6 md:gap-4">

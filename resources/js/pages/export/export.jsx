@@ -33,6 +33,7 @@ export default function Export({ countries = [] }) {
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
                     <Link
                         href="/vehicle-detail"
+                        prefetch={['mount', 'hover']}
                         className="text-sm font-medium text-white/70 hover:text-white"
                     >
                         &larr; Back
@@ -66,6 +67,7 @@ export default function Export({ countries = [] }) {
                                 <Link
                                     key={country.id}
                                     href={`/export/${country.id}`}
+                                    prefetch={['mount', 'hover']}
                                     className="flex h-44 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                                 >
                                     <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
