@@ -451,20 +451,18 @@ export default function VehicleDetail({
                         </div>
                     ) : (
                         <div className="mt-8 grid w-full grid-cols-2 gap-4 gap-y-5 md:grid-cols-6 md:gap-4">
-                            <div
-                                onClick={() =>
-                                    router.get(
-                                        `/vehicle-detail?date=${activeMonth}-01&view=list`,
-                                    )
-                                }
+                            <Link
+                                href={`/vehicle-detail?date=${activeMonth}-01&view=list`}
+                                prefetch
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                     +
                                 </span>
-                            </div>
+                            </Link>
                             <Link
                                 href={`/expenses?date=${activeMonth}-01`}
+                                prefetch
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -473,6 +471,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/stock?date=${activeMonth}-01`}
+                                prefetch
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -481,6 +480,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/customer"
+                                prefetch
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -489,6 +489,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/auction"
+                                prefetch
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -497,6 +498,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/cashbook?date=${activeMonth}-01`}
+                                prefetch
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -505,6 +507,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/export"
+                                prefetch
                                 className="col-span-2 flex h-20 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:col-span-1 md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
