@@ -100,6 +100,7 @@ export default function VehicleDetail({
     const handleAddIncome = (e) => {
         e.preventDefault();
         post('/incomes', {
+            only: ['incomes', 'drawers'],
             onSuccess: () => {
                 reset();
                 setSelectedDrawer(null);

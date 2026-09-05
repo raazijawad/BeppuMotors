@@ -21,25 +21,33 @@ class IncomeController extends Controller
         $date = $request->query('date');
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
-        $incomes = Income::with('customer:id,name')
-            ->select([
-                'id',
-                'user_id',
-                'customer_id',
-                'income_name',
-                'amount',
-                'description',
-                'date',
-                'sell_auction_id',
-                'created_at',
-            ])
-            ->latest()
-            ->get();
+        return Inertia::render('vehicle-detail', [
+            'incomes' => fn () => Income::with('customer:id,name')
+                ->select([
+                    'id',
+                    'user_id',
+                    'customer_id',
+                    'income_name',
+                    'amount',
+                    'description',
+                    'date',
+                    'sell_auction_id',
+                    'created_at',
+                ])
+                ->latest()
+                ->get(),
+            'customers' => fn () => Customer::orderBy('name')->select(['id', 'name'])->get(),
+            'drawers' => fn () => Drawer::latest()->get(),
+            'selectedDate' => $date,
+            'selectedMonth' => $month,
+            'view' => $request->query('view'),
+            'auctionNotifications' => fn () => $this->auctionNotifications($request),
+            'documentNotifications' => fn () => $this->documentNotifications($request),
+        ]);
+    }
 
-        $customers = Customer::orderBy('name')->select(['id', 'name'])->get();
-
-        $drawers = Drawer::latest()->get();
-
+    private function auctionNotifications(Request $request): array
+    {
         $notifications = $request->user()
             ->unreadNotifications()
             ->where('type', UnpaidAuctionReminder::class)
@@ -51,7 +59,7 @@ class IncomeController extends Controller
             $notifications->pluck('data.buy_auction_id')->filter()->unique()
         )->get()->keyBy('id');
 
-        $auctionNotifications = $notifications
+        return $notifications
             ->map(fn ($notification) => [
                 'id' => $notification->id,
                 'buy_auction_id' => $notification->data['buy_auction_id'] ?? null,
@@ -62,9 +70,13 @@ class IncomeController extends Controller
                 'description' => $vehicles[$notification->data['buy_auction_id'] ?? null]->description ?? null,
             ])
             ->filter(fn ($notification) => isset($vehicles[$notification['buy_auction_id']]))
-            ->values();
+            ->values()
+            ->toArray();
+    }
 
-        $documentReminderNotifications = $request->user()
+    private function documentNotifications(Request $request): array
+    {
+        $notifications = $request->user()
             ->unreadNotifications()
             ->where('type', DocumentNotSubmittedReminder::class)
             ->latest()
@@ -73,7 +85,7 @@ class IncomeController extends Controller
         $sellAuctions = SellAuction::with('stock')
             ->whereIn(
                 'id',
-                $documentReminderNotifications
+                $notifications
                     ->pluck('data.sell_auction_id')
                     ->filter()
                     ->unique(),
@@ -81,7 +93,7 @@ class IncomeController extends Controller
             ->get()
             ->keyBy('id');
 
-        $documentNotifications = $documentReminderNotifications
+        return $notifications
             ->map(fn ($notification) => [
                 'id' => $notification->id,
                 'sell_auction_id' => $notification->data['sell_auction_id'] ?? null,
@@ -94,18 +106,8 @@ class IncomeController extends Controller
                 fn ($notification) => isset($sellAuctions[$notification['sell_auction_id']])
                     && ! $sellAuctions[$notification['sell_auction_id']]->document_submitted,
             )
-            ->values();
-
-        return Inertia::render('vehicle-detail', [
-            'incomes' => $incomes,
-            'customers' => $customers,
-            'drawers' => $drawers,
-            'selectedDate' => $date,
-            'selectedMonth' => $month,
-            'view' => $request->query('view'),
-            'auctionNotifications' => $auctionNotifications,
-            'documentNotifications' => $documentNotifications,
-        ]);
+            ->values()
+            ->toArray();
     }
 
     public function store(Request $request): RedirectResponse
