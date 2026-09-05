@@ -463,14 +463,10 @@ export default function Expenses({
                                                             const filtered = group.filter((e) => e.date <= today);
                                                             if (filtered.length === 0) return null;
                                                             return filtered.reduce((a, b) => {
-                                                                if (b.date > a.date) return b;
-                                                                if (b.date === a.date) {
-                                                                    const aTime = new Date(a.created_at || 0).getTime();
-                                                                    const bTime = new Date(b.created_at || 0).getTime();
-                                                                    if (bTime > aTime) return b;
-                                                                }
-                                                                return a;
-                                                            });
+                                                            const aTime = new Date(a.created_at || 0).getTime();
+                                                            const bTime = new Date(b.created_at || 0).getTime();
+                                                            return bTime > aTime ? b : a;
+                                                        });
                                                         })
                                                         .filter(Boolean)
                                                         .sort((a, b) => a.name.localeCompare(b.name));

@@ -101,13 +101,9 @@ export default function Cashbook({
         const filtered = entries.filter((e) => e.date <= date);
         if (filtered.length === 0) return null;
         return filtered.reduce((latest, e) => {
-            if (e.date > latest.date) return e;
-            if (e.date === latest.date) {
-                const eTime = new Date(e.created_at || 0).getTime();
-                const lTime = new Date(latest.created_at || 0).getTime();
-                if (eTime > lTime) return e;
-            }
-            return latest;
+            const eTime = new Date(e.created_at || 0).getTime();
+            const lTime = new Date(latest.created_at || 0).getTime();
+            return eTime > lTime ? e : latest;
         });
     };
 
