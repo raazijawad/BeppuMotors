@@ -32,6 +32,7 @@ export default function Stock({ stocks = [] }) {
         post('/stock', {
             onSuccess: () => {
                 router.flushAll();
+                router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
                 reset();
                 setShowForm(false);
             },

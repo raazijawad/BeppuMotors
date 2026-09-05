@@ -29,6 +29,7 @@ export default function Customer({ customers = [], stocks = [] }) {
         post('/customers', {
             onSuccess: () => {
                 router.flushAll();
+                router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
                 reset();
                 setShowForm(false);
             },
@@ -93,6 +94,7 @@ export default function Customer({ customers = [], stocks = [] }) {
             {
                 onSuccess: (page) => {
                     router.flushAll();
+                    router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
                     setSelectedVehicles([]);
                     setViewDraft(false);
                     const fresh = (page.props.customers || []).find(
@@ -110,6 +112,7 @@ export default function Customer({ customers = [], stocks = [] }) {
             router.delete(`/customers/${customer.id}`, {
                 onSuccess: () => {
                     router.flushAll();
+                    router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
                     setSelectedCustomer(null);
                 },
             });
@@ -128,7 +131,10 @@ export default function Customer({ customers = [], stocks = [] }) {
         group.invoices.forEach((inv) => {
             router.delete(`/invoices/${inv.id}`, {
                 preserveScroll: true,
-                onSuccess: () => router.flushAll(),
+                onSuccess: () => {
+                        router.flushAll();
+                        router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
+                    },
             });
         });
     };

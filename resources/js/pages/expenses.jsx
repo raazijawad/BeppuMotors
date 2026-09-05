@@ -159,6 +159,11 @@ export default function Expenses({
             put(`/expenses/${editingExpense.id}`, {
                 onSuccess: () => {
                     router.flushAll();
+                    router.prefetch(
+                        `/vehicle-detail?date=${activeMonth}-01`,
+                        {},
+                        { cacheFor: 300000 },
+                    );
                     reset();
                     setSelectedDrawer(null);
                     setShowDrawerSelect(false);
@@ -170,6 +175,11 @@ export default function Expenses({
             post('/expenses', {
                 onSuccess: () => {
                     router.flushAll();
+                    router.prefetch(
+                        `/vehicle-detail?date=${activeMonth}-01`,
+                        {},
+                        { cacheFor: 300000 },
+                    );
                     reset();
                     setSelectedDrawer(null);
                     setShowDrawerSelect(false);

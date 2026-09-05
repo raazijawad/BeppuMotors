@@ -135,6 +135,11 @@ export default function Cashbook({
                 onFinish: () => setDrawerSubmitting(false),
                 onSuccess: () => {
                     router.flushAll();
+                    router.prefetch(
+                        `/vehicle-detail?date=${activeMonth}-01`,
+                        {},
+                        { cacheFor: 300000 },
+                    );
                     setDrawerName('');
                     setDrawerAmount('');
                     setShowDrawerForm(false);
@@ -155,6 +160,11 @@ export default function Cashbook({
                 onFinish: () => setEditSubmitting(false),
                 onSuccess: () => {
                     router.flushAll();
+                    router.prefetch(
+                        `/vehicle-detail?date=${activeMonth}-01`,
+                        {},
+                        { cacheFor: 300000 },
+                    );
                     setEditingDrawer(null);
                     setEditName('');
                     setEditAmount('');
