@@ -15,9 +15,21 @@ class CustomerController extends Controller
 {
     public function index(Request $request): Response
     {
-        $customers = Customer::with(['invoices.stock', 'incomes', 'expenses'])->latest()->get();
+        $customers = Customer::with([
+            'invoices.stock:id,name,chassisnumber',
+            'invoices:id,customer_id,user_id,stock_id,amount,date,sale_id,bill_number,created_at',
+            'incomes:id,customer_id,income_name,amount,date,created_at',
+            'expenses:id,customer_id,expense_name,amount,date,created_at',
+        ])
+            ->select(['id', 'name', 'bill_prefix', 'phone'])
+            ->latest()
+            ->get();
 
-        $stocks = Stock::doesntHave('invoices')->doesntHave('sellAuctions')->latest()->get();
+        $stocks = Stock::doesntHave('invoices')
+            ->doesntHave('sellAuctions')
+            ->select(['id', 'name', 'company', 'shopname', 'chassisnumber', 'price'])
+            ->latest()
+            ->get();
 
         return Inertia::render('customer', [
             'customers' => $customers,

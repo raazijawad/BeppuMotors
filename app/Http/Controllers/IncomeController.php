@@ -21,9 +21,22 @@ class IncomeController extends Controller
         $date = $request->query('date');
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
-        $incomes = Income::with('customer')->latest()->get();
+        $incomes = Income::with('customer:id,name')
+            ->select([
+                'id',
+                'user_id',
+                'customer_id',
+                'income_name',
+                'amount',
+                'description',
+                'date',
+                'sell_auction_id',
+                'created_at',
+            ])
+            ->latest()
+            ->get();
 
-        $customers = Customer::orderBy('name')->get();
+        $customers = Customer::orderBy('name')->select(['id', 'name'])->get();
 
         $drawers = Drawer::latest()->get();
 

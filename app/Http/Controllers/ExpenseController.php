@@ -17,9 +17,27 @@ class ExpenseController extends Controller
         $date = $request->query('date');
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
-        $expenses = Expense::with(['stock', 'buyAuction', 'customer'])->latest()->get();
+        $expenses = Expense::with([
+            'stock',
+            'buyAuction',
+            'customer:id,name',
+        ])
+            ->select([
+                'id',
+                'user_id',
+                'customer_id',
+                'stock_id',
+                'buy_auction_id',
+                'expense_name',
+                'amount',
+                'description',
+                'date',
+                'created_at',
+            ])
+            ->latest()
+            ->get();
 
-        $customers = Customer::orderBy('name')->get();
+        $customers = Customer::orderBy('name')->select(['id', 'name'])->get();
 
         $drawers = Drawer::latest()->get();
 

@@ -453,7 +453,7 @@ export default function VehicleDetail({
                         <div className="mt-8 grid w-full grid-cols-2 gap-4 gap-y-5 md:grid-cols-6 md:gap-4">
                             <Link
                                 href={`/vehicle-detail?date=${activeMonth}-01&view=list`}
-                                prefetch
+                                prefetch={['mount', 'hover']}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -462,7 +462,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/expenses?date=${activeMonth}-01`}
-                                prefetch
+                                prefetch={['mount', 'hover']}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -471,7 +471,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/stock?date=${activeMonth}-01`}
-                                prefetch
+                                prefetch={['mount', 'hover']}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -480,7 +480,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/customer"
-                                prefetch
+                                prefetch={['mount', 'hover']}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -489,7 +489,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/auction"
-                                prefetch
+                                prefetch={['mount', 'hover']}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -498,7 +498,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href={`/cashbook?date=${activeMonth}-01`}
-                                prefetch
+                                prefetch={['mount', 'hover']}
                                 className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
@@ -507,7 +507,7 @@ export default function VehicleDetail({
                             </Link>
                             <Link
                                 href="/export"
-                                prefetch
+                                prefetch={['mount', 'hover']}
                                 className="col-span-2 flex h-20 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:col-span-1 md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                             >
                                 <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
