@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
 
@@ -31,6 +31,7 @@ export default function Stock({ stocks = [] }) {
         e.preventDefault();
         post('/stock', {
             onSuccess: () => {
+                router.flushAll();
                 reset();
                 setShowForm(false);
             },

@@ -102,6 +102,7 @@ export default function VehicleDetail({
         post('/incomes', {
             only: ['incomes', 'drawers'],
             onSuccess: () => {
+                router.flushAll();
                 reset();
                 setSelectedDrawer(null);
                 setShowDrawerSelect(false);

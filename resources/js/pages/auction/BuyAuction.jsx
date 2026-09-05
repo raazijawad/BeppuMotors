@@ -101,6 +101,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
         e.preventDefault();
         post('/auction/buy', {
             onSuccess: () => {
+                router.flushAll();
                 reset();
                 setShowForm(false);
             },
@@ -458,6 +459,8 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                 onClick={() => {
                                     router.post(
                                         `/auction/buy/${confirmPaidId}/paid`,
+                                        {},
+                                        { onSuccess: () => router.flushAll() },
                                     );
                                     setConfirmPaidId(null);
                                     setHighlightId(null);
@@ -494,6 +497,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                 onClick={() => {
                                     router.delete(
                                         `/auction/buy/${confirmDeleteId}`,
+                                        { onSuccess: () => router.flushAll() },
                                     );
                                     setConfirmDeleteId(null);
                                 }}

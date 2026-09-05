@@ -28,6 +28,7 @@ export default function Customer({ customers = [], stocks = [] }) {
         e.preventDefault();
         post('/customers', {
             onSuccess: () => {
+                router.flushAll();
                 reset();
                 setShowForm(false);
             },
@@ -91,6 +92,7 @@ export default function Customer({ customers = [], stocks = [] }) {
             { lines, date: invoiceDate },
             {
                 onSuccess: (page) => {
+                    router.flushAll();
                     setSelectedVehicles([]);
                     setViewDraft(false);
                     const fresh = (page.props.customers || []).find(
@@ -106,7 +108,10 @@ export default function Customer({ customers = [], stocks = [] }) {
     const handleDeleteCustomer = (customer) => {
         if (confirm(`Delete customer "${customer.name}"?`)) {
             router.delete(`/customers/${customer.id}`, {
-                onSuccess: () => setSelectedCustomer(null),
+                onSuccess: () => {
+                    router.flushAll();
+                    setSelectedCustomer(null);
+                },
             });
         }
     };
@@ -123,6 +128,7 @@ export default function Customer({ customers = [], stocks = [] }) {
         group.invoices.forEach((inv) => {
             router.delete(`/invoices/${inv.id}`, {
                 preserveScroll: true,
+                onSuccess: () => router.flushAll(),
             });
         });
     };

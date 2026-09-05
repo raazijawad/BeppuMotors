@@ -158,6 +158,7 @@ export default function Expenses({
         if (editingExpense) {
             put(`/expenses/${editingExpense.id}`, {
                 onSuccess: () => {
+                    router.flushAll();
                     reset();
                     setSelectedDrawer(null);
                     setShowDrawerSelect(false);
@@ -168,6 +169,7 @@ export default function Expenses({
         } else {
             post('/expenses', {
                 onSuccess: () => {
+                    router.flushAll();
                     reset();
                     setSelectedDrawer(null);
                     setShowDrawerSelect(false);

@@ -56,6 +56,7 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
             {},
             {
                 preserveScroll: true,
+                onSuccess: () => router.flushAll(),
                 onFinish: () => setProcessingId(null),
             },
         );
@@ -76,6 +77,7 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
             {},
             {
                 preserveScroll: true,
+                onSuccess: () => router.flushAll(),
                 onFinish: () => setProcessingId(null),
             },
         );
@@ -96,6 +98,7 @@ export default function AdminUsers({ users = [], pendingCount = 0 }) {
             {
                 preserveScroll: true,
                 onSuccess: () => {
+                    router.flushAll();
                     setSelectedUser(null);
                     setPassword('');
                     setPasswordConfirmation('');

@@ -134,6 +134,7 @@ export default function Cashbook({
             {
                 onFinish: () => setDrawerSubmitting(false),
                 onSuccess: () => {
+                    router.flushAll();
                     setDrawerName('');
                     setDrawerAmount('');
                     setShowDrawerForm(false);
@@ -153,6 +154,7 @@ export default function Cashbook({
             {
                 onFinish: () => setEditSubmitting(false),
                 onSuccess: () => {
+                    router.flushAll();
                     setEditingDrawer(null);
                     setEditName('');
                     setEditAmount('');

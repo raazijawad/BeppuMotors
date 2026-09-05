@@ -28,6 +28,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
             { stock_id: selectedStock.id, auction_price: auctionPriceValue },
             {
                 onSuccess: () => {
+                    router.flushAll();
                     setShowPicker(false);
                     setSelectedStock(null);
                     setAuctionPriceValue('');
@@ -50,6 +51,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
             { stock_id: selectedStock.id, auction_price: null },
             {
                 onSuccess: () => {
+                    router.flushAll();
                     setShowPicker(false);
                     setSelectedStock(null);
                     setAuctionPriceValue('');
@@ -77,6 +79,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
             { auction_price: priceValue },
             {
                 onSuccess: () => {
+                    router.flushAll();
                     setEditingPrice(null);
                     setPriceValue('');
                 },
@@ -394,6 +397,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                 onClick={() => {
                                     router.delete(
                                         `/auction/sell/${confirmDeleteId}`,
+                                        { onSuccess: () => router.flushAll() },
                                     );
                                     setConfirmDeleteId(null);
                                 }}
@@ -487,6 +491,8 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                 onClick={() => {
                                     router.post(
                                         `/auction/sell/${confirmSoldId}/sold`,
+                                        {},
+                                        { onSuccess: () => router.flushAll() },
                                     );
                                     setConfirmSoldId(null);
                                 }}
@@ -519,6 +525,8 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                 onClick={() => {
                                     router.post(
                                         `/auction/sell/${confirmDocumentId}/documents`,
+                                        {},
+                                        { onSuccess: () => router.flushAll() },
                                     );
                                     setConfirmDocumentId(null);
                                 }}

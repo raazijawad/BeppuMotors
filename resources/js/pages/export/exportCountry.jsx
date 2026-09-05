@@ -14,6 +14,7 @@ export default function ExportCountry({ country = null, customers = [] }) {
             { name },
             {
                 onSuccess: () => {
+                    router.flushAll();
                     setShowForm(false);
                     setName('');
                     setError('');
