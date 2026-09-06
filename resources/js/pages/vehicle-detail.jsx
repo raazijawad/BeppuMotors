@@ -81,6 +81,8 @@ export default function VehicleDetail({
         ? monthIncomes.filter((v) => v.date === filterDate)
         : monthIncomes;
 
+    const isPastDateSelected = filterDate !== '' && filterDate !== today;
+
     const searchFilteredIncomes = searchTerm
         ? incomes.filter((v) => {
               const term = searchTerm.toLowerCase();
@@ -377,7 +379,8 @@ export default function VehicleDetail({
                                 </h2>
                                 <button
                                     onClick={() => setShowForm(true)}
-                                    className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
+                                    disabled={isPastDateSelected}
+                                    className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:px-4 md:py-2 md:text-sm"
                                 >
                                     + Add Income
                                 </button>

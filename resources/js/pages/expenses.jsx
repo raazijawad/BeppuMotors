@@ -137,6 +137,8 @@ export default function Expenses({
         ? monthExpenses.filter((v) => v.date === filterDate)
         : monthExpenses;
 
+    const isPastDateSelected = filterDate !== '' && filterDate !== today;
+
     const searchFilteredExpenses = searchTerm
         ? expenses.filter((v) => {
               const term = searchTerm.toLowerCase();
@@ -278,7 +280,8 @@ export default function Expenses({
                             </h2>
                             <button
                                 onClick={openAddForm}
-                                className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
+                                disabled={isPastDateSelected}
+                                className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:px-4 md:py-2 md:text-sm"
                             >
                                 + Add Expense
                             </button>
