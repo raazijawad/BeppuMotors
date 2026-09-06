@@ -33,14 +33,13 @@ export default function Expenses({
     expenses = [],
     customers = [],
     drawers = [],
-    selectedDate = null,
     selectedMonth = null,
 }) {
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const [activeMonth, setActiveMonth] = useState(selectedMonth || currentMonth);
-    const activeDate = selectedDate || today;
+    const activeDate = today;
 
     const [showForm, setShowForm] = useState(false);
     const [editingExpense, setEditingExpense] = useState(null);

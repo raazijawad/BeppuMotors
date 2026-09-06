@@ -269,7 +269,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                     style={isSmallScreen ? { alignItems: 'flex-start', padding: '24px 8px 8px', overflow: 'hidden' } : undefined}
                 >
                     <div
-                        className="mx-4 w-full max-w-lg overflow-y-auto rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:mx-0 md:p-6 lg:max-w-xl dark:border-[#3E3E3A] dark:bg-[#161615]"
+                        className="mx-4 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:mx-0 md:p-6 lg:max-w-xl dark:border-[#3E3E3A] dark:bg-[#161615]"
                         style={isSmallScreen ? { margin: '0 auto', padding: '8px', maxHeight: 'calc(100vh - 16px)' } : undefined}
                     >
                         <div className="mb-4 flex items-center justify-between" style={isSmallScreen ? { marginBottom: '4px' } : undefined}>
@@ -288,7 +288,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                         </div>
                         <form
                             onSubmit={handleSubmit}
-                            className="grid grid-cols-1 gap-3 md:gap-4"
+                            className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4"
                             style={isSmallScreen ? { gap: '4px' } : undefined}
                         >
                             <div className="col-span-1 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
@@ -377,7 +377,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                     style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
                                 />
                             </div>
-                            <div className="col-span-1" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
+                            <div className="col-span-1 md:col-span-2" style={isSmallScreen ? { gridColumn: 'span 1' } : undefined}>
                                 <label className="mb-1 block text-[10px] font-medium text-[#706f6c] md:text-xs dark:text-[#A1A09A]" style={isSmallScreen ? { fontSize: '10px', marginBottom: '1px' } : undefined}>
                                     Description
                                 </label>
@@ -420,7 +420,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                     required
                                 />
                             </div>
-                            <div className="col-span-1 flex gap-2 pt-2" style={isSmallScreen ? { gridColumn: 'span 1', gap: '6px', paddingTop: '2px' } : undefined}>
+                            <div className="col-span-1 flex gap-2 pt-2 md:col-span-2" style={isSmallScreen ? { gridColumn: 'span 1', gap: '6px', paddingTop: '2px' } : undefined}>
                                 <button
                                     type="submit"
                                     disabled={processing}

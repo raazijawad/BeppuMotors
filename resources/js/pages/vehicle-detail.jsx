@@ -33,7 +33,6 @@ export default function VehicleDetail({
     incomes = [],
     customers = [],
     drawers = [],
-    selectedDate = null,
     selectedMonth = null,
     view = null,
     auctionNotifications = [],
@@ -64,7 +63,7 @@ export default function VehicleDetail({
         income_name: '',
         amount: '',
         description: '',
-        date: selectedDate || today,
+        date: today,
         customer_id: '',
         drawer_id: '',
     });
