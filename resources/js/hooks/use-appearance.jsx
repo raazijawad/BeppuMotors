@@ -3,14 +3,6 @@ import { useSyncExternalStore } from 'react';
 const listeners = new Set();
 let currentAppearance = 'system';
 
-const prefersDark = () => {
-    if (typeof window === 'undefined') {
-        return false;
-    }
-
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-};
-
 const setCookie = (name, value, days = 365) => {
     if (typeof document === 'undefined') {
         return;
@@ -28,19 +20,15 @@ const getStoredAppearance = () => {
     return localStorage.getItem('appearance') || 'system';
 };
 
-const isDarkMode = (appearance) => {
-    return appearance === 'dark' || (appearance === 'system' && prefersDark());
-};
+const isDarkMode = () => false;
 
-const applyTheme = (appearance) => {
+const applyTheme = () => {
     if (typeof document === 'undefined') {
         return;
     }
 
-    const isDark = isDarkMode(appearance);
-
-    document.documentElement.classList.toggle('dark', isDark);
-    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+    document.documentElement.classList.remove('dark');
+    document.documentElement.style.colorScheme = 'light';
 };
 
 const subscribe = (callback) => {
