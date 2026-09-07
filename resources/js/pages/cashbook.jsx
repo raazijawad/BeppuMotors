@@ -37,6 +37,18 @@ function addMonths(ym, delta) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+function formatAmount(value) {
+    const digits = String(value ?? '').replace(/\D/g, '').slice(0, 13);
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function formatDisplay(value) {
+    const num = Number(value);
+    return Number.isFinite(num)
+        ? num.toLocaleString('en-US', { maximumFractionDigits: 2 })
+        : String(value ?? '');
+}
+
 export default function Cashbook({
     entries = [],
     drawers = [],
@@ -130,7 +142,7 @@ export default function Cashbook({
         setDrawerSubmitting(true);
         router.post(
             '/drawers',
-            { name: drawerName, amount: drawerAmount, date: drawerDate },
+            { name: drawerName, amount: drawerAmount.replace(/,/g, ''), date: drawerDate },
             {
                 onFinish: () => setDrawerSubmitting(false),
                 onSuccess: () => {
@@ -155,7 +167,7 @@ export default function Cashbook({
         setEditSubmitting(true);
         router.put(
             `/drawers/${editingDrawer.id}`,
-            { name: editName, amount: editAmount, date: drawerDate },
+            { name: editName, amount: editAmount.replace(/,/g, ''), date: drawerDate },
             {
                 onFinish: () => setEditSubmitting(false),
                 onSuccess: () => {
@@ -396,7 +408,7 @@ export default function Cashbook({
                                         -
                                     </span>
                                     <span className="text-xs text-[#706f6c] md:text-sm dark:text-[#A1A09A]">
-                                        Different: {difference}
+                                        Different: {formatDisplay(difference)}
                                     </span>
                                     <span className="text-[#706f6c] dark:text-[#A1A09A]">
                                         -
@@ -509,7 +521,9 @@ export default function Cashbook({
                                             placeholder="Amount"
                                             value={drawerAmount}
                                             onChange={(e) =>
-                                                setDrawerAmount(e.target.value)
+                                                setDrawerAmount(
+                                                    formatAmount(e.target.value),
+                                                )
                                             }
                                             className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] md:text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                         />
@@ -541,7 +555,9 @@ export default function Cashbook({
                                                     value={editAmount}
                                                     onChange={(e) =>
                                                         setEditAmount(
-                                                            e.target.value,
+                                                            formatAmount(
+                                                                e.target.value,
+                                                            ),
                                                         )
                                                     }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] md:text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
@@ -573,16 +589,18 @@ export default function Cashbook({
                                                 </p>
                                             </div>
                                             <div className="flex-1 px-3 py-0.5 text-center text-[10px] font-semibold text-green-600 md:text-xs">
-                                                +{parseFloat(entry.amount)}
+                                                +{formatDisplay(entry.amount)}
                                             </div>
                                             <button
                                                 onClick={() => {
                                                     setEditingDrawer(entry);
                                                     setEditName(entry.name);
                                                     setEditAmount(
-                                                        String(
-                                                            parseFloat(
-                                                                entry.amount,
+                                                        formatAmount(
+                                                            String(
+                                                                parseFloat(
+                                                                    entry.amount,
+                                                                ),
                                                             ),
                                                         ),
                                                     );
@@ -600,12 +618,7 @@ export default function Cashbook({
                                     Total
                                 </div>
                                 <div className="flex-1 px-3 py-1 text-center text-[10px] font-bold text-green-600 md:text-xs">
-                                    +
-                                    {filteredDrawers.reduce(
-                                        (sum, e) =>
-                                            sum + parseFloat(e.amount || 0),
-                                        0,
-                                    )}
+                                    +{formatDisplay(drawerTotal)}
                                 </div>
                             </div>
                         </div>
