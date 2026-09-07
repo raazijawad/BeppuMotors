@@ -684,11 +684,14 @@ export default function Cashbook({
                                             const lastAmount = prev
                                                 ? prev.amount
                                                 : d.amount;
-                                            changeMsg = `that ${lastAmount} to ${d.amount}`;
+                                            changeMsg = `that ${formatDisplay(lastAmount)} to ${formatDisplay(d.amount)}`;
                                         }
-                                        const msg =
-                                            changeMsg ||
-                                            `Amount set to ${d.amount}`;
+                                        const msg = changeMsg
+                                            ? changeMsg.replace(
+                                                  /\d+(?:\.\d+)?/g,
+                                                  (m) => formatDisplay(m),
+                                              )
+                                            : `Amount set to ${formatDisplay(d.amount)}`;
                                         return (
                                             <div
                                                 key={d.id}
@@ -707,7 +710,7 @@ export default function Cashbook({
                                                             ? `has changed the amount at ${time} ${msg}`
                                                             : `${msg} at ${time}${
                                                                   prev
-                                                                      ? ` that ${prev.amount} to ${d.amount}`
+                                                                      ? ` that ${formatDisplay(prev.amount)} to ${formatDisplay(d.amount)}`
                                                                       : ''
                                                               }`}
                                                     </span>
