@@ -199,7 +199,14 @@ export default function Customer({ customers = [], stocks = [] }) {
     return (
         <div className="flex h-screen flex-col overflow-hidden">
             <Head title="Customers" />
-            <nav className="relative h-16 w-full border-b border-white/10 md:h-20">
+            <nav
+                className={
+                    (invoiceActive || showSaleModal || showForm
+                        ? 'pointer-events-none blur-sm'
+                        : '') +
+                    ' relative h-16 w-full border-b border-white/10 md:h-20'
+                }
+            >
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00447C] via-[#003d6f] to-[#00284a]"></div>
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
                     <Link

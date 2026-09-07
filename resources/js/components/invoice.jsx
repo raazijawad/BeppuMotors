@@ -20,14 +20,14 @@ export default function Invoice({
 
     useEffect(() => {
         const updateScale = () => {
-            const chrome = 110; // modal padding + toolbar
+            const chrome = 130; // modal padding + toolbar
             const availH = window.innerHeight - chrome;
             const availW = window.innerWidth - 40;
             const s = Math.min(
                 availH / SHEET_HEIGHT_PX,
                 availW / SHEET_WIDTH_PX,
                 1,
-            );
+            ) * 0.85;
             setScale(Math.max(s, 0.2));
         };
 
