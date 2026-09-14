@@ -13,6 +13,9 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
     const [selectedStock, setSelectedStock] = useState(null);
     const [auctionPriceValue, setAuctionPriceValue] = useState('');
     const [auctionError, setAuctionError] = useState('');
+    const [pendingSells, setPendingSells] = useState([]);
+    const [pendingPriceIds, setPendingPriceIds] = useState([]);
+    const [pendingStockIds, setPendingStockIds] = useState([]);
 
     const openSelectModal = (s) => {
         setSelectedStock(s);
@@ -20,50 +23,77 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
         setAuctionError('');
     };
 
-    const handleAuctionSubmit = (e) => {
+    const buildPendingSell = () => {
+        if (!selectedStock) return null;
+        return {
+            id: `temp-${Date.now()}`,
+            stock_id: selectedStock.id,
+            auction_price: auctionPriceValue || null,
+            sold: false,
+            document_submitted: false,
+            pending: true,
+            stock: {
+                id: selectedStock.id,
+                name: selectedStock.name,
+                company: selectedStock.company,
+                colour: selectedStock.colour,
+                shopname: selectedStock.shopname,
+                chassisnumber: selectedStock.chassisnumber,
+                description: selectedStock.description,
+                price: selectedStock.price,
+                t_price: selectedStock.t_price,
+                n_price: selectedStock.n_price,
+                a_price: selectedStock.a_price,
+                expected_profit: selectedStock.expected_profit,
+            },
+        };
+    };
+
+    const submitAdd = (e, price) => {
         e.preventDefault();
-        if (!selectedStock) return;
+        const pending = buildPendingSell();
+        if (!pending) return;
+        const stockId = selectedStock.id;
+        setPendingSells((prev) => [pending, ...prev]);
+        setPendingStockIds((prev) => [stockId, ...prev]);
+        setSelectedStock(null);
+        setAuctionPriceValue('');
+        setAuctionError('');
         router.post(
             '/auction/sell',
-            { stock_id: selectedStock.id, auction_price: auctionPriceValue },
+            { stock_id: stockId, auction_price: price },
             {
+                only: ['sellAuctions', 'stocks'],
                 onSuccess: () => {
                     router.flushAll();
+                    setPendingSells([]);
+                    setPendingStockIds([]);
                     setShowPicker(false);
-                    setSelectedStock(null);
-                    setAuctionPriceValue('');
-                    setAuctionError('');
                 },
                 onError: (errors) => {
+                    setPendingSells((prev) =>
+                        prev.filter((p) => p.id !== pending.id),
+                    );
+                    setPendingStockIds((prev) =>
+                        prev.filter((s) => s !== stockId),
+                    );
                     setAuctionError(
                         errors.stock_id ?? 'Failed to add vehicle.',
+                    );
+                    setSelectedStock(
+                        stocks.find((s) => s.id === stockId) ?? null,
                     );
                 },
             },
         );
     };
 
+    const handleAuctionSubmit = (e) => {
+        submitAdd(e, auctionPriceValue);
+    };
+
     const handleHoldSubmit = (e) => {
-        e.preventDefault();
-        if (!selectedStock) return;
-        router.post(
-            '/auction/sell',
-            { stock_id: selectedStock.id, auction_price: null },
-            {
-                onSuccess: () => {
-                    router.flushAll();
-                    setShowPicker(false);
-                    setSelectedStock(null);
-                    setAuctionPriceValue('');
-                    setAuctionError('');
-                },
-                onError: (errors) => {
-                    setAuctionError(
-                        errors.stock_id ?? 'Failed to add vehicle.',
-                    );
-                },
-            },
-        );
+        submitAdd(e, null);
     };
 
     const openPriceModal = (item) => {
@@ -74,17 +104,27 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
     const handlePriceSubmit = (e) => {
         e.preventDefault();
         if (!editingPrice) return;
+        setPendingPriceIds((prev) => [...prev, editingPrice]);
         router.put(
             `/auction/sell/${editingPrice}`,
             { auction_price: priceValue },
             {
+                only: ['sellAuctions'],
                 onSuccess: () => {
                     router.flushAll();
                     setEditingPrice(null);
                     setPriceValue('');
+                    setPendingPriceIds([]);
+                },
+                onError: () => {
+                    setPendingPriceIds((prev) =>
+                        prev.filter((id) => id !== editingPrice),
+                    );
                 },
             },
         );
+        setEditingPrice(null);
+        setPriceValue('');
     };
 
     return (
@@ -165,7 +205,74 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {sellAuctions.length === 0 ? (
+                                {pendingSells.map((item) => (
+                                    <tr
+                                        key={item.id}
+                                        className="border-b border-[#00447C]/20 bg-[#00447C]/5 dark:border-[#6cb2e6]/20 dark:bg-[#6cb2e6]/10"
+                                    >
+                                        <td className="px-2 py-1.5 font-medium">
+                                            {item.stock?.name}
+                                        </td>
+                                        <td className="px-2 py-1.5">
+                                            {item.stock?.company}
+                                        </td>
+                                        <td className="px-2 py-1.5">
+                                            {item.stock?.colour}
+                                        </td>
+                                        <td className="px-2 py-1.5">
+                                            {item.stock?.shopname}
+                                        </td>
+                                        <td className="px-2 py-1.5">
+                                            {item.stock?.chassisnumber}
+                                        </td>
+                                        <td className="max-w-[120px] truncate px-2 py-1.5">
+                                            {item.stock?.description}
+                                        </td>
+                                        <td className="px-2 py-1.5">
+                                            {parseFloat(
+                                                item.stock?.price ?? 0,
+                                            )}
+                                        </td>
+                                        <td className="px-2 py-1.5">
+                                            {parseFloat(
+                                                item.stock?.t_price ?? 0,
+                                            )}
+                                        </td>
+                                        <td className="px-2 py-1.5">
+                                            {parseFloat(
+                                                item.stock?.n_price ?? 0,
+                                            )}
+                                        </td>
+                                        <td className="px-2 py-1.5">
+                                            {parseFloat(
+                                                item.stock?.a_price ?? 0,
+                                            )}
+                                        </td>
+                                        <td className="px-2 py-1.5 font-semibold text-green-600">
+                                            {parseFloat(
+                                                item.stock
+                                                    ?.expected_profit ?? 0,
+                                            )}
+                                        </td>
+                                        <td className="px-2 py-1.5 font-semibold text-[#00447C] dark:text-blue-400">
+                                            {item.auction_price !== null &&
+                                            item.auction_price !== undefined
+                                                ? parseFloat(
+                                                      item.auction_price,
+                                                  )
+                                                : 'Set Price'}
+                                        </td>
+                                        <td className="border-l border-[#19140035] px-2 py-1.5 text-center dark:border-[#3E3E3A]">
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#00447C] dark:text-[#6cb2e6]">
+                                                <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                                                Saving
+                                            </span>
+                                        </td>
+                                        <td className="border-l border-[#19140035] px-2 py-1.5 dark:border-[#3E3E3A]" />
+                                        <td className="border-l border-[#19140035] px-2 py-1.5 dark:border-[#3E3E3A]" />
+                                    </tr>
+                                ))}
+                                {sellAuctions.length === 0 && pendingSells.length === 0 ? (
                                     <tr>
                                         <td
                                             colSpan={15}
@@ -226,16 +333,37 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                             </td>
                                             <td
                                                 onClick={() =>
-                                                    openPriceModal(item)
+                                                    pendingPriceIds.includes(
+                                                        item.id,
+                                                    )
+                                                        ? undefined
+                                                        : openPriceModal(item)
                                                 }
-                                                className="cursor-pointer px-2 py-1.5 font-semibold text-[#00447C] hover:underline dark:text-blue-400"
+                                                className={`px-2 py-1.5 font-semibold text-[#00447C] dark:text-blue-400 ${
+                                                    pendingPriceIds.includes(
+                                                        item.id,
+                                                    )
+                                                        ? 'opacity-60'
+                                                        : 'cursor-pointer hover:underline'
+                                                }`}
                                             >
-                                                {item.auction_price !== null &&
-                                                item.auction_price !== undefined
-                                                    ? parseFloat(
-                                                          item.auction_price,
-                                                      )
-                                                    : 'Set Price'}
+                                                {pendingPriceIds.includes(
+                                                    item.id,
+                                                ) ? (
+                                                    <span className="inline-flex items-center gap-1">
+                                                        <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                                                        Saving
+                                                    </span>
+                                                ) : item.auction_price !==
+                                                      null &&
+                                                  item.auction_price !==
+                                                      undefined ? (
+                                                    parseFloat(
+                                                        item.auction_price,
+                                                    )
+                                                ) : (
+                                                    'Set Price'
+                                                )}
                                             </td>
                                             {item.sold ? (
                                                 <td className="border-l border-[#19140035] px-2 py-1.5 text-center font-semibold text-green-700 dark:border-[#3E3E3A] dark:text-green-400">
@@ -342,7 +470,14 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                             </td>
                                         </tr>
                                     ) : (
-                                        stocks.map((s) => (
+                                        stocks
+                                            .filter(
+                                                (s) =>
+                                                    !pendingStockIds.includes(
+                                                        s.id,
+                                                    ),
+                                            )
+                                            .map((s) => (
                                             <tr
                                                 key={s.id}
                                                 className="border-b border-[#19140035]/50 last:border-b-0 dark:border-[#3E3E3A]/50"
@@ -397,7 +532,10 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                 onClick={() => {
                                     router.delete(
                                         `/auction/sell/${confirmDeleteId}`,
-                                        { onSuccess: () => router.flushAll() },
+                                        {
+                                            only: ['sellAuctions', 'stocks'],
+                                            onSuccess: () => router.flushAll(),
+                                        },
                                     );
                                     setConfirmDeleteId(null);
                                 }}
@@ -492,7 +630,10 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                     router.post(
                                         `/auction/sell/${confirmSoldId}/sold`,
                                         {},
-                                        { onSuccess: () => router.flushAll() },
+                                        {
+                                            only: ['sellAuctions'],
+                                            onSuccess: () => router.flushAll(),
+                                        },
                                     );
                                     setConfirmSoldId(null);
                                 }}
@@ -526,7 +667,10 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                     router.post(
                                         `/auction/sell/${confirmDocumentId}/documents`,
                                         {},
-                                        { onSuccess: () => router.flushAll() },
+                                        {
+                                            only: ['sellAuctions'],
+                                            onSuccess: () => router.flushAll(),
+                                        },
                                     );
                                     setConfirmDocumentId(null);
                                 }}

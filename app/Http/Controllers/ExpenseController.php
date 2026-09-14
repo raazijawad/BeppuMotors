@@ -18,8 +18,8 @@ class ExpenseController extends Controller
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
         $expenses = Expense::with([
-            'stock',
-            'buyAuction',
+            'stock:id,name,company,colour,shopname,chassisnumber,price',
+            'buyAuction:id,vehicle_name,price,shopname',
             'customer:id,name',
         ])
             ->select([
@@ -34,12 +34,16 @@ class ExpenseController extends Controller
                 'date',
                 'created_at',
             ])
+            ->where('date', '>=', $month . '-01')
+            ->where('date', '<', date('Y-m-d', strtotime($month . '-01 +1 month')))
             ->latest()
             ->get();
 
         $customers = Customer::orderBy('name')->select(['id', 'name'])->get();
 
-        $drawers = Drawer::latest()->get();
+        $drawers = Drawer::latest()
+            ->select(['id', 'name', 'amount', 'parent_id', 'date', 'created_at'])
+            ->get();
 
         return Inertia::render('expenses', [
             'expenses' => $expenses,

@@ -1,6 +1,7 @@
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import Footer from '@/components/footer';
 
 const MONTH_NAMES = [
@@ -41,6 +42,8 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [highlightId, setHighlightId] = useState(null);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
+    const [pendingBuys, setPendingBuys] = useState([]);
+    const [submitError, setSubmitError] = useState('');
 
     useEffect(() => {
         const check = () =>
@@ -99,11 +102,43 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/auction/buy', {
+        const payload = {
+            date: data.date,
+            vehicle_name: data.vehicle_name,
+            company: data.company,
+            colour: data.colour,
+            shopname: data.shopname,
+            chassisnumber: data.chassisnumber,
+            description: data.description,
+            for_who: data.for_who,
+            price: data.price || 0,
+        };
+        const pendingItem = { ...payload, id: `temp-${Date.now()}`, paid: false, pending: true };
+        setSubmitError('');
+        setPendingBuys((prev) => [pendingItem, ...prev]);
+        setShowForm(false);
+        router.post('/auction/buy', payload, {
+            only: ['buyAuctions'],
             onSuccess: () => {
                 router.flushAll();
+                setPendingBuys([]);
                 reset();
-                setShowForm(false);
+                toast.success('Buy auction saved');
+                if (!payload.date?.startsWith(activeMonth)) {
+                    router.get('/auction/buy', { date: payload.date }, { replace: true });
+                }
+            },
+            onError: (errors) => {
+                setPendingBuys((prev) =>
+                    prev.filter((p) => p.id !== pendingItem.id),
+                );
+                setSubmitError(
+                    errors.vehicle_name ??
+                        errors.date ??
+                        errors.price ??
+                        'Failed to save.',
+                );
+                setShowForm(true);
             },
         });
     };
@@ -194,7 +229,47 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {buyAuctions.length === 0 ? (
+                                {pendingBuys.map((item) => (
+                                    <tr
+                                        key={item.id}
+                                        className="border-b border-[#00447C]/20 bg-[#00447C]/5 dark:border-[#6cb2e6]/20 dark:bg-[#6cb2e6]/10"
+                                    >
+                                        <td className="px-3 py-1.5 md:px-4 lg:px-5">
+                                            {item.date}
+                                        </td>
+                                        <td className="px-3 py-1.5 font-medium md:px-4 lg:px-5">
+                                            {item.vehicle_name}
+                                        </td>
+                                        <td className="px-3 py-1.5 md:px-4 lg:px-5">
+                                            {item.company}
+                                        </td>
+                                        <td className="px-3 py-1.5 md:px-4 lg:px-5">
+                                            {item.colour}
+                                        </td>
+                                        <td className="px-3 py-1.5 md:px-4 lg:px-5">
+                                            {item.shopname}
+                                        </td>
+                                        <td className="px-3 py-1.5 md:px-4 lg:px-5">
+                                            {item.chassisnumber}
+                                        </td>
+                                        <td className="min-w-[150px] px-3 py-1.5 whitespace-nowrap md:px-4 lg:px-5">
+                                            {item.description}
+                                        </td>
+                                        <td className="px-3 py-1.5 md:px-4 lg:px-5">
+                                            {item.for_who}
+                                        </td>
+                                        <td className="border-r border-[#19140035] px-3 py-1.5 font-semibold text-green-600 md:px-4 lg:px-5 dark:border-[#3E3E3A]">
+                                            {parseFloat(item.price)}
+                                        </td>
+                                        <td className="border-r border-[#19140035] px-3 py-1.5 text-center md:px-4 lg:px-5 dark:border-[#3E3E3A]">
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#00447C] md:text-xs dark:text-[#6cb2e6]">
+                                                <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                                                Saving
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {buyAuctions.length === 0 && pendingBuys.length === 0 ? (
                                     <tr>
                                         <td
                                             colSpan={10}
@@ -286,6 +361,11 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                 &times;
                             </button>
                         </div>
+                        {submitError && (
+                            <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                                {submitError}
+                            </p>
+                        )}
                         <form
                             onSubmit={handleSubmit}
                             className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4"

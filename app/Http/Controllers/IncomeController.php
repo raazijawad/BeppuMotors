@@ -22,7 +22,7 @@ class IncomeController extends Controller
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
         return Inertia::render('vehicle-detail', [
-            'incomes' => fn () => Income::with('customer:id,name')
+            'incomes' => Inertia::defer(fn () => Income::with('customer:id,name')
                 ->select([
                     'id',
                     'user_id',
@@ -34,15 +34,19 @@ class IncomeController extends Controller
                     'sell_auction_id',
                     'created_at',
                 ])
+                ->where('date', '>=', $month . '-01')
+                ->where('date', '<', date('Y-m-d', strtotime($month . '-01 +1 month')))
                 ->latest()
-                ->get(),
-            'customers' => fn () => Customer::orderBy('name')->select(['id', 'name'])->get(),
-            'drawers' => fn () => Drawer::latest()->get(),
+                ->get()),
+            'customers' => Inertia::defer(fn () => Customer::orderBy('name')->select(['id', 'name'])->get()),
+            'drawers' => Inertia::defer(fn () => Drawer::latest()
+                ->select(['id', 'name', 'amount', 'parent_id', 'date', 'created_at'])
+                ->get()),
             'selectedDate' => $date,
             'selectedMonth' => $month,
             'view' => $request->query('view'),
-            'auctionNotifications' => fn () => $this->auctionNotifications($request),
-            'documentNotifications' => fn () => $this->documentNotifications($request),
+            'auctionNotifications' => Inertia::defer(fn () => $this->auctionNotifications($request)),
+            'documentNotifications' => Inertia::defer(fn () => $this->documentNotifications($request)),
         ]);
     }
 

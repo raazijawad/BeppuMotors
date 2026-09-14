@@ -26,6 +26,8 @@ class CashBookController extends Controller
                 'date',
                 'created_at',
             ])
+            ->where('date', '>=', $month . '-01')
+            ->where('date', '<', date('Y-m-d', strtotime($month . '-01 +1 month')))
             ->get()
             ->map(fn ($i) => [
                 'id' => $i->id,
@@ -47,6 +49,8 @@ class CashBookController extends Controller
                 'date',
                 'created_at',
             ])
+            ->where('date', '>=', $month . '-01')
+            ->where('date', '<', date('Y-m-d', strtotime($month . '-01 +1 month')))
             ->get()
             ->map(fn ($e) => [
                 'id' => $e->id,
@@ -61,7 +65,9 @@ class CashBookController extends Controller
 
         $entries = $incomes->concat($expenses)->sortBy('created_at')->values();
 
-        $drawers = Drawer::latest()->get();
+        $drawers = Drawer::latest()
+            ->select(['id', 'name', 'amount', 'parent_id', 'date', 'created_at', 'source_type', 'message'])
+            ->get();
 
         return Inertia::render('cashbook', [
             'entries' => $entries,

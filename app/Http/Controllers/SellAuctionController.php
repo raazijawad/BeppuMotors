@@ -11,6 +11,7 @@ use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,8 +19,14 @@ class SellAuctionController extends Controller
 {
     public function index(): Response
     {
-        $sellAuctions = SellAuction::with('stock')->latest()->get();
-        $stocks = Stock::doesntHave('invoices')->doesntHave('sellAuctions')->latest()->get();
+        $sellAuctions = SellAuction::with('stock:id,name,company,colour,shopname,chassisnumber,description,price,t_price,n_price,a_price,expected_profit')
+            ->latest()
+            ->get();
+        $stocks = Stock::doesntHave('invoices')
+            ->doesntHave('sellAuctions')
+            ->select(['id', 'name', 'company', 'colour', 'shopname', 'chassisnumber', 'description', 'price', 't_price', 'n_price', 'a_price', 'expected_profit'])
+            ->latest()
+            ->get();
 
         return Inertia::render('auction/SellAuction', [
             'sellAuctions' => $sellAuctions,
@@ -51,15 +58,17 @@ class SellAuctionController extends Controller
             'auction_price' => 'nullable|numeric|min:0',
         ]);
 
-        $sellAuction = $request->user()->sellAuctions()->create($validated);
+        DB::transaction(function () use ($request, $validated) {
+            $sellAuction = $request->user()->sellAuctions()->create($validated);
 
-        $sellAuction->loadMissing('stock');
+            $sellAuction->loadMissing('stock');
 
-        User::query()->each(
-            fn (User $user) => $user->notify(
-                new DocumentNotSubmittedReminder($sellAuction),
-            ),
-        );
+            User::query()->each(
+                fn (User $user) => $user->notify(
+                    new DocumentNotSubmittedReminder($sellAuction),
+                ),
+            );
+        });
 
         return back();
     }

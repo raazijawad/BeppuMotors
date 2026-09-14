@@ -9,6 +9,7 @@ use App\Notifications\UnpaidAuctionReminder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -51,21 +52,23 @@ class BuyAuctionController extends Controller
             'price' => 'required|numeric|min:0',
         ]);
 
-        $buyAuction = $request->user()->buyAuctions()->create($validated);
+        DB::transaction(function () use ($request, $validated) {
+            $buyAuction = $request->user()->buyAuctions()->create($validated);
 
-        $request->user()->expenses()->create([
-            'expense_name' => $validated['vehicle_name'],
-            'amount' => $validated['price'],
-            'description' => $validated['description'] ?? null,
-            'date' => $validated['date'],
-            'buy_auction_id' => $buyAuction->id,
-        ]);
+            $request->user()->expenses()->create([
+                'expense_name' => $validated['vehicle_name'],
+                'amount' => $validated['price'],
+                'description' => $validated['description'] ?? null,
+                'date' => $validated['date'],
+                'buy_auction_id' => $buyAuction->id,
+            ]);
 
-        User::query()->each(
-            fn (User $user) => $user->notify(
-                new UnpaidAuctionReminder($buyAuction),
-            ),
-        );
+            User::query()->each(
+                fn (User $user) => $user->notify(
+                    new UnpaidAuctionReminder($buyAuction),
+                ),
+            );
+        });
 
         return back();
     }

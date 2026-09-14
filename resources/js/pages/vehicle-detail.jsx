@@ -1,7 +1,29 @@
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Deferred, Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { Bell, ChevronLeft, ChevronRight, Landmark, Search, User, UserCheck, X } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
+
+function IncomeListSkeleton() {
+    return (
+        <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-3 shadow-sm md:p-4 dark:border-[#3E3E3A] dark:bg-[#161615]">
+            <div className="mb-3 flex items-center justify-between md:mb-4">
+                <div className="h-5 w-24 animate-pulse rounded bg-gray-200 md:h-6 dark:bg-[#2a2a28]" />
+                <div className="h-8 w-24 animate-pulse rounded-md bg-gray-200 md:h-9 dark:bg-[#2a2a28]" />
+            </div>
+            {[...Array(6)].map((_, i) => (
+                <div
+                    key={i}
+                    className="flex items-center gap-4 border-b border-[#19140035]/50 py-2 dark:border-[#3E3E3A]/50"
+                >
+                    <div className="h-3 w-16 animate-pulse rounded bg-gray-200 dark:bg-[#2a2a28]" />
+                    <div className="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-[#2a2a28]" />
+                    <div className="h-3 w-full animate-pulse rounded bg-gray-200 dark:bg-[#2a2a28]" />
+                    <div className="h-3 w-16 animate-pulse rounded bg-gray-200 dark:bg-[#2a2a28]" />
+                </div>
+            ))}
+        </div>
+    );
+}
 
 const MONTH_NAMES = [
     'January',
@@ -38,6 +60,11 @@ export default function VehicleDetail({
     auctionNotifications = [],
     documentNotifications = [],
 }) {
+    const safeIncomes = incomes ?? [];
+    const safeCustomers = customers ?? [];
+    const safeDrawers = drawers ?? [];
+    const safeAuctionNotifications = auctionNotifications ?? [];
+    const safeDocumentNotifications = documentNotifications ?? [];
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -51,7 +78,7 @@ export default function VehicleDetail({
     const [searchTerm, setSearchTerm] = useState('');
 
     const totalNotificationCount =
-        auctionNotifications.length + documentNotifications.length;
+        safeAuctionNotifications.length + safeDocumentNotifications.length;
 
     const showList = view === 'list';
     const [showForm, setShowForm] = useState(false);
@@ -75,7 +102,7 @@ export default function VehicleDetail({
         setFilterDate(newDate);
     };
 
-    const monthIncomes = incomes.filter((v) => v.date?.startsWith(activeMonth));
+    const monthIncomes = safeIncomes.filter((v) => v.date?.startsWith(activeMonth));
 
     const filteredIncomes = filterDate
         ? monthIncomes.filter((v) => v.date === filterDate)
@@ -84,7 +111,7 @@ export default function VehicleDetail({
     const isPastDateSelected = filterDate !== '' && filterDate !== today;
 
     const searchFilteredIncomes = searchTerm
-        ? incomes.filter((v) => {
+        ? safeIncomes.filter((v) => {
               const term = searchTerm.toLowerCase();
               return (
                   v.date?.toLowerCase().includes(term) ||
@@ -206,6 +233,10 @@ export default function VehicleDetail({
                                     className="fixed inset-0 z-40"
                                     onClick={() => setShowNotifications(false)}
                                 />
+                                <Deferred
+                                    data={['auctionNotifications', 'documentNotifications']}
+                                    fallback={<div className="absolute top-11 right-0 z-50 w-72 rounded-lg border border-[#19140035] bg-white p-4 text-xs text-[#706f6c] shadow-lg md:w-80 dark:border-[#3E3E3A] dark:bg-[#161615] dark:text-[#A1A09A]">Loading notifications&hellip;</div>}
+                                >
                                 <div className="absolute top-11 right-0 z-50 w-72 overflow-hidden rounded-lg border border-[#19140035] bg-white shadow-lg md:w-80 dark:border-[#3E3E3A] dark:bg-[#161615]">
                                     <div className="border-b border-[#19140035] px-4 py-2.5 text-sm font-semibold dark:border-[#3E3E3A]">
                                         Notifications
@@ -216,7 +247,7 @@ export default function VehicleDetail({
                                         </p>
                                     ) : (
                                         <div className="max-h-80 overflow-y-auto">
-                                            {auctionNotifications.map((n) => (
+                                            {safeAuctionNotifications.map((n) => (
                                                 <button
                                                     key={n.id}
                                                     onClick={() => {
@@ -254,7 +285,7 @@ export default function VehicleDetail({
                                                     </span>
                                                 </button>
                                             ))}
-                                            {documentNotifications.map((n) => (
+                                            {safeDocumentNotifications.map((n) => (
                                                 <button
                                                     key={n.id}
                                                     onClick={() => {
@@ -296,6 +327,7 @@ export default function VehicleDetail({
                                         </div>
                                     )}
                                 </div>
+                                </Deferred>
                             </>
                         )}
                     </div>
@@ -372,6 +404,7 @@ export default function VehicleDetail({
                     )}
 
                     {showList ? (
+                        <Deferred data="incomes" fallback={<IncomeListSkeleton />}>
                         <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-3 shadow-sm md:p-4 dark:border-[#3E3E3A] dark:bg-[#161615]">
                             <div className="mb-3 flex items-center justify-between md:mb-4">
                                 <h2 className="text-base font-semibold md:text-lg">
@@ -453,6 +486,7 @@ export default function VehicleDetail({
                                 Back
                             </Link>
                         </div>
+                        </Deferred>
                     ) : (
                         <div className="mt-8 grid w-full grid-cols-2 gap-4 gap-y-5 md:grid-cols-6 md:gap-4">
                             <Link
@@ -558,7 +592,7 @@ export default function VehicleDetail({
                                     <option value="">
                                         Select customer (optional)
                                     </option>
-                                    {customers.map((c) => (
+                                    {safeCustomers.map((c) => (
                                         <option key={c.id} value={c.id}>
                                             {c.name}
                                         </option>
@@ -619,7 +653,7 @@ export default function VehicleDetail({
                                 {showDrawerSelect && (
                                     <div className="mt-2 max-h-40 overflow-y-auto rounded-md border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
                                         {(() => {
-                                            const grouped = drawers.reduce((acc, d) => {
+                                            const grouped = safeDrawers.reduce((acc, d) => {
                                                 const rootId = d.parent_id ?? d.id;
                                                 if (!acc[rootId]) acc[rootId] = [];
                                                 acc[rootId].push(d);
@@ -770,9 +804,9 @@ return filtered.reduce((a, b) => {
                     </div>
                 </div>
             )}
-            <div className={showForm ? 'pointer-events-none blur-sm' : ''}>
+            {!showForm && !showDrawerSelect && !viewingIncome && (
                 <Footer />
-            </div>
+            )}
         </div>
     );
 }
