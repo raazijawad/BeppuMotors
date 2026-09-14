@@ -3,6 +3,11 @@ import { Bell, ChevronLeft, ChevronRight, Landmark, Search, User, UserCheck, X }
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
+function formatAmount(value) {
+    const digits = String(value ?? '').replace(/\D/g, '').slice(0, 13);
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 function IncomeListSkeleton() {
     return (
         <div className="mx-auto w-full max-w-md rounded-lg border border-[#19140035] bg-white p-3 shadow-sm md:p-4 dark:border-[#3E3E3A] dark:bg-[#161615]">
@@ -86,7 +91,7 @@ export default function VehicleDetail({
     const [showDrawerSelect, setShowDrawerSelect] = useState(false);
     const [selectedDrawer, setSelectedDrawer] = useState(null);
 
-    const { data, setData, post, processing, reset } = useForm({
+    const { data, setData, post, processing, reset, transform } = useForm({
         income_name: '',
         amount: '',
         description: '',
@@ -127,6 +132,10 @@ export default function VehicleDetail({
 
     const handleAddIncome = (e) => {
         e.preventDefault();
+        transform((d) => ({
+            ...d,
+            amount: String(d.amount ?? '').replace(/,/g, ''),
+        }));
         post('/incomes', {
             only: ['incomes', 'drawers'],
             onSuccess: () => {
@@ -622,7 +631,10 @@ export default function VehicleDetail({
                                         type="text"
                                         value={data.amount}
                                         onChange={(e) =>
-                                            setData('amount', e.target.value)
+                                            setData(
+                                                'amount',
+                                                formatAmount(e.target.value),
+                                            )
                                         }
                                         className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                         placeholder="Enter amount"

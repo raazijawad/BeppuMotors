@@ -29,6 +29,11 @@ function addMonths(ym, delta) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+function formatAmount(value) {
+    const digits = String(value ?? '').replace(/\D/g, '').slice(0, 13);
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 export default function Expenses({
     expenses = [],
     customers = [],
@@ -51,7 +56,7 @@ export default function Expenses({
     const [searching, setSearching] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const { data, setData, post, put, processing, reset } = useForm({
+    const { data, setData, post, put, processing, reset, transform } = useForm({
         expense_name: '',
         amount: '',
         description: '',
@@ -156,6 +161,10 @@ export default function Expenses({
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        transform((d) => ({
+            ...d,
+            amount: String(d.amount ?? '').replace(/,/g, ''),
+        }));
         if (editingExpense) {
             put(`/expenses/${editingExpense.id}`, {
                 onSuccess: () => {
@@ -434,7 +443,9 @@ export default function Expenses({
                                                 onChange={(e) =>
                                                     setData(
                                                         'amount',
-                                                        e.target.value,
+                                                        formatAmount(
+                                                            e.target.value,
+                                                        ),
                                                     )
                                                 }
                                                 className="w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
