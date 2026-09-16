@@ -15,6 +15,7 @@ createInertiaApp({
             case name === 'home' ||
                 name === 'welcome' ||
                 name === 'vehicle-detail' ||
+                name === 'income' ||
                 name === 'expenses' ||
                 name === 'cashbook' ||
                 name === 'drawer' ||

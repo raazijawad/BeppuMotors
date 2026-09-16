@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
-    Route::get('incomes', [IncomeController::class, 'index'])->name('incomes.index');
+    Route::get('incomes', [IncomeController::class, 'incomeIndex'])->name('incomes.index');
     Route::post('incomes', [IncomeController::class, 'store'])->name('incomes.store');
     Route::delete('incomes/{income}', [IncomeController::class, 'destroy'])->name('incomes.destroy');
 

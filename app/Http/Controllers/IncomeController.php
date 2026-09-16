@@ -16,13 +16,32 @@ use Inertia\Response;
 
 class IncomeController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
+        if ($request->query('view') === 'list') {
+            $date = $request->query('date');
+
+            return redirect('/incomes'.($date ? '?date='.$date : ''));
+        }
+
         $date = $request->query('date');
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
         return Inertia::render('vehicle-detail', [
-            'incomes' => Inertia::defer(fn () => Income::with('customer:id,name')
+            'selectedDate' => $date,
+            'selectedMonth' => $month,
+            'auctionNotifications' => Inertia::defer(fn () => $this->auctionNotifications($request)),
+            'documentNotifications' => Inertia::defer(fn () => $this->documentNotifications($request)),
+        ]);
+    }
+
+    public function incomeIndex(Request $request): Response
+    {
+        $date = $request->query('date');
+        $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
+
+        return Inertia::render('income', [
+            'incomes' => Income::with('customer:id,name')
                 ->select([
                     'id',
                     'user_id',
@@ -37,16 +56,13 @@ class IncomeController extends Controller
                 ->where('date', '>=', $month . '-01')
                 ->where('date', '<', date('Y-m-d', strtotime($month . '-01 +1 month')))
                 ->latest()
-                ->get()),
-            'customers' => Inertia::defer(fn () => Customer::orderBy('name')->select(['id', 'name'])->get()),
-            'drawers' => Inertia::defer(fn () => Drawer::latest()
+                ->get(),
+            'customers' => Customer::orderBy('name')->select(['id', 'name'])->get(),
+            'drawers' => Drawer::latest()
                 ->select(['id', 'name', 'amount', 'parent_id', 'date', 'created_at'])
-                ->get()),
+                ->get(),
             'selectedDate' => $date,
             'selectedMonth' => $month,
-            'view' => $request->query('view'),
-            'auctionNotifications' => Inertia::defer(fn () => $this->auctionNotifications($request)),
-            'documentNotifications' => Inertia::defer(fn () => $this->documentNotifications($request)),
         ]);
     }
 
