@@ -17,9 +17,14 @@ use Inertia\Response;
 
 class SellAuctionController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $date = $request->query('date');
+        $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
+
         $sellAuctions = SellAuction::with('stock:id,name,company,colour,shopname,chassisnumber,description,price,t_price,n_price,a_price,expected_profit')
+            ->whereYear('created_at', substr($month, 0, 4))
+            ->whereMonth('created_at', (int) substr($month, 5, 2))
             ->latest()
             ->get();
         $stocks = Stock::doesntHave('invoices')
@@ -31,6 +36,7 @@ class SellAuctionController extends Controller
         return Inertia::render('auction/SellAuction', [
             'sellAuctions' => $sellAuctions,
             'stocks' => $stocks,
+            'selectedMonth' => $month,
         ]);
     }
 

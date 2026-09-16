@@ -1,9 +1,46 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Footer from '@/components/footer';
 
-export default function SellAuction({ sellAuctions = [], stocks = [] }) {
+const MONTH_NAMES = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+];
+
+function getMonthLabel(ym) {
+    const [y, m] = ym.split('-');
+    return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
+}
+
+function addMonths(ym, delta) {
+    const [y, m] = ym.split('-').map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export default function SellAuction({
+    sellAuctions = [],
+    stocks = [],
+    selectedMonth = null,
+}) {
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const [activeMonth, setActiveMonth] = useState(
+        selectedMonth || currentMonth,
+    );
     const [showPicker, setShowPicker] = useState(false);
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [confirmSoldId, setConfirmSoldId] = useState(null);
@@ -32,6 +69,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
             sold: false,
             document_submitted: false,
             pending: true,
+            date: today,
             stock: {
                 id: selectedStock.id,
                 name: selectedStock.name,
@@ -101,6 +139,16 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
         setPriceValue(item.auction_price ?? '');
     };
 
+    const changeMonth = (delta) => {
+        const newMonth = addMonths(activeMonth, delta);
+        setActiveMonth(newMonth);
+        router.get(
+            '/auction/sell',
+            { date: `${newMonth}-01` },
+            { preserveState: true, replace: true },
+        );
+    };
+
     const handlePriceSubmit = (e) => {
         e.preventDefault();
         if (!editingPrice) return;
@@ -135,7 +183,8 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
                     <Link
                         href="/auction"
-                        prefetch={['mount', 'hover']} cacheFor={300000}
+                        prefetch={['mount', 'hover']}
+                        cacheFor={300000}
                         className="text-sm font-medium text-white/70 hover:text-white"
                     >
                         &larr; Back
@@ -148,9 +197,23 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-6 md:gap-6 md:pt-8 md:pb-20">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                            Sell Auction Items
-                        </span>
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => changeMonth(-1)}
+                                className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:p-1.5 dark:text-[#A1A09A] dark:hover:bg-[#2a2a28]"
+                            >
+                                <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
+                            </button>
+                            <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                {getMonthLabel(activeMonth)}
+                            </span>
+                            <button
+                                onClick={() => changeMonth(1)}
+                                className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:p-1.5 dark:text-[#A1A09A] dark:hover:bg-[#2a2a28]"
+                            >
+                                <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
+                            </button>
+                        </div>
                         <button
                             onClick={() => setShowPicker(true)}
                             className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
@@ -163,6 +226,9 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                         <table className="w-full text-left text-[10px] md:text-xs">
                             <thead className="border-b border-[#19140035] dark:border-[#3E3E3A]">
                                 <tr className="bg-[#FDFDFC] dark:bg-[#0a0a0a]">
+                                    <th className="px-2 py-2 font-semibold text-[#706f6c] dark:text-[#A1A09A]">
+                                        Date
+                                    </th>
                                     <th className="px-2 py-2 font-semibold text-[#706f6c] dark:text-[#A1A09A]">
                                         Name
                                     </th>
@@ -210,6 +276,9 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                         key={item.id}
                                         className="border-b border-[#00447C]/20 bg-[#00447C]/5 dark:border-[#6cb2e6]/20 dark:bg-[#6cb2e6]/10"
                                     >
+                                        <td className="px-2 py-1.5">
+                                            {item.date}
+                                        </td>
                                         <td className="px-2 py-1.5 font-medium">
                                             {item.stock?.name}
                                         </td>
@@ -229,9 +298,7 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                             {item.stock?.description}
                                         </td>
                                         <td className="px-2 py-1.5">
-                                            {parseFloat(
-                                                item.stock?.price ?? 0,
-                                            )}
+                                            {parseFloat(item.stock?.price ?? 0)}
                                         </td>
                                         <td className="px-2 py-1.5">
                                             {parseFloat(
@@ -250,16 +317,14 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                         </td>
                                         <td className="px-2 py-1.5 font-semibold text-green-600">
                                             {parseFloat(
-                                                item.stock
-                                                    ?.expected_profit ?? 0,
+                                                item.stock?.expected_profit ??
+                                                    0,
                                             )}
                                         </td>
                                         <td className="px-2 py-1.5 font-semibold text-[#00447C] dark:text-blue-400">
                                             {item.auction_price !== null &&
                                             item.auction_price !== undefined
-                                                ? parseFloat(
-                                                      item.auction_price,
-                                                  )
+                                                ? parseFloat(item.auction_price)
                                                 : 'Set Price'}
                                         </td>
                                         <td className="border-l border-[#19140035] px-2 py-1.5 text-center dark:border-[#3E3E3A]">
@@ -272,10 +337,11 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                         <td className="border-l border-[#19140035] px-2 py-1.5 dark:border-[#3E3E3A]" />
                                     </tr>
                                 ))}
-                                {sellAuctions.length === 0 && pendingSells.length === 0 ? (
+                                {sellAuctions.length === 0 &&
+                                pendingSells.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={15}
+                                            colSpan={16}
                                             className="px-2 py-6 text-center text-[#706f6c] dark:text-[#A1A09A]"
                                         >
                                             No vehicles added for sale yet.
@@ -287,6 +353,15 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                             key={item.id}
                                             className={`border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 ${item.sold ? 'bg-green-100 dark:bg-green-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a19]'}`}
                                         >
+                                            <td className="px-2 py-1.5">
+                                                {item.created_at
+                                                    ? new Date(
+                                                          item.created_at,
+                                                      ).toLocaleDateString(
+                                                          'en-CA',
+                                                      )
+                                                    : ''}
+                                            </td>
                                             <td className="px-2 py-1.5 font-medium">
                                                 {item.stock?.name}
                                             </td>
@@ -478,37 +553,39 @@ export default function SellAuction({ sellAuctions = [], stocks = [] }) {
                                                     ),
                                             )
                                             .map((s) => (
-                                            <tr
-                                                key={s.id}
-                                                className="border-b border-[#19140035]/50 last:border-b-0 dark:border-[#3E3E3A]/50"
-                                            >
-                                                <td className="px-2 py-1.5 font-medium">
-                                                    {s.name}
-                                                </td>
-                                                <td className="px-2 py-1.5">
-                                                    {s.company}
-                                                </td>
-                                                <td className="px-2 py-1.5">
-                                                    {s.colour}
-                                                </td>
-                                                <td className="px-2 py-1.5">
-                                                    {s.chassisnumber}
-                                                </td>
-                                                <td className="px-2 py-1.5">
-                                                    {parseFloat(s.price)}
-                                                </td>
-                                                <td className="px-2 py-1.5 text-right">
-                                                    <button
-                                                        onClick={() =>
-                                                            openSelectModal(s)
-                                                        }
-                                                        className="rounded-md bg-[#00447C] px-2 py-1 text-[10px] font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-xs"
-                                                    >
-                                                        Select
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))
+                                                <tr
+                                                    key={s.id}
+                                                    className="border-b border-[#19140035]/50 last:border-b-0 dark:border-[#3E3E3A]/50"
+                                                >
+                                                    <td className="px-2 py-1.5 font-medium">
+                                                        {s.name}
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        {s.company}
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        {s.colour}
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        {s.chassisnumber}
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        {parseFloat(s.price)}
+                                                    </td>
+                                                    <td className="px-2 py-1.5 text-right">
+                                                        <button
+                                                            onClick={() =>
+                                                                openSelectModal(
+                                                                    s,
+                                                                )
+                                                            }
+                                                            className="rounded-md bg-[#00447C] px-2 py-1 text-[10px] font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-xs"
+                                                        >
+                                                            Select
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
                                     )}
                                 </tbody>
                             </table>
