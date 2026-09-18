@@ -200,7 +200,7 @@ export default function VehicleDetail({
                     <div className="mt-8 grid w-full grid-cols-2 gap-4 gap-y-5 md:grid-cols-6 md:gap-4">
                         <Link
                             href={`/incomes?date=${activeMonth}-01`}
-                            prefetch={['mount', 'hover']}
+                            prefetch={['hover']}
                             cacheFor={300000}
                             className="flex h-24 cursor-pointer items-center justify-center rounded-lg border border-[#19140035] bg-white shadow-sm hover:shadow-md md:h-28 dark:border-[#3E3E3A] dark:bg-[#161615]"
                         >

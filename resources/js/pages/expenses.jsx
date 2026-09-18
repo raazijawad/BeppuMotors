@@ -34,6 +34,13 @@ function formatAmount(value) {
     return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
+function formatDisplayAmount(value) {
+    if (value === null || value === undefined || value === '') return '';
+    const num = Number(value);
+    if (Number.isNaN(num)) return String(value);
+    return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+}
+
 export default function Expenses({
     expenses = [],
     customers = [],
@@ -95,7 +102,7 @@ export default function Expenses({
         setShowDrawerSelect(false);
         setData({
             expense_name: expense.expense_name,
-            amount: expense.amount,
+            amount: formatDisplayAmount(expense.amount),
             description: expense.description || '',
             date: expense.date,
             customer_id: expense.customer_id || '',
@@ -354,7 +361,7 @@ export default function Expenses({
                                             )}
                                         </div>
                                         <div className="w-20 text-right text-[10px] font-semibold text-red-600 md:w-24 md:text-xs">
-                                            -{v.amount}
+                                            -{formatDisplayAmount(v.amount)}
                                         </div>
                                     </div>
                                 ))}
@@ -514,7 +521,7 @@ export default function Expenses({
                                                             className="flex w-full items-center justify-between px-3 py-2 text-left text-xs hover:bg-gray-50 dark:hover:bg-[#2a2a28]"
                                                         >
                                                             <span className="font-medium">{drawer.name}</span>
-                                                            <span className="text-green-600">+{parseFloat(drawer.amount)}</span>
+                                                            <span className="text-green-600">+{formatDisplayAmount(drawer.amount)}</span>
                                                         </button>
                                                     ));
                                                 })()}

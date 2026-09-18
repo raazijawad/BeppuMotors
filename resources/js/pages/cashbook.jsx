@@ -365,7 +365,7 @@ export default function Cashbook({
                                     {entry.type === 'income' ? (
                                         <>
                                             <div className="w-16 text-center text-[8px] font-semibold text-green-600 md:w-24 md:text-xs">
-                                                +{entry.amount}
+                                                +{formatDisplay(entry.amount)}
                                             </div>
                                             <div className="w-16 md:w-24"></div>
                                         </>
@@ -373,7 +373,7 @@ export default function Cashbook({
                                         <>
                                             <div className="w-16 md:w-24"></div>
                                             <div className="w-16 text-center text-[8px] font-semibold text-red-600 md:w-24 md:text-xs">
-                                                -{entry.amount}
+                                                -{formatDisplay(entry.amount)}
                                             </div>
                                         </>
                                     )}
@@ -388,10 +388,10 @@ export default function Cashbook({
                                 Totals
                             </div>
                             <div className="w-16 text-center text-[8px] font-bold text-green-600 md:w-24 md:text-xs">
-                                +{totalIncome.toFixed(2)}
+                                +{formatDisplay(totalIncome)}
                             </div>
                             <div className="w-16 text-center text-[8px] font-bold text-red-600 md:w-24 md:text-xs">
-                                -{totalExpense.toFixed(2)}
+                                -{formatDisplay(totalExpense)}
                             </div>
                         </div>
                         <hr className="my-2 border-[#19140035] dark:border-[#3E3E3A]" />
@@ -400,7 +400,7 @@ export default function Cashbook({
                                 className={`text-xs font-bold md:text-sm ${netAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}
                             >
                                 Net: {netAmount >= 0 ? '+' : ''}
-                                {netAmount.toFixed(2)}
+                                {formatDisplay(netAmount)}
                             </p>
                             {difference !== 0 ? (
                                 <>

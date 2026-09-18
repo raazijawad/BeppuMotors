@@ -36,6 +36,13 @@ function formatAmount(value) {
     return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
+function formatDisplayAmount(value) {
+    if (value === null || value === undefined || value === '') return '';
+    const num = Number(value);
+    if (Number.isNaN(num)) return String(value);
+    return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+}
+
 export default function Income({
     incomes = [],
     customers = [],
@@ -285,7 +292,7 @@ export default function Income({
                                             )}
                                         </div>
                                         <div className="w-20 text-right text-[10px] font-semibold text-green-600 md:w-24 md:text-xs">
-                                            +{v.amount}
+                                            +{formatDisplayAmount(v.amount)}
                                         </div>
                                     </div>
                                 ))}
@@ -474,7 +481,7 @@ export default function Income({
                                                     </span>
                                                     <span className="text-green-600">
                                                         +
-                                                        {parseFloat(
+                                                        {formatDisplayAmount(
                                                             drawer.amount,
                                                         )}
                                                     </span>
@@ -544,7 +551,7 @@ export default function Income({
                                     Amount
                                 </p>
                                 <p className="text-sm font-semibold text-green-600 md:text-base">
-                                    +{viewingIncome.amount}
+                                    +{formatDisplayAmount(viewingIncome.amount)}
                                 </p>
                             </div>
                             <div className="flex gap-8">
