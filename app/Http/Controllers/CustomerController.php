@@ -21,7 +21,7 @@ class CustomerController extends Controller
             'incomes:id,customer_id,income_name,amount,date,created_at',
             'expenses:id,customer_id,expense_name,amount,date,created_at',
         ])
-            ->select(['id', 'name', 'bill_prefix', 'phone'])
+            ->select(['id', 'name', 'bill_prefix', 'phone', 'address'])
             ->latest()
             ->get();
 
@@ -47,6 +47,20 @@ class CustomerController extends Controller
         ]);
 
         $request->user()->customers()->create($validated);
+
+        return back();
+    }
+
+    public function update(Request $request, Customer $customer): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'bill_prefix' => 'required|string|max:10',
+            'phone' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        $customer->update($validated);
 
         return back();
     }

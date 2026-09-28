@@ -6,6 +6,7 @@ import Ledger from '@/components/ledger';
 
 export default function Customer({ customers = [], stocks = [] }) {
     const [showForm, setShowForm] = useState(false);
+    const [editingCustomer, setEditingCustomer] = useState(null);
     const [showSaleModal, setShowSaleModal] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [selectedVehicles, setSelectedVehicles] = useState([]);
@@ -16,12 +17,38 @@ export default function Customer({ customers = [], stocks = [] }) {
     const today = new Date().toISOString().slice(0, 10);
     const [invoiceDate, setInvoiceDate] = useState(today);
 
-    const { data, setData, post, processing, reset } = useForm({
+    const { data, setData, post, put, processing, reset } = useForm({
         name: '',
         bill_prefix: '',
         phone: '',
         address: '',
     });
+
+    // open empty add form function
+    const handleOpenAddForm = () => {
+        reset();
+        setEditingCustomer(null);
+        setShowForm(true);
+    };
+
+    // open edit form prefilled with the customer details function
+    const handleOpenEditForm = (customer) => {
+        setEditingCustomer(customer);
+        setData({
+            name: customer.name || '',
+            bill_prefix: customer.bill_prefix || '',
+            phone: customer.phone || '',
+            address: customer.address || '',
+        });
+        setShowForm(true);
+    };
+
+    // close the customer form function
+    const handleCloseForm = () => {
+        reset();
+        setEditingCustomer(null);
+        setShowForm(false);
+    };
 
     // add customer function
     const handleAddCustomer = (e) => {
@@ -30,8 +57,23 @@ export default function Customer({ customers = [], stocks = [] }) {
             onSuccess: () => {
                 router.flushAll();
                 router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
-                reset();
-                setShowForm(false);
+                handleCloseForm();
+            },
+        });
+    };
+
+    // update customer function
+    const handleUpdateCustomer = (e) => {
+        e.preventDefault();
+        put(`/customers/${editingCustomer.id}`, {
+            onSuccess: (page) => {
+                router.flushAll();
+                router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
+                const fresh = (page.props.customers || []).find(
+                    (c) => c.id === editingCustomer.id,
+                );
+                if (selectedCustomer && fresh) setSelectedCustomer(fresh);
+                handleCloseForm();
             },
         });
     };
@@ -232,7 +274,7 @@ export default function Customer({ customers = [], stocks = [] }) {
                                     Customers List
                                 </span>
                                 <button
-                                    onClick={() => setShowForm(true)}
+                                    onClick={handleOpenAddForm}
                                     className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
                                 >
                                     + Add Customer
@@ -309,6 +351,16 @@ export default function Customer({ customers = [], stocks = [] }) {
                                         className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
                                     >
                                         + Sale a Car
+                                    </button>
+                                    <button
+                                        onClick={() =>
+                                            handleOpenEditForm(
+                                                selectedCustomer,
+                                            )
+                                        }
+                                        className="rounded-md border border-[#19140035] px-2.5 py-1.5 text-xs font-medium text-[#00447C] hover:bg-gray-50 md:px-4 md:py-2 md:text-sm dark:border-[#3E3E3A] dark:text-[#6cb2e6] dark:hover:bg-[#1a1a19]"
+                                    >
+                                        Edit
                                     </button>
                                     <button
                                         onClick={() => setShowLedger(true)}
@@ -577,17 +629,23 @@ export default function Customer({ customers = [], stocks = [] }) {
                     <div className="mx-4 w-full max-w-lg rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
                         <div className="mb-4 flex items-center justify-between">
                             <h2 className="text-base font-semibold md:text-lg">
-                                Add Customer
+                                {editingCustomer
+                                    ? 'Edit Customer'
+                                    : 'Add Customer'}
                             </h2>
                             <button
-                                onClick={() => setShowForm(false)}
+                                onClick={handleCloseForm}
                                 className="text-sm text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
                             >
                                 &times;
                             </button>
                         </div>
                         <form
-                            onSubmit={handleAddCustomer}
+                            onSubmit={
+                                editingCustomer
+                                    ? handleUpdateCustomer
+                                    : handleAddCustomer
+                            }
                             className="grid grid-cols-2 gap-3"
                         >
                             <div className="col-span-2">
@@ -651,14 +709,11 @@ export default function Customer({ customers = [], stocks = [] }) {
                                     disabled={processing}
                                     className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"
                                 >
-                                    Submit
+                                    {editingCustomer ? 'Update' : 'Submit'}
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        reset();
-                                        setShowForm(false);
-                                    }}
+                                    onClick={handleCloseForm}
                                     className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium md:text-sm dark:border-[#3E3E3A]"
                                 >
                                     Cancel

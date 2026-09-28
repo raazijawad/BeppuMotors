@@ -36,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('auction/sell/{sellAuction}', [SellAuctionController::class, 'destroy'])->name('auction.sell.destroy');
     Route::get('customer', [CustomerController::class, 'index'])->name('customer');
     Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
+    Route::put('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
     Route::post('customers/{customer}/invoices', [CustomerController::class, 'storeInvoices'])->name('customers.invoices.store');
     Route::delete('invoices/{invoice}', [CustomerController::class, 'destroyInvoice'])->name('invoices.destroy');
