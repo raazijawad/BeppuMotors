@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\BuyAuction;
-use App\Models\Expense;
+use App\Models\Stock;
 use App\Models\User;
 use App\Notifications\UnpaidAuctionReminder;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,7 +28,7 @@ class BuyAuctionController extends Controller
             }
         }
 
-        $buyAuctions = BuyAuction::where('date', 'like', $month . '%')
+        $buyAuctions = BuyAuction::where('date', 'like', $month.'%')
             ->latest()
             ->get();
 
@@ -55,11 +55,18 @@ class BuyAuctionController extends Controller
         DB::transaction(function () use ($request, $validated) {
             $buyAuction = $request->user()->buyAuctions()->create($validated);
 
-            $request->user()->expenses()->create([
-                'expense_name' => $validated['vehicle_name'],
-                'amount' => $validated['price'],
+            $request->user()->stocks()->create([
+                'name' => $validated['vehicle_name'],
+                'company' => $validated['company'] ?? null,
+                'colour' => $validated['colour'] ?? null,
+                'shopname' => $validated['shopname'] ?? null,
+                'chassisnumber' => $validated['chassisnumber'] ?? null,
                 'description' => $validated['description'] ?? null,
-                'date' => $validated['date'],
+                'price' => $validated['price'],
+                't_price' => 0,
+                'n_price' => 0,
+                'a_price' => '0',
+                'expected_profit' => 0,
                 'buy_auction_id' => $buyAuction->id,
             ]);
 
@@ -75,13 +82,14 @@ class BuyAuctionController extends Controller
 
     public function destroy(BuyAuction $buyAuction): RedirectResponse
     {
-        Expense::where('buy_auction_id', $buyAuction->id)->delete();
+        Stock::where('buy_auction_id', $buyAuction->id)->delete();
 
         DatabaseNotification::where('type', UnpaidAuctionReminder::class)
             ->where('data->buy_auction_id', $buyAuction->id)
             ->delete();
 
         $buyAuction->delete();
+
         return back();
     }
 

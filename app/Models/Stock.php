@@ -11,11 +11,20 @@ class Stock extends Model
     protected $fillable = [
         'name', 'company', 'colour', 'shopname', 'chassisnumber',
         'description', 'price', 't_price', 'n_price', 'a_price', 'expected_profit',
+        'buy_auction_id',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<BuyAuction, $this>
+     */
+    public function buyAuction(): BelongsTo
+    {
+        return $this->belongsTo(BuyAuction::class);
     }
 
     public function invoices(): HasMany
