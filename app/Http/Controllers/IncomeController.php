@@ -114,18 +114,28 @@ class IncomeController extends Controller
             ->keyBy('id');
 
         return $notifications
-            ->map(fn ($notification) => [
-                'id' => $notification->id,
-                'sell_auction_id' => $notification->data['sell_auction_id'] ?? null,
-                'vehicle_name' => $sellAuctions[$notification->data['sell_auction_id'] ?? null]?->stock?->name
-                    ?? ($notification->data['vehicle_name'] ?? null),
-                'chassisnumber' => $notification->data['chassisnumber'] ?? null,
-                'price' => $notification->data['auction_price'] ?? null,
-            ])
-            ->filter(
-                fn ($notification) => isset($sellAuctions[$notification['sell_auction_id']])
-                    && ! $sellAuctions[$notification['sell_auction_id']]->document_submitted,
-            )
+            ->map(function ($notification) use ($sellAuctions) {
+                $sellAuction = $sellAuctions[$notification->data['sell_auction_id'] ?? null] ?? null;
+                $documentSubmitted = (bool) ($sellAuction?->document_submitted
+                    ?? ($notification->data['document_submitted'] ?? false));
+                $priceIsSet = $sellAuction !== null
+                    ? $sellAuction->auction_price !== null
+                    : ($notification->data['auction_price'] ?? null) !== null;
+
+                return [
+                    'id' => $notification->id,
+                    'sell_auction_id' => $notification->data['sell_auction_id'] ?? null,
+                    'vehicle_name' => $sellAuction?->stock?->name
+                        ?? ($notification->data['vehicle_name'] ?? null),
+                    'chassisnumber' => $sellAuction?->stock?->chassisnumber
+                        ?? ($notification->data['chassisnumber'] ?? null),
+                    'price' => $notification->data['auction_price'] ?? null,
+                    'document_submitted' => $documentSubmitted,
+                    'price_is_set' => $priceIsSet,
+                ];
+            })
+            ->filter(fn ($notification) => isset($sellAuctions[$notification['sell_auction_id']]))
+            ->filter(fn ($notification) => ! $notification['document_submitted'] || ! $notification['price_is_set'])
             ->values()
             ->toArray();
     }

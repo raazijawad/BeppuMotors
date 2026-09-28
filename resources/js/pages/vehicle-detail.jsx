@@ -3,6 +3,38 @@ import { Bell, User, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '@/components/footer';
 
+function documentReminderCopy(notification) {
+    const documentSubmitted = Boolean(notification.document_submitted);
+    const priceIsSet = Boolean(notification.price_is_set);
+
+    if (!documentSubmitted && !priceIsSet) {
+        return {
+            badge: 'No Document & Price',
+            message:
+                "In sell auction, document isn't submitted yet and price isn't set yet",
+        };
+    }
+
+    if (!documentSubmitted) {
+        return {
+            badge: 'No Document',
+            message: "In sell auction, document isn't submitted yet",
+        };
+    }
+
+    return {
+        badge: 'No Price',
+        message: "In sell auction, price isn't set yet",
+    };
+}
+
+function formatPrice(value) {
+    if (value === null || value === undefined || value === '') return null;
+
+    const amount = parseFloat(value);
+    return Number.isFinite(amount) ? amount.toLocaleString() : null;
+}
+
 export default function VehicleDetail({
     selectedMonth = null,
     auctionNotifications = [],
@@ -140,8 +172,14 @@ export default function VehicleDetail({
                                                         </button>
                                                     ),
                                                 )}
-                                                {safeDocumentNotifications.map(
-                                                    (n) => (
+                                                {safeDocumentNotifications.map((n) => {
+                                                    const { badge, message } =
+                                                        documentReminderCopy(n);
+                                                    const price = formatPrice(
+                                                        n.price,
+                                                    );
+
+                                                    return (
                                                         <button
                                                             key={n.id}
                                                             onClick={() => {
@@ -165,27 +203,20 @@ export default function VehicleDetail({
                                                                         'Sell Auction'}
                                                                 </span>
                                                                 <span className="shrink-0 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-600 dark:bg-orange-900/40">
-                                                                    No Document
+                                                                    {badge}
                                                                 </span>
                                                             </span>
-                                                            <span className="flex items-center justify-between text-[10px] text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
-                                                                <span>
-                                                                    In sell
-                                                                    auction,
-                                                                    document
-                                                                    isn&apos;t
-                                                                    submitted
-                                                                    yet
-                                                                </span>
-                                                                <span className="font-semibold text-green-600">
-                                                                    {parseFloat(
-                                                                        n.price,
-                                                                    )}
-                                                                </span>
+                                                            <span className="flex items-center justify-between gap-2 text-[10px] text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                                                <span>{message}</span>
+                                                                {price !== null && (
+                                                                    <span className="shrink-0 font-semibold text-green-600">
+                                                                        {price}
+                                                                    </span>
+                                                                )}
                                                             </span>
                                                         </button>
-                                                    ),
-                                                )}
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>

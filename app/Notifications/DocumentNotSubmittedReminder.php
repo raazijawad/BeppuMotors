@@ -20,7 +20,8 @@ class DocumentNotSubmittedReminder extends Notification
             'sell_auction_id' => $this->sellAuction->id,
             'vehicle_name' => $this->sellAuction->stock?->name,
             'chassisnumber' => $this->sellAuction->stock?->chassisnumber,
-            'auction_price' => (float) $this->sellAuction->auction_price,
+            'auction_price' => $this->sellAuction->auction_price,
+            'document_submitted' => (bool) $this->sellAuction->document_submitted,
         ];
     }
 }

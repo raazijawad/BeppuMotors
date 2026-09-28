@@ -91,6 +91,8 @@ class SellAuctionController extends Controller
             'amount' => $validated['auction_price'],
         ]);
 
+        $this->clearReminderIfSettled($sellAuction);
+
         return back();
     }
 
@@ -132,7 +134,7 @@ class SellAuctionController extends Controller
     {
         $sellAuction->update(['document_submitted' => true]);
 
-        $this->deleteDocumentReminders($sellAuction->id);
+        $this->clearReminderIfSettled($sellAuction);
 
         return back();
     }
@@ -154,5 +156,14 @@ class SellAuctionController extends Controller
         )
             ->where('data->sell_auction_id', $sellAuctionId)
             ->delete();
+    }
+
+    private function clearReminderIfSettled(SellAuction $sellAuction): void
+    {
+        $sellAuction->refresh();
+
+        if ($sellAuction->document_submitted && $sellAuction->auction_price !== null) {
+            $this->deleteDocumentReminders($sellAuction->id);
+        }
     }
 }
