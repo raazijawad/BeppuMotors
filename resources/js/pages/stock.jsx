@@ -2,13 +2,20 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
 
-function formatAmountInput(value) {
-    const raw = String(value ?? '').replace(/,/g, '').slice(0, 13);
-    const match = raw.match(/^(\d{0,10})(?:\.(\d{0,2}))?$/);
-    if (!match) return value;
-    const [, whole, fraction] = match;
-    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return fraction !== undefined ? `${grouped}.${fraction}` : grouped;
+function formatAmountInput(value, integerDigits = 8) {
+    const cleaned = String(value ?? '')
+        .replace(/,/g, '')
+        .replace(/[^\d.]/g, '');
+
+    const [whole = '', fraction = ''] = cleaned.split('.');
+
+    const grouped = whole
+        .slice(0, integerDigits)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    return cleaned.includes('.')
+        ? `${grouped}.${fraction.slice(0, 2)}`
+        : grouped;
 }
 
 function formatPrefillAmount(value) {
@@ -244,7 +251,7 @@ export default function Stock({ stocks = [] }) {
                             </div>
                             <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
                                 <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>A Price</label>
-                                <input type="text" inputMode="decimal" value={data.a_price} onChange={(e) => setData('a_price', formatAmountInput(e.target.value))} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} />
+                                <input type="text" inputMode="decimal" value={data.a_price} onChange={(e) => setData('a_price', formatAmountInput(e.target.value, 12))} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} />
                             </div>
                             <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
                                 <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Expected Profit</label>

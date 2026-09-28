@@ -25,7 +25,7 @@ class DrawerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0|max:99999999.99',
             'date' => 'required|date',
         ]);
 
@@ -42,7 +42,7 @@ class DrawerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0|max:99999999.99',
             'date' => 'required|date',
         ]);
 

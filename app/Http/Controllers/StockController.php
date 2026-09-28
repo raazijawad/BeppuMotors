@@ -55,11 +55,11 @@ class StockController extends Controller
             'shopname' => 'nullable|string|max:255',
             'chassisnumber' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            't_price' => 'nullable|numeric|min:0',
-            'n_price' => 'nullable|numeric|min:0',
+            'price' => 'required|numeric|min:0|max:99999999.99',
+            't_price' => 'nullable|numeric|min:0|max:99999999.99',
+            'n_price' => 'nullable|numeric|min:0|max:99999999.99',
             'a_price' => 'nullable|string|max:255',
-            'expected_profit' => 'required|numeric|min:0',
+            'expected_profit' => 'required|numeric|min:0|max:99999999.99',
         ]);
 
         $validated['t_price'] ??= 0;

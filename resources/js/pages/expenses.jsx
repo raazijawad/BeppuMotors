@@ -29,9 +29,25 @@ function addMonths(ym, delta) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function formatAmount(value) {
-    const digits = String(value ?? '').replace(/\D/g, '').slice(0, 13);
-    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+function formatAmountInput(value, integerDigits = 8) {
+    const cleaned = String(value ?? '')
+        .replace(/,/g, '')
+        .replace(/[^\d.]/g, '');
+
+    const [whole = '', fraction = ''] = cleaned.split('.');
+
+    const grouped = whole
+        .slice(0, integerDigits)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    return cleaned.includes('.')
+        ? `${grouped}.${fraction.slice(0, 2)}`
+        : grouped;
+}
+
+function formatPrefillAmount(value) {
+    const raw = String(value ?? '').replace(/,/g, '');
+    return formatAmountInput(raw.replace(/\.0+$/, ''));
 }
 
 function formatDisplayAmount(value) {
@@ -102,7 +118,7 @@ export default function Expenses({
         setShowDrawerSelect(false);
         setData({
             expense_name: expense.expense_name,
-            amount: formatDisplayAmount(expense.amount),
+            amount: formatPrefillAmount(expense.amount),
             description: expense.description || '',
             date: expense.date,
             customer_id: expense.customer_id || '',
@@ -112,11 +128,11 @@ export default function Expenses({
             colour: stock?.colour || '',
             shopname: stock?.shopname || '',
             chassisnumber: stock?.chassisnumber || '',
-            price: stock ? parseFloat(stock.price) : '',
-            t_price: stock ? parseFloat(stock.t_price) : '',
-            n_price: stock ? parseFloat(stock.n_price) : '',
-            a_price: stock ? stock.a_price : '',
-            expected_profit: stock ? parseFloat(stock.expected_profit) : '',
+            price: stock ? formatPrefillAmount(stock.price) : '',
+            t_price: stock ? formatPrefillAmount(stock.t_price) : '',
+            n_price: stock ? formatPrefillAmount(stock.n_price) : '',
+            a_price: stock ? formatPrefillAmount(stock.a_price) : '',
+            expected_profit: stock ? formatPrefillAmount(stock.expected_profit) : '',
         });
         setShowForm(true);
     };
@@ -171,6 +187,11 @@ export default function Expenses({
         transform((d) => ({
             ...d,
             amount: String(d.amount ?? '').replace(/,/g, ''),
+            price: String(d.price ?? '').replace(/,/g, ''),
+            t_price: String(d.t_price ?? '').replace(/,/g, ''),
+            n_price: String(d.n_price ?? '').replace(/,/g, ''),
+            a_price: String(d.a_price ?? '').replace(/,/g, ''),
+            expected_profit: String(d.expected_profit ?? '').replace(/,/g, ''),
         }));
         if (editingExpense) {
             put(`/expenses/${editingExpense.id}`, {
@@ -450,7 +471,7 @@ export default function Expenses({
                                                 onChange={(e) =>
                                                     setData(
                                                         'amount',
-                                                        formatAmount(
+                                                        formatAmountInput(
                                                             e.target.value,
                                                         ),
                                                     )
@@ -643,12 +664,15 @@ export default function Expenses({
                                                     Price
                                                 </label>
                                                 <input
-                                                    type="number"
+                                                    type="text"
+                                                    inputMode="decimal"
                                                     value={data.price}
                                                     onChange={(e) =>
                                                         setData(
                                                             'price',
-                                                            e.target.value,
+                                                            formatAmountInput(
+                                                                e.target.value,
+                                                            ),
                                                         )
                                                     }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
@@ -660,12 +684,15 @@ export default function Expenses({
                                                     T Price
                                                 </label>
                                                 <input
-                                                    type="number"
+                                                    type="text"
+                                                    inputMode="decimal"
                                                     value={data.t_price}
                                                     onChange={(e) =>
                                                         setData(
                                                             't_price',
-                                                            e.target.value,
+                                                            formatAmountInput(
+                                                                e.target.value,
+                                                            ),
                                                         )
                                                     }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
@@ -677,12 +704,15 @@ export default function Expenses({
                                                     N Price
                                                 </label>
                                                 <input
-                                                    type="number"
+                                                    type="text"
+                                                    inputMode="decimal"
                                                     value={data.n_price}
                                                     onChange={(e) =>
                                                         setData(
                                                             'n_price',
-                                                            e.target.value,
+                                                            formatAmountInput(
+                                                                e.target.value,
+                                                            ),
                                                         )
                                                     }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
@@ -695,11 +725,15 @@ export default function Expenses({
                                                 </label>
                                                 <input
                                                     type="text"
+                                                    inputMode="decimal"
                                                     value={data.a_price}
                                                     onChange={(e) =>
                                                         setData(
                                                             'a_price',
-                                                            e.target.value,
+                                                            formatAmountInput(
+                                                                e.target.value,
+                                                                12,
+                                                            ),
                                                         )
                                                     }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
@@ -711,12 +745,15 @@ export default function Expenses({
                                                     Expected Profit
                                                 </label>
                                                 <input
-                                                    type="number"
+                                                    type="text"
+                                                    inputMode="decimal"
                                                     value={data.expected_profit}
                                                     onChange={(e) =>
                                                         setData(
                                                             'expected_profit',
-                                                            e.target.value,
+                                                            formatAmountInput(
+                                                                e.target.value,
+                                                            ),
                                                         )
                                                     }
                                                     className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"

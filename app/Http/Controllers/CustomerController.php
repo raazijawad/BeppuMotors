@@ -70,7 +70,7 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'lines' => 'required|array',
             'lines.*.stock_id' => 'required|exists:stocks,id',
-            'lines.*.amount' => 'required|numeric|min:0',
+            'lines.*.amount' => 'required|numeric|min:0|max:99999999.99',
             'date' => 'required|date',
         ]);
 
@@ -87,7 +87,7 @@ class CustomerController extends Controller
             $next = 1;
         }
 
-        $billNumber = ($customer->bill_prefix ?? '') . str_pad($next, 4, '0', STR_PAD_LEFT);
+        $billNumber = ($customer->bill_prefix ?? '').str_pad($next, 4, '0', STR_PAD_LEFT);
 
         foreach ($validated['lines'] as $line) {
             $customer->invoices()->create([

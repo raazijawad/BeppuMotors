@@ -18,7 +18,7 @@ class ExpenseController extends Controller
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
 
         $expenses = Expense::with([
-            'stock:id,name,company,colour,shopname,chassisnumber,price',
+            'stock:id,name,company,colour,shopname,chassisnumber,price,t_price,n_price,a_price,expected_profit',
             'buyAuction:id,vehicle_name,price,shopname',
             'customer:id,name',
         ])
@@ -34,8 +34,8 @@ class ExpenseController extends Controller
                 'date',
                 'created_at',
             ])
-            ->where('date', '>=', $month . '-01')
-            ->where('date', '<', date('Y-m-d', strtotime($month . '-01 +1 month')))
+            ->where('date', '>=', $month.'-01')
+            ->where('date', '<', date('Y-m-d', strtotime($month.'-01 +1 month')))
             ->latest()
             ->get();
 
@@ -58,16 +58,21 @@ class ExpenseController extends Controller
     {
         $validated = $request->validate([
             'expense_name' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0|max:99999999.99',
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
             'customer_id' => 'nullable|exists:customers,id',
             'drawer_id' => 'required|exists:drawers,id',
+            'price' => 'nullable|numeric|min:0|max:99999999.99',
+            't_price' => 'nullable|numeric|min:0|max:99999999.99',
+            'n_price' => 'nullable|numeric|min:0|max:99999999.99',
+            'a_price' => 'nullable|string|max:255',
+            'expected_profit' => 'nullable|numeric|min:0|max:99999999.99',
         ]);
 
         $expense = $request->user()->expenses()->create($validated);
 
-        if (!empty($validated['drawer_id'])) {
+        if (! empty($validated['drawer_id'])) {
             $drawer = Drawer::findOrFail($validated['drawer_id']);
             $parentId = $drawer->parent_id ?? $drawer->id;
             $newAmount = floatval($drawer->amount) - floatval($validated['amount']);
@@ -114,10 +119,15 @@ class ExpenseController extends Controller
     {
         $validated = $request->validate([
             'expense_name' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0|max:99999999.99',
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
             'customer_id' => 'nullable|exists:customers,id',
+            'price' => 'nullable|numeric|min:0|max:99999999.99',
+            't_price' => 'nullable|numeric|min:0|max:99999999.99',
+            'n_price' => 'nullable|numeric|min:0|max:99999999.99',
+            'a_price' => 'nullable|string|max:255',
+            'expected_profit' => 'nullable|numeric|min:0|max:99999999.99',
         ]);
 
         $expense->update($validated);

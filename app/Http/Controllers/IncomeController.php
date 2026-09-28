@@ -53,8 +53,8 @@ class IncomeController extends Controller
                     'sell_auction_id',
                     'created_at',
                 ])
-                ->where('date', '>=', $month . '-01')
-                ->where('date', '<', date('Y-m-d', strtotime($month . '-01 +1 month')))
+                ->where('date', '>=', $month.'-01')
+                ->where('date', '<', date('Y-m-d', strtotime($month.'-01 +1 month')))
                 ->latest()
                 ->get(),
             'customers' => Customer::orderBy('name')->select(['id', 'name'])->get(),
@@ -134,7 +134,7 @@ class IncomeController extends Controller
     {
         $validated = $request->validate([
             'income_name' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0|max:99999999.99',
             'description' => 'nullable|string|max:1000',
             'date' => 'required|date',
             'customer_id' => 'nullable|exists:customers,id',
@@ -143,7 +143,7 @@ class IncomeController extends Controller
 
         $request->user()->incomes()->create($validated);
 
-        if (!empty($validated['drawer_id'])) {
+        if (! empty($validated['drawer_id'])) {
             $drawer = Drawer::findOrFail($validated['drawer_id']);
             $parentId = $drawer->parent_id ?? $drawer->id;
             $newAmount = floatval($drawer->amount) + floatval($validated['amount']);

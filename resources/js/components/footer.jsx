@@ -1,14 +1,23 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Home, BookOpen, User, UserCheck } from 'lucide-react';
 
 const navLinks = [
     { name: 'Home', icon: Home, href: '/vehicle-detail' },
     { name: 'Cashbook', icon: BookOpen, href: '/cashbook' },
-    { name: 'User', icon: UserCheck, href: '/admin/users' },
+    { name: 'User', icon: UserCheck, href: '/admin/users', adminOnly: true },
     { name: 'Profile', icon: User, href: '/profile' },
 ];
 
+const gridCols = {
+    3: 'grid-cols-3',
+    4: 'grid-cols-4',
+};
+
 export default function Footer({ blurred = false }) {
+    const isAdmin = usePage().props.auth?.user?.role === 'admin';
+
+    const links = navLinks.filter((link) => !link.adminOnly || isAdmin);
+
     return (
         <footer
             className={`fixed right-0 bottom-0 left-0 z-50 hidden transition-[filter] duration-300 md:block ${blurred ? 'pointer-events-none blur-md' : ''}`}
@@ -31,8 +40,8 @@ export default function Footer({ blurred = false }) {
 
             <div className="relative container px-4 py-3">
                 <div className="flex items-center justify-center">
-                    <div className="grid grid-cols-4 gap-2 md:gap-4">
-                        {navLinks.map((link) => (
+                    <div className={`grid gap-2 md:gap-4 ${gridCols[links.length] ?? 'grid-cols-4'}`}>
+                        {links.map((link) => (
                             <Link
                                 key={link.name}
                                 href={link.href}

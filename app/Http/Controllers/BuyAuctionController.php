@@ -49,7 +49,7 @@ class BuyAuctionController extends Controller
             'chassisnumber' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'for_who' => 'nullable|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0|max:99999999.99',
         ]);
 
         DB::transaction(function () use ($request, $validated) {

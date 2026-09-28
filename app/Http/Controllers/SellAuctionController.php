@@ -61,7 +61,7 @@ class SellAuctionController extends Controller
                     }
                 },
             ],
-            'auction_price' => 'nullable|numeric|min:0',
+            'auction_price' => 'nullable|numeric|min:0|max:99999999.99',
         ]);
 
         DB::transaction(function () use ($request, $validated) {
@@ -82,7 +82,7 @@ class SellAuctionController extends Controller
     public function update(Request $request, SellAuction $sellAuction): RedirectResponse
     {
         $validated = $request->validate([
-            'auction_price' => 'required|numeric|min:0',
+            'auction_price' => 'required|numeric|min:0|max:99999999.99',
         ]);
 
         $sellAuction->update($validated);

@@ -30,6 +30,29 @@ function addMonths(ym, delta) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+function formatAmountInput(value, integerDigits = 8) {
+    const cleaned = String(value ?? '')
+        .replace(/,/g, '')
+        .replace(/[^\d.]/g, '');
+
+    const [whole = '', fraction = ''] = cleaned.split('.');
+
+    const grouped = whole
+        .slice(0, integerDigits)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    return cleaned.includes('.')
+        ? `${grouped}.${fraction.slice(0, 2)}`
+        : grouped;
+}
+
+function formatDisplayAmount(value) {
+    if (value === null || value === undefined || value === '') return '';
+    const num = Number(value);
+    if (Number.isNaN(num)) return String(value);
+    return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+}
+
 export default function SellAuction({
     sellAuctions = [],
     stocks = [],
@@ -136,7 +159,9 @@ export default function SellAuction({
 
     const openPriceModal = (item) => {
         setEditingPrice(item.id);
-        setPriceValue(item.auction_price ?? '');
+        setPriceValue(
+            String(item.auction_price ?? '').replace(/\.0+$/, ''),
+        );
     };
 
     const changeMonth = (delta) => {
@@ -298,33 +323,25 @@ export default function SellAuction({
                                             {item.stock?.description}
                                         </td>
                                         <td className="px-2 py-1.5">
-                                            {parseFloat(item.stock?.price ?? 0)}
+                                            {formatDisplayAmount(item.stock?.price ?? 0)}
                                         </td>
                                         <td className="px-2 py-1.5">
-                                            {parseFloat(
-                                                item.stock?.t_price ?? 0,
-                                            )}
+                                            {formatDisplayAmount(item.stock?.t_price ?? 0,)}
                                         </td>
                                         <td className="px-2 py-1.5">
-                                            {parseFloat(
-                                                item.stock?.n_price ?? 0,
-                                            )}
+                                            {formatDisplayAmount(item.stock?.n_price ?? 0,)}
                                         </td>
                                         <td className="px-2 py-1.5">
-                                            {parseFloat(
-                                                item.stock?.a_price ?? 0,
-                                            )}
+                                            {formatDisplayAmount(item.stock?.a_price ?? 0,)}
                                         </td>
                                         <td className="px-2 py-1.5 font-semibold text-green-600">
-                                            {parseFloat(
-                                                item.stock?.expected_profit ??
-                                                    0,
-                                            )}
+                                            {formatDisplayAmount(item.stock?.expected_profit ??
+                                                    0,)}
                                         </td>
                                         <td className="px-2 py-1.5 font-semibold text-[#00447C] dark:text-blue-400">
                                             {item.auction_price !== null &&
                                             item.auction_price !== undefined
-                                                ? parseFloat(item.auction_price)
+                                                ? formatDisplayAmount(item.auction_price)
                                                 : 'Set Price'}
                                         </td>
                                         <td className="border-l border-[#19140035] px-2 py-1.5 text-center dark:border-[#3E3E3A]">
@@ -381,30 +398,20 @@ export default function SellAuction({
                                                 {item.stock?.description}
                                             </td>
                                             <td className="px-2 py-1.5">
-                                                {parseFloat(
-                                                    item.stock?.price ?? 0,
-                                                )}
+                                                {formatDisplayAmount(item.stock?.price ?? 0,)}
                                             </td>
                                             <td className="px-2 py-1.5">
-                                                {parseFloat(
-                                                    item.stock?.t_price ?? 0,
-                                                )}
+                                                {formatDisplayAmount(item.stock?.t_price ?? 0,)}
                                             </td>
                                             <td className="px-2 py-1.5">
-                                                {parseFloat(
-                                                    item.stock?.n_price ?? 0,
-                                                )}
+                                                {formatDisplayAmount(item.stock?.n_price ?? 0,)}
                                             </td>
                                             <td className="px-2 py-1.5">
-                                                {parseFloat(
-                                                    item.stock?.a_price ?? 0,
-                                                )}
+                                                {formatDisplayAmount(item.stock?.a_price ?? 0,)}
                                             </td>
                                             <td className="px-2 py-1.5 font-semibold text-green-600">
-                                                {parseFloat(
-                                                    item.stock
-                                                        ?.expected_profit ?? 0,
-                                                )}
+                                                {formatDisplayAmount(item.stock
+                                                        ?.expected_profit ?? 0,)}
                                             </td>
                                             <td
                                                 onClick={() =>
@@ -433,9 +440,7 @@ export default function SellAuction({
                                                       null &&
                                                   item.auction_price !==
                                                       undefined ? (
-                                                    parseFloat(
-                                                        item.auction_price,
-                                                    )
+                                                    formatDisplayAmount(item.auction_price,)
                                                 ) : (
                                                     'Set Price'
                                                 )}
@@ -570,7 +575,7 @@ export default function SellAuction({
                                                         {s.chassisnumber}
                                                     </td>
                                                     <td className="px-2 py-1.5">
-                                                        {parseFloat(s.price)}
+                                                        {formatDisplayAmount(s.price)}
                                                     </td>
                                                     <td className="px-2 py-1.5 text-right">
                                                         <button
@@ -654,10 +659,13 @@ export default function SellAuction({
                                 Auction Price
                             </label>
                             <input
-                                type="number"
-                                value={auctionPriceValue}
+                                type="text"
+                                inputMode="decimal"
+                                value={formatAmountInput(auctionPriceValue)}
                                 onChange={(e) =>
-                                    setAuctionPriceValue(e.target.value)
+                                    setAuctionPriceValue(
+                                        e.target.value.replace(/,/g, ''),
+                                    )
                                 }
                                 className="mb-4 w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                 placeholder="Optional — set later"
@@ -777,9 +785,14 @@ export default function SellAuction({
                                 Auction Price
                             </label>
                             <input
-                                type="number"
-                                value={priceValue}
-                                onChange={(e) => setPriceValue(e.target.value)}
+                                type="text"
+                                inputMode="decimal"
+                                value={formatAmountInput(priceValue)}
+                                onChange={(e) =>
+                                    setPriceValue(
+                                        e.target.value.replace(/,/g, ''),
+                                    )
+                                }
                                 className="mb-4 w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                 required
                                 autoFocus

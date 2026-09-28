@@ -30,6 +30,29 @@ function addMonths(ym, delta) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+function formatAmountInput(value, integerDigits = 8) {
+    const cleaned = String(value ?? '')
+        .replace(/,/g, '')
+        .replace(/[^\d.]/g, '');
+
+    const [whole = '', fraction = ''] = cleaned.split('.');
+
+    const grouped = whole
+        .slice(0, integerDigits)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    return cleaned.includes('.')
+        ? `${grouped}.${fraction.slice(0, 2)}`
+        : grouped;
+}
+
+function formatDisplayAmount(value) {
+    if (value === null || value === undefined || value === '') return '';
+    const num = Number(value);
+    if (Number.isNaN(num)) return String(value);
+    return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+}
+
 export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -111,7 +134,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
             chassisnumber: data.chassisnumber,
             description: data.description,
             for_who: data.for_who,
-            price: data.price || 0,
+            price: String(data.price ?? '').replace(/,/g, ''),
         };
         const pendingItem = { ...payload, id: `temp-${Date.now()}`, paid: false, pending: true };
         setSubmitError('');
@@ -259,7 +282,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                             {item.for_who}
                                         </td>
                                         <td className="border-r border-[#19140035] px-3 py-1.5 font-semibold text-green-600 md:px-4 lg:px-5 dark:border-[#3E3E3A]">
-                                            {parseFloat(item.price)}
+                                            {formatDisplayAmount(item.price)}
                                         </td>
                                         <td className="border-r border-[#19140035] px-3 py-1.5 text-center md:px-4 lg:px-5 dark:border-[#3E3E3A]">
                                             <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#00447C] md:text-xs dark:text-[#6cb2e6]">
@@ -310,7 +333,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                                 {item.for_who}
                                             </td>
                                             <td className="border-r border-[#19140035] px-3 py-1.5 font-semibold text-green-600 md:px-4 lg:px-5 dark:border-[#3E3E3A]">
-                                                {parseFloat(item.price)}
+                                                {formatDisplayAmount(item.price)}
                                             </td>
                                             <td
                                                 onClick={() =>
@@ -490,10 +513,14 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                     Price
                                 </label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="decimal"
                                     value={data.price}
                                     onChange={(e) =>
-                                        setData('price', e.target.value)
+                                        setData(
+                                            'price',
+                                            formatAmountInput(e.target.value),
+                                        )
                                     }
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:py-2 md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                     style={isSmallScreen ? { fontSize: '16px', padding: '5px 8px' } : undefined}
