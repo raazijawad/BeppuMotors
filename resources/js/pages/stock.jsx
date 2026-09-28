@@ -2,8 +2,31 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
 
+function formatAmountInput(value) {
+    const raw = String(value ?? '').replace(/,/g, '').slice(0, 13);
+    const match = raw.match(/^(\d{0,10})(?:\.(\d{0,2}))?$/);
+    if (!match) return value;
+    const [, whole, fraction] = match;
+    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return fraction !== undefined ? `${grouped}.${fraction}` : grouped;
+}
+
+function formatPrefillAmount(value) {
+    const raw = String(value ?? '').replace(/,/g, '');
+    return formatAmountInput(raw.replace(/\.0+$/, ''));
+}
+
+function formatDisplayAmount(value) {
+    if (value === null || value === undefined || value === '') return '';
+    const num = Number(value);
+    if (Number.isNaN(num)) return String(value);
+    return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+}
+
 export default function Stock({ stocks = [] }) {
     const [showForm, setShowForm] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [confirming, setConfirming] = useState(false);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
 
     useEffect(() => {
@@ -13,7 +36,7 @@ export default function Stock({ stocks = [] }) {
         return () => window.removeEventListener('resize', check);
     }, []);
 
-    const { data, setData, post, processing, reset } = useForm({
+    const { data, setData, post, put, processing, reset, transform } = useForm({
         name: '',
         company: '',
         colour: '',
@@ -27,14 +50,65 @@ export default function Stock({ stocks = [] }) {
         expected_profit: '',
     });
 
+    const stripCommas = (d) => ({
+        ...d,
+        price: String(d.price ?? '').replace(/,/g, ''),
+        t_price: String(d.t_price ?? '').replace(/,/g, ''),
+        n_price: String(d.n_price ?? '').replace(/,/g, ''),
+        a_price: String(d.a_price ?? '').replace(/,/g, ''),
+        expected_profit: String(d.expected_profit ?? '').replace(/,/g, ''),
+    });
+
+    const closeForm = () => {
+        reset();
+        setShowForm(false);
+        setEditingId(null);
+    };
+
+    const openAddForm = () => {
+        reset();
+        setEditingId(null);
+        setShowForm(true);
+    };
+
+    const openEditForm = (s) => {
+        reset();
+        Object.keys(data).forEach((key) =>
+            setData(
+                key,
+                key.endsWith('_price') || key === 'price' || key === 'expected_profit'
+                    ? formatPrefillAmount(s[key])
+                    : (s[key] ?? ''),
+            ),
+        );
+        setEditingId(s.id);
+        setShowForm(true);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (editingId) {
+            setConfirming(true);
+            return;
+        }
+        transform(stripCommas);
         post('/stock', {
             onSuccess: () => {
                 router.flushAll();
                 router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
-                reset();
-                setShowForm(false);
+                closeForm();
+            },
+        });
+    };
+
+    const saveUpdate = (id) => {
+        setConfirming(false);
+        transform(stripCommas);
+        put(`/stock/${id}`, {
+            onSuccess: () => {
+                router.flushAll();
+                router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
+                closeForm();
             },
         });
     };
@@ -58,7 +132,7 @@ export default function Stock({ stocks = [] }) {
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Stock Items</span>
                         <button
-                            onClick={() => setShowForm(true)}
+                            onClick={openAddForm}
                             className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
                         >
                             + Add Item
@@ -89,18 +163,22 @@ export default function Stock({ stocks = [] }) {
                                     </tr>
                                 ) : (
                                     stocks.map((s) => (
-                                        <tr key={s.id} className="border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 hover:bg-gray-50 dark:hover:bg-[#1a1a19]">
+                                        <tr
+                                            key={s.id}
+                                            onClick={() => openEditForm(s)}
+                                            className="cursor-pointer border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 hover:bg-gray-50 dark:hover:bg-[#1a1a19]"
+                                        >
                                             <td className="px-2 py-1.5 font-medium">{s.name}</td>
                                             <td className="px-2 py-1.5">{s.company}</td>
                                             <td className="px-2 py-1.5">{s.colour}</td>
                                             <td className="px-2 py-1.5">{s.shopname}</td>
                                             <td className="px-2 py-1.5">{s.chassisnumber}</td>
                                             <td className="px-2 py-1.5 max-w-[120px] truncate">{s.description}</td>
-                                            <td className="px-2 py-1.5">{parseFloat(s.price)}</td>
-                                            <td className="px-2 py-1.5">{parseFloat(s.t_price)}</td>
-                                            <td className="px-2 py-1.5">{parseFloat(s.n_price)}</td>
-                                            <td className="px-2 py-1.5">{s.a_price}</td>
-                                            <td className="px-2 py-1.5 font-semibold text-green-600">{parseFloat(s.expected_profit)}</td>
+                                            <td className="px-2 py-1.5">{formatDisplayAmount(s.price)}</td>
+                                            <td className="px-2 py-1.5">{formatDisplayAmount(s.t_price)}</td>
+                                            <td className="px-2 py-1.5">{formatDisplayAmount(s.n_price)}</td>
+                                            <td className="px-2 py-1.5">{formatDisplayAmount(s.a_price)}</td>
+                                            <td className="px-2 py-1.5 font-semibold text-green-600">{formatDisplayAmount(s.expected_profit)}</td>
                                         </tr>
                                     ))
                                 )}
@@ -120,8 +198,8 @@ export default function Stock({ stocks = [] }) {
                         style={isSmallScreen ? { padding: '6px', margin: '0 auto' } : undefined}
                     >
                         <div className={isSmallScreen ? "mb-1 flex items-center justify-between" : "mb-4 flex items-center justify-between"}>
-                            <h2 className={isSmallScreen ? "text-xs font-semibold" : "text-base font-semibold md:text-lg"}>Add Stock Item</h2>
-                            <button onClick={() => setShowForm(false)} className="text-sm text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white">&times;</button>
+                            <h2 className={isSmallScreen ? "text-xs font-semibold" : "text-base font-semibold md:text-lg"}>{editingId ? 'Edit Stock Item' : 'Add Stock Item'}</h2>
+                            <button onClick={closeForm} className="text-sm text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white">&times;</button>
                         </div>
                         <form
                             onSubmit={handleSubmit}
@@ -154,33 +232,63 @@ export default function Stock({ stocks = [] }) {
                             </div>
                             <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
                                 <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Price</label>
-                                <input type="number" value={data.price} onChange={(e) => setData('price', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
+                                <input type="text" inputMode="decimal" value={data.price} onChange={(e) => setData('price', formatAmountInput(e.target.value))} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
                             </div>
                             <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
                                 <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>T Price</label>
-                                <input type="number" value={data.t_price} onChange={(e) => setData('t_price', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
+                                <input type="text" inputMode="decimal" value={data.t_price} onChange={(e) => setData('t_price', formatAmountInput(e.target.value))} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} />
                             </div>
                             <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
                                 <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>N Price</label>
-                                <input type="number" value={data.n_price} onChange={(e) => setData('n_price', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
+                                <input type="text" inputMode="decimal" value={data.n_price} onChange={(e) => setData('n_price', formatAmountInput(e.target.value))} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} />
                             </div>
                             <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
                                 <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>A Price</label>
-                                <input type="text" value={data.a_price} onChange={(e) => setData('a_price', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
+                                <input type="text" inputMode="decimal" value={data.a_price} onChange={(e) => setData('a_price', formatAmountInput(e.target.value))} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} />
                             </div>
                             <div className="col-span-2 sm:col-span-1" style={isSmallScreen ? { gridColumn: 'span 2' } : undefined}>
                                 <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Expected Profit</label>
-                                <input type="number" value={data.expected_profit} onChange={(e) => setData('expected_profit', e.target.value)} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
+                                <input type="text" inputMode="decimal" value={data.expected_profit} onChange={(e) => setData('expected_profit', formatAmountInput(e.target.value))} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
                             </div>
                             <div className="col-span-2 flex gap-2 pt-2" style={isSmallScreen ? { gridColumn: 'span 2', gap: '8px', paddingTop: '4px' } : undefined}>
-                                <button type="submit" disabled={processing} className={isSmallScreen ? "rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50" : "rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"}>Submit</button>
-                                <button type="button" onClick={() => { reset(); setShowForm(false); }} className={isSmallScreen ? "rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A]" : "rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A] md:text-sm"}>Cancel</button>
+                                <button type="submit" disabled={processing} className={isSmallScreen ? "rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50" : "rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"}>{editingId ? 'Update' : 'Submit'}</button>
+                                <button type="button" onClick={closeForm} className={isSmallScreen ? "rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A]" : "rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A] md:text-sm"}>Cancel</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
-            <div className={showForm ? 'blur-sm pointer-events-none' : ''}>
+            {confirming && editingId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <h2 className="mb-4 text-base font-semibold md:text-lg">
+                            Confirm Update
+                        </h2>
+                        <p className="mb-4 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                            Are you sure you want to save the changes to this
+                            item?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => saveUpdate(editingId)}
+                                disabled={processing}
+                                className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"
+                            >
+                                Save Changes
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setConfirming(false)}
+                                className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium md:text-sm dark:border-[#3E3E3A]"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <div className={showForm || confirming ? 'blur-sm pointer-events-none' : ''}>
                 <Footer />
             </div>
         </div>

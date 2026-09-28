@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('stock', [StockController::class, 'index'])->name('stock');
     Route::post('stock', [StockController::class, 'store'])->name('stock.store');
+    Route::put('stock/{stock}', [StockController::class, 'update'])->name('stock.update');
     Route::delete('stock/{stock}', [StockController::class, 'destroy'])->name('stock.destroy');
 
     Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');

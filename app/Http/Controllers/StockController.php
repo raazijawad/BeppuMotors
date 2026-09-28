@@ -24,6 +24,30 @@ class StockController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $validated = $this->validated($request);
+
+        $request->user()->stocks()->create($validated);
+
+        return back();
+    }
+
+    public function update(Request $request, Stock $stock): RedirectResponse
+    {
+        abort_if(
+            $stock->user_id !== $request->user()->id,
+            403,
+        );
+
+        $stock->update($this->validated($request));
+
+        return back();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function validated(Request $request): array
+    {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'company' => 'nullable|string|max:255',
@@ -32,20 +56,23 @@ class StockController extends Controller
             'chassisnumber' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            't_price' => 'required|numeric|min:0',
-            'n_price' => 'required|numeric|min:0',
-            'a_price' => 'required|string|max:255',
+            't_price' => 'nullable|numeric|min:0',
+            'n_price' => 'nullable|numeric|min:0',
+            'a_price' => 'nullable|string|max:255',
             'expected_profit' => 'required|numeric|min:0',
         ]);
 
-        $request->user()->stocks()->create($validated);
+        $validated['t_price'] ??= 0;
+        $validated['n_price'] ??= 0;
+        $validated['a_price'] ??= '0';
 
-        return back();
+        return $validated;
     }
 
     public function destroy(Stock $stock): RedirectResponse
     {
         $stock->delete();
+
         return back();
     }
 }
