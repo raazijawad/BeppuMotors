@@ -160,7 +160,7 @@ export default function Stock({ stocks = [] }) {
                 </div>
             </nav>
             <main className="flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="flex flex-col gap-4 px-6 pt-4 pb-28 md:pt-6 md:pb-28">
+                <div className="flex flex-col gap-4 px-6 pt-4 pb-32 md:pt-6 md:pb-32">
                     <div className="flex items-center justify-between gap-4">
                         <div className={`flex items-center gap-4 ${searchOpen ? 'w-full' : ''}`}>
                             {!searchOpen && (
