@@ -137,7 +137,12 @@ export default function Stock({ stocks = [] }) {
             <main className="flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex flex-col gap-4 px-6 pt-4 pb-6 md:pt-6">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Stock Items</span>
+                        <div className="flex items-center gap-4">
+                            <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Stock Items</span>
+                            <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                Total Vehicles : {stocks.length}
+                            </span>
+                        </div>
                         <button
                             onClick={openAddForm}
                             className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
