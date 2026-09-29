@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import Footer from '@/components/footer';
 
@@ -76,6 +76,33 @@ export default function SellAuction({
     const [pendingSells, setPendingSells] = useState([]);
     const [pendingPriceIds, setPendingPriceIds] = useState([]);
     const [pendingStockIds, setPendingStockIds] = useState([]);
+    const [search, setSearch] = useState('');
+    const [searchOpen, setSearchOpen] = useState(false);
+    const searchInputRef = useRef(null);
+
+    useEffect(() => {
+        if (searchOpen) searchInputRef.current?.focus();
+    }, [searchOpen]);
+
+    const matchesSearch = (item) => {
+        const q = search.trim().toLowerCase();
+        if (!q) return true;
+        return [
+            item.date,
+            item.auction_price,
+            item.sold ? 'sold' : 'unsold',
+            item.document_submitted ? 'document submitted' : '',
+            item.stock?.name,
+            item.stock?.company,
+            item.stock?.colour,
+            item.stock?.shopname,
+            item.stock?.chassisnumber,
+            item.stock?.description,
+        ].some((field) => String(field ?? '').toLowerCase().includes(q));
+    };
+
+    const filteredSellAuctions = sellAuctions.filter(matchesSearch);
+    const filteredPendingSells = pendingSells.filter(matchesSearch);
 
     const openSelectModal = (s) => {
         setSelectedStock(s);
@@ -221,8 +248,10 @@ export default function SellAuction({
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-6 md:gap-6 md:pt-8 md:pb-20">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
+                    <div className="flex items-center justify-between gap-4">
+                        <div
+                            className={`items-center gap-1 ${searchOpen ? 'hidden md:flex' : 'flex'}`}
+                        >
                             <button
                                 onClick={() => changeMonth(-1)}
                                 className="rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:p-1.5 dark:text-[#A1A09A] dark:hover:bg-[#2a2a28]"
@@ -239,12 +268,52 @@ export default function SellAuction({
                                 <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
                             </button>
                         </div>
-                        <button
-                            onClick={() => setShowPicker(true)}
-                            className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
+                        <div
+                            className={`items-center gap-3 md:shrink-0 ${searchOpen ? 'flex w-full md:w-auto' : 'flex'}`}
                         >
-                            + Sell Vehicle
-                        </button>
+                            {searchOpen ? (
+                                <span className="flex w-full items-center gap-1 md:w-auto">
+                                    <input
+                                        ref={searchInputRef}
+                                        type="search"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Escape') {
+                                                setSearch('');
+                                                setSearchOpen(false);
+                                            }
+                                        }}
+                                        placeholder="Search..."
+                                        className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs text-[#1b1b18] placeholder-[#706f6c] focus:outline-none dark:border-[#3E3E3A] dark:bg-[#161615] dark:text-white md:w-48 md:text-sm"
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            setSearch('');
+                                            setSearchOpen(false);
+                                        }}
+                                        aria-label="Close search"
+                                        className="shrink-0 text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                </span>
+                            ) : (
+                                <button
+                                    onClick={() => setSearchOpen(true)}
+                                    aria-label="Search"
+                                    className="shrink-0 text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
+                                >
+                                    <Search className="h-4 w-4 md:h-5 md:w-5" />
+                                </button>
+                            )}
+                            <button
+                                onClick={() => setShowPicker(true)}
+                                className={`rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm ${searchOpen ? 'hidden md:inline-flex' : ''}`}
+                            >
+                                + Sell Vehicle
+                            </button>
+                        </div>
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
@@ -296,7 +365,7 @@ export default function SellAuction({
                                 </tr>
                             </thead>
                             <tbody>
-                                {pendingSells.map((item) => (
+                                {filteredPendingSells.map((item) => (
                                     <tr
                                         key={item.id}
                                         className="border-b border-[#00447C]/20 bg-[#00447C]/5 dark:border-[#6cb2e6]/20 dark:bg-[#6cb2e6]/10"
@@ -354,18 +423,20 @@ export default function SellAuction({
                                         <td className="border-l border-[#19140035] px-2 py-1.5 dark:border-[#3E3E3A]" />
                                     </tr>
                                 ))}
-                                {sellAuctions.length === 0 &&
-                                pendingSells.length === 0 ? (
+                                {filteredSellAuctions.length === 0 &&
+                                filteredPendingSells.length === 0 ? (
                                     <tr>
                                         <td
                                             colSpan={16}
                                             className="px-2 py-6 text-center text-[#706f6c] dark:text-[#A1A09A]"
                                         >
-                                            No vehicles added for sale yet.
+                                            {search.trim()
+                                                ? 'No vehicles match your search.'
+                                                : 'No vehicles added for sale yet.'}
                                         </td>
                                     </tr>
                                 ) : (
-                                    sellAuctions.map((item) => (
+                                    filteredSellAuctions.map((item) => (
                                         <tr
                                             key={item.id}
                                             className={`border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 ${item.sold ? 'bg-green-100 dark:bg-green-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a19]'}`}

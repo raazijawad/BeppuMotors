@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Footer from '@/components/footer';
 
 function formatAmountInput(value, integerDigits = 8) {
@@ -35,6 +35,31 @@ export default function Stock({ stocks = [] }) {
     const [editingId, setEditingId] = useState(null);
     const [confirming, setConfirming] = useState(false);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
+    const [search, setSearch] = useState('');
+    const [searchOpen, setSearchOpen] = useState(false);
+    const searchInputRef = useRef(null);
+
+    useEffect(() => {
+        if (searchOpen) searchInputRef.current?.focus();
+    }, [searchOpen]);
+
+    const filteredStocks = stocks.filter((s) => {
+        const q = search.trim().toLowerCase();
+        if (!q) return true;
+        return [
+            s.name,
+            s.company,
+            s.colour,
+            s.shopname,
+            s.chassisnumber,
+            s.description,
+        ].some((field) => String(field ?? '').toLowerCase().includes(q));
+    });
+
+    const totalExpectedProfit = filteredStocks.reduce(
+        (sum, s) => sum + (Number(s.expected_profit) || 0),
+        0,
+    );
 
     useEffect(() => {
         const check = () => setIsSmallScreen(window.innerWidth <= 414 && window.innerHeight <= 900);
@@ -136,19 +161,63 @@ export default function Stock({ stocks = [] }) {
             </nav>
             <main className="flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex flex-col gap-4 px-6 pt-4 pb-6 md:pt-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Stock Items</span>
-                            <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                Total Vehicles : {stocks.length}
-                            </span>
+                    <div className="flex items-center justify-between gap-4">
+                        <div className={`flex items-center gap-4 ${searchOpen ? 'w-full' : ''}`}>
+                            {!searchOpen && (
+                                <>
+                                    <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Stock Items</span>
+                                    <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                        Total Vehicles : {stocks.length}
+                                    </span>
+                                </>
+                            )}
+                            {searchOpen ? (
+                                <span className="flex w-full items-center gap-1">
+                                    <input
+                                        ref={searchInputRef}
+                                        type="search"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Escape') {
+                                                setSearch('');
+                                                setSearchOpen(false);
+                                            }
+                                        }}
+                                        placeholder="Search..."
+                                        className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs text-[#1b1b18] placeholder-[#706f6c] focus:outline-none dark:border-[#3E3E3A] dark:bg-[#161615] dark:text-white md:w-48 md:text-sm"
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            setSearch('');
+                                            setSearchOpen(false);
+                                        }}
+                                        aria-label="Close search"
+                                        className="shrink-0 text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
+                                    >
+                                        &times;
+                                    </button>
+                                </span>
+                            ) : (
+                                <button
+                                    onClick={() => setSearchOpen(true)}
+                                    aria-label="Search"
+                                    className="shrink-0 text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-4.34-4.34m1.09-5.41a6.75 6.75 0 1 1-13.5 0 6.75 6.75 0 0 1 13.5 0Z" />
+                                    </svg>
+                                </button>
+                            )}
                         </div>
-                        <button
-                            onClick={openAddForm}
-                            className="rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
-                        >
-                            + Add Item
-                        </button>
+                        {!searchOpen && (
+                            <button
+                                onClick={openAddForm}
+                                className="shrink-0 rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
+                            >
+                                + Add Item
+                            </button>
+                        )}
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
@@ -169,12 +238,12 @@ export default function Stock({ stocks = [] }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {stocks.length === 0 ? (
+                                {filteredStocks.length === 0 ? (
                                     <tr>
-                                        <td colSpan={11} className="px-2 py-6 text-center text-[#706f6c] dark:text-[#A1A09A]">No stock items added yet.</td>
+                                        <td colSpan={11} className="px-2 py-6 text-center text-[#706f6c] dark:text-[#A1A09A]">{search.trim() ? 'No stock items match your search.' : 'No stock items added yet.'}</td>
                                     </tr>
                                 ) : (
-                                    stocks.map((s) => (
+                                    filteredStocks.map((s) => (
                                         <tr
                                             key={s.id}
                                             onClick={() => openEditForm(s)}
@@ -195,6 +264,18 @@ export default function Stock({ stocks = [] }) {
                                     ))
                                 )}
                             </tbody>
+                            {filteredStocks.length > 0 && (
+                                <tfoot className="border-t-2 border-[#19140035] bg-[#FDFDFC] font-semibold dark:border-[#3E3E3A] dark:bg-[#0a0a0a]">
+                                    <tr>
+                                        <td colSpan={10} className="px-2 py-2 text-right text-[#706f6c] dark:text-[#A1A09A]">
+                                            Total Expected Profit
+                                        </td>
+                                        <td className="px-2 py-2 text-green-600">
+                                            {formatDisplayAmount(totalExpectedProfit)}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            )}
                         </table>
                     </div>
                 </div>
