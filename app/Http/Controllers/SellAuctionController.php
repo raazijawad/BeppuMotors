@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Income;
 use App\Models\SellAuction;
 use App\Models\Stock;
 use App\Models\User;
@@ -81,15 +80,22 @@ class SellAuctionController extends Controller
 
     public function update(Request $request, SellAuction $sellAuction): RedirectResponse
     {
+        if ($sellAuction->sold) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => __(
+                    'Sold auctions cannot be edited — the auction price is locked.',
+                ),
+            ]);
+
+            return back();
+        }
+
         $validated = $request->validate([
             'auction_price' => 'required|numeric|min:0|max:99999999.99',
         ]);
 
         $sellAuction->update($validated);
-
-        Income::where('sell_auction_id', $sellAuction->id)->update([
-            'amount' => $validated['auction_price'],
-        ]);
 
         $this->clearReminderIfSettled($sellAuction);
 
@@ -115,18 +121,6 @@ class SellAuctionController extends Controller
 
         $sellAuction->update(['sold' => true]);
 
-        $sellAuction->loadMissing('stock');
-
-        $sellAuction->user->incomes()->firstOrCreate(
-            ['sell_auction_id' => $sellAuction->id],
-            [
-                'income_name' => $sellAuction->stock?->name ?? 'Sell Auction',
-                'amount' => $sellAuction->auction_price,
-                'description' => trim(($sellAuction->stock?->chassisnumber ?? '').' (Sold via auction)') ?: null,
-                'date' => now()->toDateString(),
-            ],
-        );
-
         return back();
     }
 
@@ -142,7 +136,6 @@ class SellAuctionController extends Controller
     public function destroy(SellAuction $sellAuction): RedirectResponse
     {
         $this->deleteDocumentReminders($sellAuction->id);
-        Income::where('sell_auction_id', $sellAuction->id)->delete();
         $sellAuction->delete();
 
         return back();
