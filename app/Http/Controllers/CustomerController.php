@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Stock;
+use App\Support\BillNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -76,18 +77,22 @@ class CustomerController extends Controller
 
         $saleId = (string) Str::uuid();
 
-        $lastNumber = $customer->invoices()
-            ->whereNotNull('bill_number')
-            ->latest('bill_number')
-            ->value('bill_number');
+        [$prefix, $startNumber, $width] = BillNumber::parse($customer->bill_prefix);
 
-        if ($lastNumber && preg_match('/(\d+)$/', $lastNumber, $m)) {
-            $next = (int) $m[1] + 1;
-        } else {
-            $next = 1;
+        $maxNumber = 0;
+        $existingNumbers = $customer->invoices()
+            ->whereNotNull('bill_number')
+            ->pluck('bill_number');
+
+        foreach ($existingNumbers as $existingNumber) {
+            if (str_starts_with($existingNumber, $prefix) && preg_match('/(\d+)$/', $existingNumber, $m)) {
+                $maxNumber = max($maxNumber, (int) $m[1]);
+            }
         }
 
-        $billNumber = ($customer->bill_prefix ?? '').str_pad($next, 4, '0', STR_PAD_LEFT);
+        $next = $maxNumber > 0 ? max($startNumber, $maxNumber + 1) : $startNumber;
+
+        $billNumber = BillNumber::format($prefix, $width, $next);
 
         foreach ($validated['lines'] as $line) {
             $customer->invoices()->create([

@@ -223,19 +223,28 @@ export default function Customer({ customers = [], stocks = [] }) {
         showLedger;
 
     const nextBillNumber = (() => {
-        const prefix = selectedCustomer?.bill_prefix || '';
-        const existing = (selectedCustomer?.invoices || [])
-            .map((inv) => inv.bill_number)
-            .filter(Boolean);
+        const starting = selectedCustomer?.bill_prefix || '';
+        let prefix = starting;
+        let startNum = 1;
+        let width = 4;
+        const parsed = starting.match(/^(.*?)(\d+)$/);
+        if (parsed) {
+            prefix = parsed[1];
+            startNum = parseInt(parsed[2], 10);
+            width = parsed[2].length;
+        }
         let maxNum = 0;
-        for (const bn of existing) {
+        for (const inv of selectedCustomer?.invoices || []) {
+            const bn = inv.bill_number;
+            if (!bn || !bn.startsWith(prefix)) continue;
             const match = bn.match(/(\d+)$/);
             if (match) {
                 const n = parseInt(match[1], 10);
                 if (n > maxNum) maxNum = n;
             }
         }
-        return `${prefix}${String(maxNum + 1).padStart(4, '0')}`;
+        const next = maxNum > 0 ? Math.max(startNum, maxNum + 1) : startNum;
+        return `${prefix}${String(next).padStart(width, '0')}`;
     })();
 
     return (
@@ -668,11 +677,12 @@ export default function Customer({ customers = [], stocks = [] }) {
                                 </label>
                                 <input
                                     type="text"
+                                    maxLength={10}
                                     value={data.bill_prefix}
                                     onChange={(e) =>
                                         setData('bill_prefix', e.target.value)
                                     }
-                                    placeholder="e.g. TYN"
+                                    placeholder="e.g. TYN0001"
                                     className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
                                     required
                                 />
