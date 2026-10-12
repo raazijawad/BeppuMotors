@@ -10,6 +10,7 @@ export default function Customer({ customers = [], stocks = [] }) {
     const [showSaleModal, setShowSaleModal] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [selectedVehicles, setSelectedVehicles] = useState([]);
+    const [vehicleSearch, setVehicleSearch] = useState('');
     const [viewInvoice, setViewInvoice] = useState(null);
     const [viewDraft, setViewDraft] = useState(false);
     const [showLedger, setShowLedger] = useState(false);
@@ -136,7 +137,11 @@ export default function Customer({ customers = [], stocks = [] }) {
             {
                 onSuccess: (page) => {
                     router.flushAll();
-                    router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
+                    router.prefetch(
+                        '/vehicle-detail',
+                        {},
+                        { cacheFor: 300000 },
+                    );
                     setSelectedVehicles([]);
                     setViewDraft(false);
                     const fresh = (page.props.customers || []).find(
@@ -154,7 +159,11 @@ export default function Customer({ customers = [], stocks = [] }) {
             router.delete(`/customers/${customer.id}`, {
                 onSuccess: () => {
                     router.flushAll();
-                    router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
+                    router.prefetch(
+                        '/vehicle-detail',
+                        {},
+                        { cacheFor: 300000 },
+                    );
                     setSelectedCustomer(null);
                 },
             });
@@ -174,9 +183,13 @@ export default function Customer({ customers = [], stocks = [] }) {
             router.delete(`/invoices/${inv.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
-                        router.flushAll();
-                        router.prefetch('/vehicle-detail', {}, { cacheFor: 300000 });
-                    },
+                    router.flushAll();
+                    router.prefetch(
+                        '/vehicle-detail',
+                        {},
+                        { cacheFor: 300000 },
+                    );
+                },
             });
         });
     };
@@ -186,6 +199,17 @@ export default function Customer({ customers = [], stocks = [] }) {
         : new Set();
 
     const availableStocks = stocks.filter((s) => !purchasedStockIds.has(s.id));
+
+    const searchTerm = vehicleSearch.trim().toLowerCase();
+    const filteredStocks = searchTerm
+        ? availableStocks.filter((s) =>
+              [s.name, s.company, s.shopname, s.chassisnumber]
+                  .filter(Boolean)
+                  .some((field) =>
+                      String(field).toLowerCase().includes(searchTerm),
+                  ),
+          )
+        : availableStocks;
 
     const invoices = selectedCustomer?.invoices || [];
 
@@ -262,7 +286,8 @@ export default function Customer({ customers = [], stocks = [] }) {
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
                     <Link
                         href="/vehicle-detail"
-                        prefetch={['mount', 'hover']} cacheFor={300000}
+                        prefetch={['mount', 'hover']}
+                        cacheFor={300000}
                         className="text-sm font-medium text-white/70 hover:text-white"
                     >
                         &larr; Back
@@ -363,9 +388,7 @@ export default function Customer({ customers = [], stocks = [] }) {
                                     </button>
                                     <button
                                         onClick={() =>
-                                            handleOpenEditForm(
-                                                selectedCustomer,
-                                            )
+                                            handleOpenEditForm(selectedCustomer)
                                         }
                                         className="rounded-md border border-[#19140035] px-2.5 py-1.5 text-xs font-medium text-[#00447C] hover:bg-gray-50 md:px-4 md:py-2 md:text-sm dark:border-[#3E3E3A] dark:text-[#6cb2e6] dark:hover:bg-[#1a1a19]"
                                     >
@@ -532,7 +555,10 @@ export default function Customer({ customers = [], stocks = [] }) {
                                         name: inv.stock?.name || 'Vehicle',
                                         amount: inv.amount,
                                     }))}
-                                    invoiceNo={viewInvoice.invoices[0].bill_number || `INV-${viewInvoice.invoices[0].id}`}
+                                    invoiceNo={
+                                        viewInvoice.invoices[0].bill_number ||
+                                        `INV-${viewInvoice.invoices[0].id}`
+                                    }
                                     date={viewInvoice.date}
                                     onClose={() => setViewInvoice(null)}
                                 />
@@ -563,13 +589,24 @@ export default function Customer({ customers = [], stocks = [] }) {
                                 &times;
                             </button>
                         </div>
+                        <input
+                            type="text"
+                            value={vehicleSearch}
+                            onChange={(e) => setVehicleSearch(e.target.value)}
+                            placeholder="Search by name, chassis no..."
+                            className="mb-3 w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                        />
                         {availableStocks.length === 0 ? (
                             <p className="py-6 text-center text-sm text-[#706f6c] dark:text-[#A1A09A]">
                                 No available vehicles to sell.
                             </p>
+                        ) : filteredStocks.length === 0 ? (
+                            <p className="py-6 text-center text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                                No vehicles match your search.
+                            </p>
                         ) : (
                             <div className="flex max-h-80 flex-col gap-2 overflow-y-auto pr-1">
-                                {availableStocks.map((stock) => {
+                                {filteredStocks.map((stock) => {
                                     const isSelected = selectedVehicles.some(
                                         (v) => v.id === stock.id,
                                     );
@@ -585,6 +622,10 @@ export default function Customer({ customers = [], stocks = [] }) {
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-semibold">
                                                     {stock.name}
+                                                </p>
+                                                <p className="truncate text-xs text-[#706f6c] dark:text-[#A1A09A]">
+                                                    Chassis:{' '}
+                                                    {stock.chassisnumber || '-'}
                                                 </p>
                                                 <p className="truncate text-xs text-[#706f6c] dark:text-[#A1A09A]">
                                                     {stock.company ||
