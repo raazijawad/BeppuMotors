@@ -15,11 +15,9 @@ export default function Ledger({ customer = null, onClose = null }) {
             const chrome = 130;
             const availH = window.innerHeight - chrome;
             const availW = window.innerWidth - 40;
-            const s = Math.min(
-                availH / SHEET_HEIGHT_PX,
-                availW / SHEET_WIDTH_PX,
-                1,
-            ) * 0.85;
+            const s =
+                Math.min(availH / SHEET_HEIGHT_PX, availW / SHEET_WIDTH_PX, 1) *
+                0.85;
             setScale(Math.max(s, 0.2));
         };
 
@@ -81,16 +79,11 @@ export default function Ledger({ customer = null, onClose = null }) {
             date: g.date,
             created_at: g.invoices.reduce(
                 (max, inv) =>
-                    Math.max(
-                        max,
-                        new Date(inv.created_at || 0).getTime() || 0,
-                    ),
+                    Math.max(max, new Date(inv.created_at || 0).getTime() || 0),
                 0,
             ),
             bill:
-                g.invoices
-                    .map((inv) => inv.bill_number)
-                    .filter(Boolean)[0] ||
+                g.invoices.map((inv) => inv.bill_number).filter(Boolean)[0] ||
                 g.invoices
                     .map((inv) => inv.stock?.name)
                     .filter(Boolean)
@@ -128,16 +121,28 @@ export default function Ledger({ customer = null, onClose = null }) {
         return String(a.id).localeCompare(String(b.id));
     });
 
+    const totalPlus = allEntries.reduce(
+        (s, e) => s + (parseFloat(e.plus) || 0),
+        0,
+    );
+    const totalMinus = allEntries.reduce(
+        (s, e) => s + (parseFloat(e.minus) || 0),
+        0,
+    );
+    const balance = totalPlus - totalMinus;
+
     const pageCount = Math.max(1, Math.ceil(allEntries.length / ROW_COUNT));
     const safePage = Math.min(currentPage, pageCount);
-    const startIdx = Math.max(
-        0,
-        allEntries.length - safePage * ROW_COUNT,
-    );
+    const startIdx = (safePage - 1) * ROW_COUNT;
     const entries = allEntries.slice(startIdx, startIdx + ROW_COUNT);
 
     const prevPage = () => setCurrentPage((p) => Math.max(1, p - 1));
     const nextPage = () => setCurrentPage((p) => Math.min(pageCount, p + 1));
+
+    useEffect(() => {
+        setCurrentPage(pageCount);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [customer]);
 
     return (
         <div className="fixed inset-0 z-50 flex flex-col items-center gap-2 overflow-hidden bg-neutral-900/80 px-4 pt-[8vh] pb-4 backdrop-blur-sm">
@@ -229,6 +234,34 @@ export default function Ledger({ customer = null, onClose = null }) {
                                     },
                                 )}
                             </tbody>
+                            <tfoot>
+                                <tr className="h-[10mm]">
+                                    <td
+                                        colSpan={2}
+                                        className="border border-black p-0 text-center text-[18px] font-bold"
+                                    >
+                                        Total
+                                    </td>
+                                    <td className="border border-black p-0 text-center text-[18px] font-bold">
+                                        {fmtAmt(totalPlus)}
+                                    </td>
+                                    <td className="border border-black p-0 text-center text-[18px] font-bold">
+                                        {fmtAmt(totalMinus)}
+                                    </td>
+                                </tr>
+                                <tr className="h-[10mm]">
+                                    <td
+                                        colSpan={2}
+                                        className="border border-black p-0 text-center text-[18px] font-bold"
+                                    ></td>
+                                    <td
+                                        colSpan={2}
+                                        className="border border-black p-0 text-center text-[18px] font-bold"
+                                    >
+                                        {fmtAmt(balance)}
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>

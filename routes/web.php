@@ -27,6 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('auction/buy', [BuyAuctionController::class, 'index'])->name('auction.buy');
     Route::post('auction/buy', [BuyAuctionController::class, 'store'])->name('auction.buy.store');
     Route::post('auction/buy/{buyAuction}/paid', [BuyAuctionController::class, 'paid'])->name('auction.buy.paid');
+    Route::post('auction/buy/{buyAuction}/fax', [BuyAuctionController::class, 'fax'])->name('auction.buy.fax');
+    Route::post('auction/buy/{buyAuction}/fax-confirmed', [BuyAuctionController::class, 'faxConfirmed'])->name('auction.buy.fax-confirmed');
     Route::delete('auction/buy/{buyAuction}', [BuyAuctionController::class, 'destroy'])->name('auction.buy.destroy');
     Route::get('auction/sell', [SellAuctionController::class, 'index'])->name('auction.sell');
     Route::post('auction/sell', [SellAuctionController::class, 'store'])->name('auction.sell.store');

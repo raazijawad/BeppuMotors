@@ -8,6 +8,7 @@ use App\Models\Drawer;
 use App\Models\Income;
 use App\Models\SellAuction;
 use App\Notifications\DocumentNotSubmittedReminder;
+use App\Notifications\FaxReminder;
 use App\Notifications\UnpaidAuctionReminder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,6 +32,7 @@ class IncomeController extends Controller
             'selectedDate' => $date,
             'selectedMonth' => $month,
             'auctionNotifications' => Inertia::defer(fn () => $this->auctionNotifications($request)),
+            'faxNotifications' => Inertia::defer(fn () => $this->faxNotifications($request)),
             'documentNotifications' => Inertia::defer(fn () => $this->documentNotifications($request)),
         ]);
     }
@@ -90,6 +92,35 @@ class IncomeController extends Controller
                 'description' => $vehicles[$notification->data['buy_auction_id'] ?? null]->description ?? null,
             ])
             ->filter(fn ($notification) => isset($vehicles[$notification['buy_auction_id']]))
+            ->values()
+            ->toArray();
+    }
+
+    private function faxNotifications(Request $request): array
+    {
+        $notifications = $request->user()
+            ->unreadNotifications()
+            ->where('type', FaxReminder::class)
+            ->latest()
+            ->get();
+
+        $vehicles = BuyAuction::whereIn(
+            'id',
+            $notifications->pluck('data.buy_auction_id')->filter()->unique()
+        )->get()->keyBy('id');
+
+        return $notifications
+            ->map(fn ($notification) => [
+                'id' => $notification->id,
+                'buy_auction_id' => $notification->data['buy_auction_id'] ?? null,
+                'vehicle_name' => $notification->data['vehicle_name'] ?? null,
+                'date' => $vehicles[$notification->data['buy_auction_id'] ?? null]->date ?? null,
+                'shopname' => $vehicles[$notification->data['buy_auction_id'] ?? null]->shopname ?? null,
+                'faxed' => (bool) ($vehicles[$notification->data['buy_auction_id'] ?? null]->fax ?? false),
+                'fax_confirmed' => (bool) ($vehicles[$notification->data['buy_auction_id'] ?? null]->fax_confirmed ?? false),
+            ])
+            ->filter(fn ($notification) => isset($vehicles[$notification['buy_auction_id']]))
+            ->filter(fn ($notification) => ! $notification['faxed'] || ! $notification['fax_confirmed'])
             ->values()
             ->toArray();
     }

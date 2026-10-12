@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BuyAuction;
 use App\Models\Stock;
 use App\Models\User;
+use App\Notifications\FaxReminder;
 use App\Notifications\UnpaidAuctionReminder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -70,11 +71,10 @@ class BuyAuctionController extends Controller
                 'buy_auction_id' => $buyAuction->id,
             ]);
 
-            User::query()->each(
-                fn (User $user) => $user->notify(
-                    new UnpaidAuctionReminder($buyAuction),
-                ),
-            );
+            User::query()->each(function (User $user) use ($buyAuction) {
+                $user->notify(new UnpaidAuctionReminder($buyAuction));
+                $user->notify(new FaxReminder($buyAuction));
+            });
         });
 
         return back();
@@ -85,6 +85,10 @@ class BuyAuctionController extends Controller
         Stock::where('buy_auction_id', $buyAuction->id)->delete();
 
         DatabaseNotification::where('type', UnpaidAuctionReminder::class)
+            ->where('data->buy_auction_id', $buyAuction->id)
+            ->delete();
+
+        DatabaseNotification::where('type', FaxReminder::class)
             ->where('data->buy_auction_id', $buyAuction->id)
             ->delete();
 
@@ -100,6 +104,28 @@ class BuyAuctionController extends Controller
         DatabaseNotification::where('type', UnpaidAuctionReminder::class)
             ->where('data->buy_auction_id', $buyAuction->id)
             ->delete();
+
+        return back();
+    }
+
+    public function fax(BuyAuction $buyAuction): RedirectResponse
+    {
+        $buyAuction->update(['fax' => true]);
+
+        return back();
+    }
+
+    public function faxConfirmed(BuyAuction $buyAuction): RedirectResponse
+    {
+        $buyAuction->update(['fax_confirmed' => true]);
+
+        $buyAuction->refresh();
+
+        if ($buyAuction->fax && $buyAuction->fax_confirmed) {
+            DatabaseNotification::where('type', FaxReminder::class)
+                ->where('data->buy_auction_id', $buyAuction->id)
+                ->delete();
+        }
 
         return back();
     }

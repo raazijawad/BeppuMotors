@@ -62,6 +62,8 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
     );
     const [showForm, setShowForm] = useState(false);
     const [confirmPaidId, setConfirmPaidId] = useState(null);
+    const [confirmFaxId, setConfirmFaxId] = useState(null);
+    const [confirmFaxConfirmId, setConfirmFaxConfirmId] = useState(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [highlightId, setHighlightId] = useState(null);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -89,24 +91,44 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
     };
 
     useEffect(() => {
-        const highlight = new URLSearchParams(window.location.search).get(
-            'highlight',
-        );
+        const params = new URLSearchParams(window.location.search);
+        const highlight = params.get('highlight');
         if (!highlight) return;
+
+        const action = params.get('action') || 'paid';
 
         window.history.replaceState({}, '', '/auction/buy');
 
         const target = buyAuctions.find(
-            (item) => String(item.id) === highlight && !item.paid,
+            (item) => String(item.id) === highlight,
         );
-        if (target) {
+        if (!target) return;
+
+        setHighlightId(target.id);
+        setTimeout(() => {
+            document
+                .getElementById(`buy-auction-row-${target.id}`)
+                ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+
+        if (action === 'fax') {
+            if (!target.fax) {
+                setConfirmFaxId(target.id);
+            } else if (!target.fax_confirmed) {
+                setConfirmFaxConfirmId(target.id);
+            }
+            return;
+        }
+
+        if (action === 'fax-confirm') {
+            if (target.fax && !target.fax_confirmed) {
+                setConfirmFaxConfirmId(target.id);
+            }
+            return;
+        }
+
+        if (!target.paid) {
             setConfirmPaidId(target.id);
-            setHighlightId(target.id);
-            setTimeout(() => {
-                document
-                    .getElementById(`buy-auction-row-${target.id}`)
-                    ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 100);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -185,7 +207,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                 </div>
             </nav>
             <main className="flex flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-                <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 pt-4 pb-6 sm:px-6 md:px-8 md:pt-6 md:pb-32 lg:px-16">
+                <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-4 px-4 pt-4 pb-6 sm:px-6 md:px-8 md:pt-6 md:pb-32 lg:px-16">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1">
                             <button
@@ -219,7 +241,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                         <table className="w-full text-left text-[10px] md:text-xs">
                             <thead className="border-b border-[#19140035] dark:border-[#3E3E3A]">
                                 <tr className="bg-[#FDFDFC] dark:bg-[#0a0a0a]">
-                                    <th className="px-3 py-2 font-semibold text-[#706f6c] md:px-4 lg:px-5 dark:text-[#A1A09A]">
+                                    <th className="px-3 py-2 font-semibold text-[#706f6c] whitespace-nowrap md:px-4 lg:px-5 dark:text-[#A1A09A]">
                                         Date
                                     </th>
                                     <th className="px-3 py-2 font-semibold text-[#706f6c] md:px-4 lg:px-5 dark:text-[#A1A09A]">
@@ -249,6 +271,12 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                     <th className="border-r border-[#19140035] px-3 py-2 font-semibold text-[#706f6c] md:px-4 lg:px-5 dark:border-[#3E3E3A] dark:text-[#A1A09A]">
                                         Paid
                                     </th>
+                                    <th className="border-r border-[#19140035] px-3 py-2 font-semibold text-[#706f6c] md:px-4 lg:px-5 dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                                        Fax
+                                    </th>
+                                    <th className="border-r border-[#19140035] px-3 py-2 font-semibold text-[#706f6c] md:px-4 lg:px-5 dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                                        Fax Confirmation
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -257,7 +285,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                         key={item.id}
                                         className="border-b border-[#00447C]/20 bg-[#00447C]/5 dark:border-[#6cb2e6]/20 dark:bg-[#6cb2e6]/10"
                                     >
-                                        <td className="px-3 py-1.5 md:px-4 lg:px-5">
+                                        <td className="px-3 py-1.5 whitespace-nowrap md:px-4 lg:px-5">
                                             {item.date}
                                         </td>
                                         <td className="px-3 py-1.5 font-medium md:px-4 lg:px-5">
@@ -290,12 +318,14 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                                 Saving
                                             </span>
                                         </td>
+                                        <td className="border-r border-[#19140035] px-3 py-1.5 text-center md:px-4 lg:px-5 dark:border-[#3E3E3A]" />
+                                        <td className="border-r border-[#19140035] px-3 py-1.5 text-center md:px-4 lg:px-5 dark:border-[#3E3E3A]" />
                                     </tr>
                                 ))}
                                 {buyAuctions.length === 0 && pendingBuys.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={10}
+                                            colSpan={12}
                                             className="px-3 py-6 text-center text-[#706f6c] dark:text-[#A1A09A]"
                                         >
                                             No buy auction items yet.
@@ -308,7 +338,7 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                             id={`buy-auction-row-${item.id}`}
                                             className={`border-b border-[#19140035]/50 dark:border-[#3E3E3A]/50 ${item.paid ? 'bg-green-100 dark:bg-green-900/30' : highlightId === item.id ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a19]'}`}
                                         >
-                                            <td className="px-3 py-1.5 md:px-4 lg:px-5">
+                                            <td className="px-3 py-1.5 whitespace-nowrap md:px-4 lg:px-5">
                                                 {item.date}
                                             </td>
                                             <td className="px-3 py-1.5 font-medium md:px-4 lg:px-5">
@@ -349,6 +379,62 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                                                 ) : (
                                                     <span className="text-[10px] font-medium text-green-600 hover:text-green-700 md:text-xs">
                                                         Paid
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td
+                                                onClick={() =>
+                                                    !item.fax &&
+                                                    setConfirmFaxId(item.id)
+                                                }
+                                                className={`border-r border-[#19140035] px-3 py-1.5 text-center md:px-4 lg:px-5 dark:border-[#3E3E3A] ${
+                                                    item.fax
+                                                        ? 'bg-[#00447C]'
+                                                        : 'cursor-pointer'
+                                                }`}
+                                            >
+                                                {item.fax ? (
+                                                    <span className="text-[10px] font-semibold text-white md:text-xs">
+                                                        Faxed
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-[10px] font-medium text-[#00447C] hover:text-[#003d6f] md:text-xs dark:text-[#6cb2e6]">
+                                                        Fax
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td
+                                                onClick={() => {
+                                                    if (
+                                                        item.fax &&
+                                                        !item.fax_confirmed
+                                                    ) {
+                                                        setConfirmFaxConfirmId(
+                                                            item.id,
+                                                        );
+                                                    }
+                                                }}
+                                                className={`border-r border-[#19140035] px-3 py-1.5 text-center md:px-4 lg:px-5 dark:border-[#3E3E3A] ${
+                                                    item.fax_confirmed
+                                                        ? 'bg-[#00447C]'
+                                                        : item.fax
+                                                          ? 'cursor-pointer'
+                                                          : ''
+                                                }`}
+                                            >
+                                                {item.fax_confirmed ? (
+                                                    <span className="text-[10px] font-semibold text-white md:text-xs">
+                                                        Confirmed
+                                                    </span>
+                                                ) : (
+                                                    <span
+                                                        className={`text-[10px] font-medium md:text-xs ${
+                                                            item.fax
+                                                                ? 'text-[#00447C] hover:text-[#003d6f] dark:text-[#6cb2e6]'
+                                                                : 'text-[#A1A09A]/50'
+                                                        }`}
+                                                    >
+                                                        Confirm
                                                     </span>
                                                 )}
                                             </td>
@@ -589,6 +675,75 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
                     </div>
                 </div>
             )}
+            {confirmFaxId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <h2 className="mb-4 text-base font-semibold md:text-lg">
+                            Confirm Fax
+                        </h2>
+                        <p className="mb-4 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                            Are you sure you want to mark this item as faxed?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    router.post(
+                                        `/auction/buy/${confirmFaxId}/fax`,
+                                        {},
+                                        { onSuccess: () => router.flushAll() },
+                                    );
+                                    setConfirmFaxId(null);
+                                }}
+                                className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] md:text-sm"
+                            >
+                                Confirm Fax
+                            </button>
+                            <button
+                                onClick={() => setConfirmFaxId(null)}
+                                className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium md:text-sm dark:border-[#3E3E3A]"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {confirmFaxConfirmId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <h2 className="mb-4 text-base font-semibold md:text-lg">
+                            Confirm Fax Confirmation
+                        </h2>
+                        <p className="mb-4 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                            Are you sure you want to confirm the fax for this
+                            item?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    router.post(
+                                        `/auction/buy/${confirmFaxConfirmId}/fax-confirmed`,
+                                        {},
+                                        {
+                                            onSuccess: () => router.flushAll(),
+                                        },
+                                    );
+                                    setConfirmFaxConfirmId(null);
+                                }}
+                                className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] md:text-sm"
+                            >
+                                Confirm
+                            </button>
+                            <button
+                                onClick={() => setConfirmFaxConfirmId(null)}
+                                className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium md:text-sm dark:border-[#3E3E3A]"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {confirmDeleteId && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
@@ -624,7 +779,11 @@ export default function BuyAuction({ buyAuctions = [], selectedMonth = null }) {
             )}
             <div
                 className={
-                    showForm || confirmPaidId || confirmDeleteId
+                    showForm ||
+                    confirmPaidId ||
+                    confirmFaxId ||
+                    confirmFaxConfirmId ||
+                    confirmDeleteId
                         ? 'pointer-events-none blur-sm'
                         : ''
                 }

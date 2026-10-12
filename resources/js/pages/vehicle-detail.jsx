@@ -28,6 +28,22 @@ function documentReminderCopy(notification) {
     };
 }
 
+function faxReminderCopy(notification) {
+    const faxed = Boolean(notification.faxed);
+
+    if (!faxed) {
+        return {
+            badge: 'Not Faxed',
+            message: "In buy auction, item hasn't been faxed yet",
+        };
+    }
+
+    return {
+        badge: 'Fax Not Confirmed',
+        message: "In buy auction, fax hasn't been confirmed yet",
+    };
+}
+
 function formatPrice(value) {
     if (value === null || value === undefined || value === '') return null;
 
@@ -38,6 +54,7 @@ function formatPrice(value) {
 export default function VehicleDetail({
     selectedMonth = null,
     auctionNotifications = [],
+    faxNotifications = [],
     documentNotifications = [],
 }) {
     const now = new Date();
@@ -50,10 +67,13 @@ export default function VehicleDetail({
     const [showNotifications, setShowNotifications] = useState(false);
 
     const safeAuctionNotifications = auctionNotifications ?? [];
+    const safeFaxNotifications = faxNotifications ?? [];
     const safeDocumentNotifications = documentNotifications ?? [];
 
     const totalNotificationCount =
-        safeAuctionNotifications.length + safeDocumentNotifications.length;
+        safeAuctionNotifications.length +
+        safeFaxNotifications.length +
+        safeDocumentNotifications.length;
 
     return (
         <div className="flex h-screen flex-col overflow-hidden">
@@ -110,6 +130,7 @@ export default function VehicleDetail({
                                 <Deferred
                                     data={[
                                         'auctionNotifications',
+                                        'faxNotifications',
                                         'documentNotifications',
                                     ]}
                                     fallback={
@@ -137,7 +158,7 @@ export default function VehicleDetail({
                                                                     false,
                                                                 );
                                                                 router.get(
-                                                                    `/auction/buy?highlight=${n.buy_auction_id}`,
+                                                                    `/auction/buy?highlight=${n.buy_auction_id}&action=paid`,
                                                                 );
                                                             }}
                                                             className="flex w-full flex-col gap-0.5 border-b border-[#19140035]/50 px-4 py-2.5 text-left hover:bg-gray-50 dark:border-[#3E3E3A]/50 dark:hover:bg-[#1a1a19]"
@@ -172,6 +193,49 @@ export default function VehicleDetail({
                                                         </button>
                                                     ),
                                                 )}
+                                                {safeFaxNotifications.map((n) => {
+                                                    const { badge, message } =
+                                                        faxReminderCopy(n);
+                                                    const action = n.faxed
+                                                        ? 'fax-confirm'
+                                                        : 'fax';
+
+                                                    return (
+                                                        <button
+                                                            key={n.id}
+                                                            onClick={() => {
+                                                                setShowNotifications(
+                                                                    false,
+                                                                );
+                                                                router.get(
+                                                                    `/auction/buy?highlight=${n.buy_auction_id}&action=${action}`,
+                                                                );
+                                                            }}
+                                                            className="flex w-full flex-col gap-0.5 border-b border-[#19140035]/50 px-4 py-2.5 text-left hover:bg-gray-50 dark:border-[#3E3E3A]/50 dark:hover:bg-[#1a1a19]"
+                                                        >
+                                                            <span className="flex min-w-0 items-center gap-2">
+                                                                <span className="shrink-0 text-xs font-medium md:text-sm">
+                                                                    {
+                                                                        n.vehicle_name
+                                                                    }
+                                                                </span>
+                                                                <span className="min-w-0 flex-1 truncate text-[10px] text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                                                    {n.shopname ||
+                                                                        n.date ||
+                                                                        'Buy Auction'}
+                                                                </span>
+                                                                <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-[#00447C] dark:bg-blue-900/40 dark:text-blue-300">
+                                                                    {badge}
+                                                                </span>
+                                                            </span>
+                                                            <span className="flex items-center justify-between text-[10px] text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                                                <span>
+                                                                    {message}
+                                                                </span>
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                })}
                                                 {safeDocumentNotifications.map((n) => {
                                                     const { badge, message } =
                                                         documentReminderCopy(n);
