@@ -234,34 +234,38 @@ export default function Ledger({ customer = null, onClose = null }) {
                                     },
                                 )}
                             </tbody>
-                            <tfoot>
-                                <tr className="h-[10mm]">
-                                    <td
-                                        colSpan={2}
-                                        className="border border-black p-0 text-center text-[18px] font-bold"
-                                    >
-                                        Total
-                                    </td>
-                                    <td className="border border-black p-0 text-center text-[18px] font-bold">
-                                        {fmtAmt(totalPlus)}
-                                    </td>
-                                    <td className="border border-black p-0 text-center text-[18px] font-bold">
-                                        {fmtAmt(totalMinus)}
-                                    </td>
-                                </tr>
-                                <tr className="h-[10mm]">
-                                    <td
-                                        colSpan={2}
-                                        className="border border-black p-0 text-center text-[18px] font-bold"
-                                    ></td>
-                                    <td
-                                        colSpan={2}
-                                        className="border border-black p-0 text-center text-[18px] font-bold"
-                                    >
-                                        {fmtAmt(balance)}
-                                    </td>
-                                </tr>
-                            </tfoot>
+                            {safePage === pageCount && (
+                                <tfoot>
+                                    <tr className="h-[10mm]">
+                                        <td
+                                            colSpan={2}
+                                            className="border border-black p-0 text-center text-[18px] font-bold"
+                                        >
+                                            Total
+                                        </td>
+                                        <td className="border border-black p-0 text-center text-[18px] font-bold">
+                                            {fmtAmt(totalPlus)}
+                                        </td>
+                                        <td className="border border-black p-0 text-center text-[18px] font-bold">
+                                            {fmtAmt(totalMinus)}
+                                        </td>
+                                    </tr>
+                                    <tr className="h-[10mm]">
+                                        <td
+                                            colSpan={2}
+                                            className="border border-black p-0 text-center text-[18px] font-bold"
+                                        >
+                                            Pending for BeppuMotors
+                                        </td>
+                                        <td
+                                            colSpan={2}
+                                            className="border border-black p-0 text-center text-[18px] font-bold"
+                                        >
+                                            {fmtAmt(balance)}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            )}
                         </table>
                     </div>
                 </div>
