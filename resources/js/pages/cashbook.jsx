@@ -7,8 +7,11 @@ import {
     X,
     Pencil,
     History,
+    Printer,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas-pro';
 import Footer from '@/components/footer';
 
 const MONTH_NAMES = [
@@ -38,7 +41,9 @@ function addMonths(ym, delta) {
 }
 
 function formatAmount(value) {
-    const digits = String(value ?? '').replace(/\D/g, '').slice(0, 13);
+    const digits = String(value ?? '')
+        .replace(/\D/g, '')
+        .slice(0, 13);
     return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
@@ -142,7 +147,11 @@ export default function Cashbook({
         setDrawerSubmitting(true);
         router.post(
             '/drawers',
-            { name: drawerName, amount: drawerAmount.replace(/,/g, ''), date: drawerDate },
+            {
+                name: drawerName,
+                amount: drawerAmount.replace(/,/g, ''),
+                date: drawerDate,
+            },
             {
                 onFinish: () => setDrawerSubmitting(false),
                 onSuccess: () => {
@@ -167,7 +176,11 @@ export default function Cashbook({
         setEditSubmitting(true);
         router.put(
             `/drawers/${editingDrawer.id}`,
-            { name: editName, amount: editAmount.replace(/,/g, ''), date: drawerDate },
+            {
+                name: editName,
+                amount: editAmount.replace(/,/g, ''),
+                date: drawerDate,
+            },
             {
                 onFinish: () => setEditSubmitting(false),
                 onSuccess: () => {
@@ -209,6 +222,51 @@ export default function Cashbook({
         );
     };
 
+    const reportRef = useRef(null);
+
+    const handleGeneratePdf = async () => {
+        const el = reportRef.current;
+        if (!el) return;
+
+        const canvas = await html2canvas(el, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false,
+            windowWidth: 1280,
+            windowHeight: 1280,
+        });
+        const imgData = canvas.toDataURL('image/png');
+
+        const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 24;
+        const usableWidth = pageWidth - margin * 2;
+        const imgHeight = (canvas.height * usableWidth) / canvas.width;
+        const contentHeight = pageHeight - margin * 2;
+
+        doc.addImage(imgData, 'PNG', margin, margin, usableWidth, imgHeight);
+
+        let remaining = imgHeight - contentHeight;
+        let offset = margin;
+        while (remaining > 0) {
+            offset -= contentHeight;
+            doc.addPage();
+            doc.addImage(
+                imgData,
+                'PNG',
+                margin,
+                offset,
+                usableWidth,
+                imgHeight,
+            );
+            remaining -= contentHeight;
+        }
+
+        doc.save(`cashbook-${activeMonth}.pdf`);
+    };
+
     return (
         <div className="flex h-screen flex-col overflow-hidden">
             <Head title="Cash Book" />
@@ -217,7 +275,8 @@ export default function Cashbook({
                 <div className="relative flex h-full items-center pl-6 md:pl-10">
                     <Link
                         href={`/vehicle-detail?date=${activeMonth}-01`}
-                        prefetch={['mount', 'hover']} cacheFor={300000}
+                        prefetch={['mount', 'hover']}
+                        cacheFor={300000}
                         className="text-sm font-medium text-white/70 hover:text-white"
                     >
                         &larr; Back
@@ -227,7 +286,7 @@ export default function Cashbook({
                     </span>
                 </div>
             </nav>
-            <main className="h-[calc(100vh-4rem)] overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a] md:h-[calc(100vh-10rem)]">
+            <main className="h-[calc(100vh-4rem)] overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] md:h-[calc(100vh-10rem)] dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-3 px-6 pt-4 pb-6 md:gap-6 md:pt-8">
                     <div className="flex items-center gap-1">
                         <button
@@ -297,14 +356,24 @@ export default function Cashbook({
                             </button>
                         )}
                         <button
+                            onClick={handleGeneratePdf}
+                            title="Download PDF"
+                            className="ml-auto rounded-md p-1 text-[#706f6c] hover:bg-gray-100 hover:text-[#1b1b18] md:p-1.5 dark:text-[#A1A09A] dark:hover:bg-[#2a2a28]"
+                        >
+                            <Printer className="h-4 w-4 md:h-5 md:w-5" />
+                        </button>
+                        <button
                             onClick={() => setShowDrawer(true)}
-                            className="ml-auto"
+                            title="Drawer"
                         >
                             <Landmark className="h-5 w-5 text-[#706f6c] hover:text-[#1b1b18] md:h-6 md:w-6 dark:text-[#A1A09A] dark:hover:text-white" />
                         </button>
                     </div>
 
-                    <div className="mx-auto w-full max-w-3xl rounded-lg border border-[#19140035] bg-white p-3 shadow-sm md:p-4 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                    <div
+                        ref={reportRef}
+                        className="mx-auto w-full max-w-3xl rounded-lg border border-[#19140035] bg-white p-3 shadow-sm md:p-4 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                    >
                         <div className="flex flex-row border-b border-[#19140035] pb-2 dark:border-[#3E3E3A]">
                             <div className="w-16 text-[8px] font-semibold text-[#706f6c] md:w-24 md:text-xs dark:text-[#A1A09A]">
                                 Date
@@ -522,7 +591,9 @@ export default function Cashbook({
                                             value={drawerAmount}
                                             onChange={(e) =>
                                                 setDrawerAmount(
-                                                    formatAmount(e.target.value),
+                                                    formatAmount(
+                                                        e.target.value,
+                                                    ),
                                                 )
                                             }
                                             className="w-full rounded-md border border-[#19140035] bg-white px-2 py-1 text-[10px] md:text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
