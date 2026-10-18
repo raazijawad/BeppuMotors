@@ -166,20 +166,33 @@ export default function Stock({ stocks = [] }) {
             </nav>
             <main className="flex-1 overflow-y-auto bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
                 <div className="flex flex-col gap-4 px-6 pt-4 pb-32 md:pt-6 md:pb-32">
-                    <div className="flex items-center justify-between gap-4">
-                        <div className={`flex items-center gap-4 ${searchOpen ? 'w-full' : ''}`}>
+                    <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between md:gap-4 w-full relative">
+                        <div className={`flex flex-col items-start gap-1 md:flex-row md:items-center md:gap-4 ${searchOpen ? 'w-full' : ''} w-full md:w-auto`}>
                             {!searchOpen && (
                                 <>
-                                    <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Stock Items</span>
-                                     <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                        Total Vehicles : {stocks.length}
-                                    </span>
-                                    <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                        Recieved vehicles : {stocks.filter((s) => s.vehicle_received).length}
-                                    </span>
-                                    <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                        Unrecived vehicle : {stocks.filter((s) => !s.vehicle_received).length}
-                                    </span>
+                                    <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] text-left md:text-left hidden md:block">Stock Items</span>
+                                    <div className="md:hidden flex flex-col items-start justify-center gap-0.5 w-full self-start -mt-2 pl-4">
+                                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                            Total Vehicles : {stocks.length}
+                                        </span>
+                                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                            Recieved vehicles : {stocks.filter((s) => s.vehicle_received).length}
+                                        </span>
+                                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                            Unrecived vehicle : {stocks.filter((s) => !s.vehicle_received).length}
+                                        </span>
+                                    </div>
+                                    <div className="hidden md:flex md:items-center md:gap-4">
+                                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                            Total Vehicles : {stocks.length}
+                                        </span>
+                                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                            Recieved vehicles : {stocks.filter((s) => s.vehicle_received).length}
+                                        </span>
+                                        <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                            Unrecived vehicle : {stocks.filter((s) => !s.vehicle_received).length}
+                                        </span>
+                                    </div>
                                 </>
                             )}
                             {searchOpen ? (
@@ -209,7 +222,10 @@ export default function Stock({ stocks = [] }) {
                                         &times;
                                     </button>
                                 </span>
-                            ) : (
+                            ) : null}
+                        </div>
+                        <div className="flex items-center gap-2 self-end md:self-auto mt-1 md:mt-0 absolute top-0 right-0 md:relative md:top-auto md:right-auto">
+                            {!searchOpen && (
                                 <button
                                     onClick={() => setSearchOpen(true)}
                                     aria-label="Search"
@@ -220,15 +236,15 @@ export default function Stock({ stocks = [] }) {
                                     </svg>
                                 </button>
                             )}
+                            {!searchOpen && (
+                                <button
+                                    onClick={openAddForm}
+                                    className="shrink-0 whitespace-nowrap rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-3 md:py-1.5 md:text-sm"
+                                >
+                                    + Add Item
+                                </button>
+                            )}
                         </div>
-                        {!searchOpen && (
-                            <button
-                                onClick={openAddForm}
-                                className="shrink-0 rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm"
-                            >
-                                + Add Item
-                            </button>
-                        )}
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-[#19140035] bg-white shadow-sm dark:border-[#3E3E3A] dark:bg-[#161615]">
