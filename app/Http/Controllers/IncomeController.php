@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Drawer;
 use App\Models\Income;
 use App\Models\SellAuction;
+use App\Models\Stock;
 use App\Notifications\DocumentNotSubmittedReminder;
 use App\Notifications\FaxReminder;
 use App\Notifications\UnpaidAuctionReminder;
@@ -34,6 +35,7 @@ class IncomeController extends Controller
             'auctionNotifications' => Inertia::defer(fn () => $this->auctionNotifications($request)),
             'faxNotifications' => Inertia::defer(fn () => $this->faxNotifications($request)),
             'documentNotifications' => Inertia::defer(fn () => $this->documentNotifications($request)),
+            'stockNotifications' => Inertia::defer(fn () => $this->stockNotifications()),
         ]);
     }
 
@@ -168,6 +170,31 @@ class IncomeController extends Controller
             ->filter(fn ($notification) => isset($sellAuctions[$notification['sell_auction_id']]))
             ->filter(fn ($notification) => ! $notification['document_submitted'] || ! $notification['price_is_set'])
             ->values()
+            ->toArray();
+    }
+
+    private function stockNotifications(): array
+    {
+        return Stock::query()
+            ->doesntHave('invoices')
+            ->doesntHave('sellAuctions')
+            ->where(function ($query) {
+                $query->where('vehicle_received', false)
+                    ->orWhere('document_received', false)
+                    ->orWhere('masho_fax', false);
+            })
+            ->select(['id', 'name', 'chassisnumber', 'vehicle_received', 'document_received', 'masho_fax'])
+            ->latest()
+            ->get()
+            ->map(fn ($stock) => [
+                'id' => 'stock-'.$stock->id,
+                'stock_id' => $stock->id,
+                'vehicle_name' => $stock->name,
+                'chassisnumber' => $stock->chassisnumber,
+                'vehicle_received' => (bool) $stock->vehicle_received,
+                'document_received' => (bool) $stock->document_received,
+                'masho_fax' => (bool) $stock->masho_fax,
+            ])
             ->toArray();
     }
 

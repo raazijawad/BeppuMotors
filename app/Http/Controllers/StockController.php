@@ -14,7 +14,7 @@ class StockController extends Controller
     {
         $stocks = Stock::doesntHave('invoices')
             ->doesntHave('sellAuctions')
-            ->select(['id', 'name', 'company', 'colour', 'shopname', 'chassisnumber', 'description', 'price', 't_price', 'n_price', 'a_price', 'expected_profit'])
+            ->select(['id', 'name', 'company', 'colour', 'shopname', 'chassisnumber', 'description', 'price', 't_price', 'n_price', 'a_price', 'expected_profit', 'vehicle_received', 'document_received', 'masho_fax'])
             ->latest()->get();
 
         return Inertia::render('stock', [
@@ -33,11 +33,6 @@ class StockController extends Controller
 
     public function update(Request $request, Stock $stock): RedirectResponse
     {
-        abort_if(
-            $stock->user_id !== $request->user()->id,
-            403,
-        );
-
         $stock->update($this->validated($request));
 
         return back();
@@ -60,11 +55,17 @@ class StockController extends Controller
             'n_price' => 'nullable|numeric|min:0|max:99999999.99',
             'a_price' => 'nullable|string|max:255',
             'expected_profit' => 'required|numeric|min:0|max:99999999.99',
+            'vehicle_received' => 'nullable|boolean',
+            'document_received' => 'nullable|boolean',
+            'masho_fax' => 'nullable|boolean',
         ]);
 
         $validated['t_price'] ??= 0;
         $validated['n_price'] ??= 0;
         $validated['a_price'] ??= '0';
+        $validated['vehicle_received'] ??= false;
+        $validated['document_received'] ??= false;
+        $validated['masho_fax'] ??= false;
 
         return $validated;
     }

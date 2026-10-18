@@ -44,6 +44,27 @@ function faxReminderCopy(notification) {
     };
 }
 
+function stockReminderCopy(notification) {
+    const vehicleReceived = Boolean(notification.vehicle_received);
+    const documentReceived = Boolean(notification.document_received);
+    const mashoFax = Boolean(notification.masho_fax);
+
+    const missing = [];
+    if (!vehicleReceived) missing.push("vehicle isn't received");
+    if (!documentReceived) missing.push("document isn't received");
+    if (!mashoFax) missing.push("masho fax isn't sent");
+
+    const badges = [];
+    if (!vehicleReceived) badges.push('Vehicle Not Received');
+    if (!documentReceived) badges.push('No Document');
+    if (!mashoFax) badges.push('No Masho Fax');
+
+    return {
+        badge: badges.join(' & '),
+        message: `In stock, ${missing.join(' and ')}`,
+    };
+}
+
 function formatPrice(value) {
     if (value === null || value === undefined || value === '') return null;
 
@@ -56,6 +77,7 @@ export default function VehicleDetail({
     auctionNotifications = [],
     faxNotifications = [],
     documentNotifications = [],
+    stockNotifications = [],
 }) {
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -69,11 +91,13 @@ export default function VehicleDetail({
     const safeAuctionNotifications = auctionNotifications ?? [];
     const safeFaxNotifications = faxNotifications ?? [];
     const safeDocumentNotifications = documentNotifications ?? [];
+    const safeStockNotifications = stockNotifications ?? [];
 
     const totalNotificationCount =
         safeAuctionNotifications.length +
         safeFaxNotifications.length +
-        safeDocumentNotifications.length;
+        safeDocumentNotifications.length +
+        safeStockNotifications.length;
 
     return (
         <div className="flex h-screen flex-col overflow-hidden">
@@ -132,6 +156,7 @@ export default function VehicleDetail({
                                         'auctionNotifications',
                                         'faxNotifications',
                                         'documentNotifications',
+                                        'stockNotifications',
                                     ]}
                                     fallback={
                                         <div className="absolute top-11 right-0 z-50 w-72 rounded-lg border border-[#19140035] bg-white p-4 text-xs text-[#706f6c] shadow-lg md:w-80 dark:border-[#3E3E3A] dark:bg-[#161615] dark:text-[#A1A09A]">
@@ -277,6 +302,43 @@ export default function VehicleDetail({
                                                                         {price}
                                                                     </span>
                                                                 )}
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                })}
+                                                {safeStockNotifications.map((n) => {
+                                                    const { badge, message } =
+                                                        stockReminderCopy(n);
+
+                                                    return (
+                                                        <button
+                                                            key={n.id}
+                                                            onClick={() => {
+                                                                setShowNotifications(
+                                                                    false,
+                                                                );
+                                                                router.get(
+                                                                    '/stock',
+                                                                );
+                                                            }}
+                                                            className="flex w-full flex-col gap-0.5 border-b border-[#19140035]/50 px-4 py-2.5 text-left hover:bg-gray-50 dark:border-[#3E3E3A]/50 dark:hover:bg-[#1a1a19]"
+                                                        >
+                                                            <span className="flex min-w-0 items-center gap-2">
+                                                                <span className="shrink-0 text-xs font-medium md:text-sm">
+                                                                    {
+                                                                        n.vehicle_name
+                                                                    }
+                                                                </span>
+                                                                <span className="min-w-0 flex-1 truncate text-[10px] text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                                                    {n.chassisnumber ||
+                                                                        'Stock'}
+                                                                </span>
+                                                                <span className="shrink-0 rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-600 dark:bg-purple-900/40">
+                                                                    {badge}
+                                                                </span>
+                                                            </span>
+                                                            <span className="flex items-center justify-between text-[10px] text-[#706f6c] md:text-xs dark:text-[#A1A09A]">
+                                                                <span>{message}</span>
                                                             </span>
                                                         </button>
                                                     );

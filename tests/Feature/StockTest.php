@@ -102,7 +102,7 @@ class StockTest extends TestCase
         ]);
     }
 
-    public function test_a_user_cannot_update_another_users_stock_item()
+    public function test_a_user_can_update_another_users_stock_item()
     {
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
@@ -118,14 +118,15 @@ class StockTest extends TestCase
         ]);
 
         $this->put(route('stock.update', $stock), [
-            'name' => 'Hijacked',
-            'price' => '1',
-            'expected_profit' => '1',
-        ])->assertForbidden();
+            'name' => 'Toyota Voxy',
+            'price' => '150000',
+            'expected_profit' => '0',
+            'vehicle_received' => true,
+        ])->assertRedirect();
 
         $this->assertDatabaseHas('stocks', [
             'id' => $stock->id,
-            'name' => 'Toyota Voxy',
+            'vehicle_received' => true,
         ]);
     }
 

@@ -37,6 +37,9 @@ export default function Stock({ stocks = [] }) {
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [search, setSearch] = useState('');
     const [searchOpen, setSearchOpen] = useState(false);
+    const [confirmVehicleReceivedId, setConfirmVehicleReceivedId] = useState(null);
+    const [confirmDocumentReceivedId, setConfirmDocumentReceivedId] = useState(null);
+    const [confirmMashoFaxId, setConfirmMashoFaxId] = useState(null);
     const searchInputRef = useRef(null);
 
     useEffect(() => {
@@ -80,6 +83,9 @@ export default function Stock({ stocks = [] }) {
         n_price: '',
         a_price: '',
         expected_profit: '',
+        vehicle_received: false,
+        document_received: false,
+        masho_fax: false,
     });
 
     const stripCommas = (d) => ({
@@ -105,14 +111,13 @@ export default function Stock({ stocks = [] }) {
 
     const openEditForm = (s) => {
         reset();
-        Object.keys(data).forEach((key) =>
-            setData(
-                key,
-                key.endsWith('_price') || key === 'price' || key === 'expected_profit'
-                    ? formatPrefillAmount(s[key])
-                    : (s[key] ?? ''),
-            ),
-        );
+        Object.keys(data).forEach((key) => {
+            if (key.endsWith('_price') || key === 'price' || key === 'expected_profit') {
+                setData(key, formatPrefillAmount(s[key]));
+            } else {
+                setData(key, s[key] ?? '');
+            }
+        });
         setEditingId(s.id);
         setShowForm(true);
     };
@@ -166,8 +171,14 @@ export default function Stock({ stocks = [] }) {
                             {!searchOpen && (
                                 <>
                                     <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">Stock Items</span>
-                                    <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                     <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                                         Total Vehicles : {stocks.length}
+                                    </span>
+                                    <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                        Recieved vehicles : {stocks.filter((s) => s.vehicle_received).length}
+                                    </span>
+                                    <span className="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                        Unrecived vehicle : {stocks.filter((s) => !s.vehicle_received).length}
                                     </span>
                                 </>
                             )}
@@ -235,6 +246,15 @@ export default function Stock({ stocks = [] }) {
                                     <th className="px-2 py-2 font-semibold text-[#706f6c] dark:text-[#A1A09A]">N Price</th>
                                     <th className="px-2 py-2 font-semibold text-[#706f6c] dark:text-[#A1A09A]">A Price</th>
                                     <th className="px-2 py-2 font-semibold text-[#706f6c] dark:text-[#A1A09A]">Expected Profit</th>
+                                    <th className="border-l border-[#19140035] px-1.5 py-2 text-center font-semibold text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                                        Vehicle<br />Received
+                                    </th>
+                                    <th className="border-l border-[#19140035] px-1.5 py-2 text-center font-semibold text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                                        Document<br />Received
+                                    </th>
+                                    <th className="border-l border-[#19140035] px-1.5 py-2 text-center font-semibold text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                                        Masho<br />Fax
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -260,6 +280,39 @@ export default function Stock({ stocks = [] }) {
                                             <td className="px-2 py-1.5">{formatDisplayAmount(s.n_price)}</td>
                                             <td className="px-2 py-1.5">{formatDisplayAmount(s.a_price)}</td>
                                             <td className="px-2 py-1.5 font-semibold text-green-600">{formatDisplayAmount(s.expected_profit)}</td>
+                                            <td
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (!s.vehicle_received) {
+                                                        setConfirmVehicleReceivedId(s.id);
+                                                    }
+                                                }}
+                                                className={`cursor-pointer border-l border-[#19140035]/50 px-1.5 py-1.5 text-center dark:border-[#3E3E3A]/50 ${s.vehicle_received ? 'bg-[#00447C] text-white' : 'text-[#00447C] dark:text-blue-400 hover:bg-[#00447C]/10'}`}
+                                            >
+                                                <span className="inline-flex h-6 items-center justify-center rounded px-1.5 text-[10px] font-semibold md:text-xs">Yes</span>
+                                            </td>
+                                            <td
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (!s.document_received) {
+                                                        setConfirmDocumentReceivedId(s.id);
+                                                    }
+                                                }}
+                                                className={`cursor-pointer border-l border-[#19140035]/50 px-1.5 py-1.5 text-center dark:border-[#3E3E3A]/50 ${s.document_received ? 'bg-[#00447C] text-white' : 'text-[#00447C] dark:text-blue-400 hover:bg-[#00447C]/10'}`}
+                                            >
+                                                <span className="inline-flex h-6 items-center justify-center rounded px-1.5 text-[10px] font-semibold md:text-xs">Yes</span>
+                                            </td>
+                                            <td
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (!s.masho_fax) {
+                                                        setConfirmMashoFaxId(s.id);
+                                                    }
+                                                }}
+                                                className={`cursor-pointer border-l border-[#19140035]/50 px-1.5 py-1.5 text-center dark:border-[#3E3E3A]/50 ${s.masho_fax ? 'bg-[#00447C] text-white' : 'text-[#00447C] dark:text-blue-400 hover:bg-[#00447C]/10'}`}
+                                            >
+                                                <span className="inline-flex h-6 items-center justify-center rounded px-1.5 text-[10px] font-semibold md:text-xs">Yes</span>
+                                            </td>
                                         </tr>
                                     ))
                                 )}
@@ -343,6 +396,7 @@ export default function Stock({ stocks = [] }) {
                                 <label className={isSmallScreen ? "mb-0.5 block text-[11px] font-medium text-[#706f6c] dark:text-[#A1A09A]" : "mb-1 block text-[10px] font-medium text-[#706f6c] dark:text-[#A1A09A] md:text-xs"}>Expected Profit</label>
                                 <input type="text" inputMode="decimal" value={data.expected_profit} onChange={(e) => setData('expected_profit', formatAmountInput(e.target.value))} className={isSmallScreen ? "w-full rounded-md border border-[#19140035] bg-white px-3 py-2 text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white" : "w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white md:text-sm"} required />
                             </div>
+
                             <div className="col-span-2 flex gap-2 pt-2" style={isSmallScreen ? { gridColumn: 'span 2', gap: '8px', paddingTop: '4px' } : undefined}>
                                 <button type="submit" disabled={processing} className={isSmallScreen ? "rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50" : "rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-sm"}>{editingId ? 'Update' : 'Submit'}</button>
                                 <button type="button" onClick={closeForm} className={isSmallScreen ? "rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A]" : "rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium dark:border-[#3E3E3A] md:text-sm"}>Cancel</button>
@@ -381,9 +435,107 @@ export default function Stock({ stocks = [] }) {
                     </div>
                 </div>
             )}
-            <div className={showForm || confirming ? 'blur-sm pointer-events-none' : ''}>
+            {confirmVehicleReceivedId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <h2 className="mb-4 text-base font-semibold md:text-lg">
+                            Confirm Vehicle Received
+                        </h2>
+                        <p className="mb-4 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                            Are you sure you want to mark this vehicle as received?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    const s = stocks.find((item) => item.id === confirmVehicleReceivedId);
+                                    if (s) {
+                                        router.put(`/stock/${confirmVehicleReceivedId}`, { ...s, vehicle_received: true }, { preserveScroll: true });
+                                    }
+                                    setConfirmVehicleReceivedId(null);
+                                }}
+                                className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] md:text-sm"
+                            >
+                                Yes
+                            </button>
+                            <button
+                                onClick={() => setConfirmVehicleReceivedId(null)}
+                                className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium md:text-sm dark:border-[#3E3E3A]"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {confirmDocumentReceivedId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <h2 className="mb-4 text-base font-semibold md:text-lg">
+                            Confirm Document Received
+                        </h2>
+                        <p className="mb-4 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                            Are you sure you want to mark documents as received?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    const s = stocks.find((item) => item.id === confirmDocumentReceivedId);
+                                    if (s) {
+                                        router.put(`/stock/${confirmDocumentReceivedId}`, { ...s, document_received: true }, { preserveScroll: true });
+                                    }
+                                    setConfirmDocumentReceivedId(null);
+                                }}
+                                className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] md:text-sm"
+                            >
+                                Yes
+                            </button>
+                            <button
+                                onClick={() => setConfirmDocumentReceivedId(null)}
+                                className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium md:text-sm dark:border-[#3E3E3A]"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {confirmMashoFaxId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-sm rounded-lg border border-[#19140035] bg-white p-5 shadow-lg md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <h2 className="mb-4 text-base font-semibold md:text-lg">
+                            Confirm Masho Fax
+                        </h2>
+                        <p className="mb-4 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                            Are you sure you want to mark Masho fax as done?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    const s = stocks.find((item) => item.id === confirmMashoFaxId);
+                                    if (s) {
+                                        router.put(`/stock/${confirmMashoFaxId}`, { ...s, masho_fax: true }, { preserveScroll: true });
+                                    }
+                                    setConfirmMashoFaxId(null);
+                                }}
+                                className="rounded-md bg-[#00447C] px-4 py-2 text-xs font-medium text-white hover:bg-[#003d6f] md:text-sm"
+                            >
+                                Yes
+                            </button>
+                            <button
+                                onClick={() => setConfirmMashoFaxId(null)}
+                                className="rounded-md border border-[#19140035] px-4 py-2 text-xs font-medium md:text-sm dark:border-[#3E3E3A]"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <div className={showForm || confirming || confirmVehicleReceivedId || confirmDocumentReceivedId || confirmMashoFaxId ? 'blur-sm pointer-events-none' : ''}>
                 <Footer />
             </div>
         </div>
     );
 }
+
+
