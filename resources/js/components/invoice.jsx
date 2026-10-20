@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, Printer } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas-pro';
 
 const SHEET_WIDTH_PX = 794; // 210mm at 96dpi
 const SHEET_HEIGHT_PX = 1123; // 297mm at 96dpi
@@ -36,34 +38,80 @@ export default function Invoice({
         return () => window.removeEventListener('resize', updateScale);
     }, []);
 
-    const handlePrint = (e) => {
+    const handleGeneratePdf = async (e) => {
         e?.stopPropagation?.();
         const el = sheetRef.current;
         if (!el) return;
-        const uid = 'ip-' + Date.now();
-        el.dataset.printTarget = uid;
-        const style = document.createElement('style');
-        style.id = 'invoice-print-styles';
-        style.textContent = `
-            @media print {
-                @page { size: A4 portrait; margin: 0; }
-                html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0 !important; padding: 0 !important; width: 210mm !important; height: 297mm !important; }
-                body > *:not([data-print-target="${uid}"]) { display: none !important; }
-                [data-print-target="${uid}"] { display: block !important; position: absolute !important; top: 0 !important; left: 0 !important; width: 210mm !important; height: 297mm !important; min-height: 297mm !important; transform: none !important; transform-origin: top left !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
-                [data-print-target="${uid}"] .no-print { display: none !important; }
+
+        const clone = el.cloneNode(true);
+        const srcInputs = el.querySelectorAll('input');
+        const cloneInputs = clone.querySelectorAll('input');
+        srcInputs.forEach((input, i) => {
+            if (cloneInputs[i]) cloneInputs[i].value = input.value;
+        });
+        Object.assign(clone.style, {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            zIndex: '-1',
+            transform: 'none',
+            transformOrigin: 'top left',
+            margin: '0',
+        });
+        document.body.appendChild(clone);
+        try {
+            const canvas = await html2canvas(clone, {
+                scale: 2,
+                width: SHEET_WIDTH_PX,
+                height: SHEET_HEIGHT_PX,
+                windowWidth: 1280,
+                windowHeight: 1280,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false,
+            });
+            const imgData = canvas.toDataURL('image/png');
+
+            const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 0;
+            const usableWidth = pageWidth - margin * 2;
+            const imgHeight = (canvas.height * usableWidth) / canvas.width;
+            const contentHeight = pageHeight - margin * 2;
+
+            doc.addImage(
+                imgData,
+                'PNG',
+                margin,
+                margin,
+                usableWidth,
+                imgHeight,
+            );
+
+            let remaining = imgHeight - contentHeight;
+            let offset = margin;
+            while (remaining > 1) {
+                offset -= contentHeight;
+                doc.addPage();
+                doc.addImage(
+                    imgData,
+                    'PNG',
+                    margin,
+                    offset,
+                    usableWidth,
+                    imgHeight,
+                );
+                remaining -= contentHeight;
             }
-        `;
-        document.head.appendChild(style);
-        const parent = el.parentNode;
-        const placeholder = document.createComment('print-placeholder');
-        parent.replaceChild(placeholder, el);
-        document.body.appendChild(el);
-        window.print();
-        document.body.removeChild(el);
-        placeholder.parentNode.replaceChild(el, placeholder);
-        delete el.dataset.printTarget;
-        const s = document.getElementById('invoice-print-styles');
-        if (s) s.remove();
+
+            const safeNo = String(invoiceNo || '')
+                .trim()
+                .replace(/[^\w-]+/g, '_');
+            doc.save(safeNo ? `invoice-${safeNo}.pdf` : 'invoice.pdf');
+        } finally {
+            clone.remove();
+        }
     };
 
     const total = (lines || []).reduce(
@@ -99,9 +147,9 @@ export default function Invoice({
             <div className="no-print flex shrink-0 items-center justify-end">
                 <div className="flex items-center gap-1.5">
                     <button
-                        onClick={handlePrint}
+                        onClick={handleGeneratePdf}
                         className="rounded-lg bg-emerald-600 p-1 text-white transition-colors hover:bg-emerald-700"
-                        title="Print Invoice"
+                        title="Download PDF"
                     >
                         <Printer size={12} />
                     </button>
