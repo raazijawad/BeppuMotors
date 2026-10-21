@@ -79,6 +79,7 @@ export default function SellAuction({
     const [search, setSearch] = useState('');
     const [searchOpen, setSearchOpen] = useState(false);
     const searchInputRef = useRef(null);
+    const [pickerSearch, setPickerSearch] = useState('');
 
     useEffect(() => {
         if (searchOpen) searchInputRef.current?.focus();
@@ -98,11 +99,40 @@ export default function SellAuction({
             item.stock?.shopname,
             item.stock?.chassisnumber,
             item.stock?.description,
-        ].some((field) => String(field ?? '').toLowerCase().includes(q));
+        ].some((field) =>
+            String(field ?? '')
+                .toLowerCase()
+                .includes(q),
+        );
     };
 
     const filteredSellAuctions = sellAuctions.filter(matchesSearch);
     const filteredPendingSells = pendingSells.filter(matchesSearch);
+
+    const pickerSearchTerm = pickerSearch.trim().toLowerCase();
+    const availableStocks = stocks.filter(
+        (s) => !pendingStockIds.includes(s.id),
+    );
+    const filteredPickerStocks = availableStocks.filter((s) => {
+        if (!pickerSearchTerm) return true;
+        return [
+            s.name,
+            s.company,
+            s.colour,
+            s.shopname,
+            s.chassisnumber,
+            s.description,
+        ]
+            .filter(Boolean)
+            .some((field) =>
+                String(field).toLowerCase().includes(pickerSearchTerm),
+            );
+    });
+
+    const closePicker = () => {
+        setShowPicker(false);
+        setPickerSearch('');
+    };
 
     const openSelectModal = (s) => {
         setSelectedStock(s);
@@ -156,7 +186,7 @@ export default function SellAuction({
                     router.flushAll();
                     setPendingSells([]);
                     setPendingStockIds([]);
-                    setShowPicker(false);
+                    closePicker();
                 },
                 onError: (errors) => {
                     setPendingSells((prev) =>
@@ -187,9 +217,7 @@ export default function SellAuction({
     const openPriceModal = (item) => {
         if (item.sold) return;
         setEditingPrice(item.id);
-        setPriceValue(
-            String(item.auction_price ?? '').replace(/\.0+$/, ''),
-        );
+        setPriceValue(String(item.auction_price ?? '').replace(/\.0+$/, ''));
     };
 
     const changeMonth = (delta) => {
@@ -278,7 +306,9 @@ export default function SellAuction({
                                         ref={searchInputRef}
                                         type="search"
                                         value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
+                                        onChange={(e) =>
+                                            setSearch(e.target.value)
+                                        }
                                         onKeyDown={(e) => {
                                             if (e.key === 'Escape') {
                                                 setSearch('');
@@ -286,7 +316,7 @@ export default function SellAuction({
                                             }
                                         }}
                                         placeholder="Search..."
-                                        className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs text-[#1b1b18] placeholder-[#706f6c] focus:outline-none dark:border-[#3E3E3A] dark:bg-[#161615] dark:text-white md:w-48 md:text-sm"
+                                        className="w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs text-[#1b1b18] placeholder-[#706f6c] focus:outline-none md:w-48 md:text-sm dark:border-[#3E3E3A] dark:bg-[#161615] dark:text-white"
                                     />
                                     <button
                                         onClick={() => {
@@ -309,7 +339,10 @@ export default function SellAuction({
                                 </button>
                             )}
                             <button
-                                onClick={() => setShowPicker(true)}
+                                onClick={() => {
+                                    setPickerSearch('');
+                                    setShowPicker(true);
+                                }}
                                 className={`rounded-md bg-[#00447C] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#003d6f] md:px-4 md:py-2 md:text-sm ${searchOpen ? 'hidden md:inline-flex' : ''}`}
                             >
                                 + Sell Vehicle
@@ -393,25 +426,37 @@ export default function SellAuction({
                                             {item.stock?.description}
                                         </td>
                                         <td className="px-2 py-1.5">
-                                            {formatDisplayAmount(item.stock?.price ?? 0)}
+                                            {formatDisplayAmount(
+                                                item.stock?.price ?? 0,
+                                            )}
                                         </td>
                                         <td className="px-2 py-1.5">
-                                            {formatDisplayAmount(item.stock?.t_price ?? 0,)}
+                                            {formatDisplayAmount(
+                                                item.stock?.t_price ?? 0,
+                                            )}
                                         </td>
                                         <td className="px-2 py-1.5">
-                                            {formatDisplayAmount(item.stock?.n_price ?? 0,)}
+                                            {formatDisplayAmount(
+                                                item.stock?.n_price ?? 0,
+                                            )}
                                         </td>
                                         <td className="px-2 py-1.5">
-                                            {formatDisplayAmount(item.stock?.a_price ?? 0,)}
+                                            {formatDisplayAmount(
+                                                item.stock?.a_price ?? 0,
+                                            )}
                                         </td>
                                         <td className="px-2 py-1.5 font-semibold text-green-600">
-                                            {formatDisplayAmount(item.stock?.expected_profit ??
-                                                    0,)}
+                                            {formatDisplayAmount(
+                                                item.stock?.expected_profit ??
+                                                    0,
+                                            )}
                                         </td>
                                         <td className="px-2 py-1.5 font-semibold text-[#00447C] dark:text-blue-400">
                                             {item.auction_price !== null &&
                                             item.auction_price !== undefined
-                                                ? formatDisplayAmount(item.auction_price)
+                                                ? formatDisplayAmount(
+                                                      item.auction_price,
+                                                  )
                                                 : 'Set Price'}
                                         </td>
                                         <td className="border-l border-[#19140035] px-2 py-1.5 text-center dark:border-[#3E3E3A]">
@@ -470,20 +515,30 @@ export default function SellAuction({
                                                 {item.stock?.description}
                                             </td>
                                             <td className="px-2 py-1.5">
-                                                {formatDisplayAmount(item.stock?.price ?? 0,)}
+                                                {formatDisplayAmount(
+                                                    item.stock?.price ?? 0,
+                                                )}
                                             </td>
                                             <td className="px-2 py-1.5">
-                                                {formatDisplayAmount(item.stock?.t_price ?? 0,)}
+                                                {formatDisplayAmount(
+                                                    item.stock?.t_price ?? 0,
+                                                )}
                                             </td>
                                             <td className="px-2 py-1.5">
-                                                {formatDisplayAmount(item.stock?.n_price ?? 0,)}
+                                                {formatDisplayAmount(
+                                                    item.stock?.n_price ?? 0,
+                                                )}
                                             </td>
                                             <td className="px-2 py-1.5">
-                                                {formatDisplayAmount(item.stock?.a_price ?? 0,)}
+                                                {formatDisplayAmount(
+                                                    item.stock?.a_price ?? 0,
+                                                )}
                                             </td>
                                             <td className="px-2 py-1.5 font-semibold text-green-600">
-                                                {formatDisplayAmount(item.stock
-                                                        ?.expected_profit ?? 0,)}
+                                                {formatDisplayAmount(
+                                                    item.stock
+                                                        ?.expected_profit ?? 0,
+                                                )}
                                             </td>
                                             <td
                                                 onClick={() =>
@@ -514,7 +569,9 @@ export default function SellAuction({
                                                       null &&
                                                   item.auction_price !==
                                                       undefined ? (
-                                                    formatDisplayAmount(item.auction_price,)
+                                                    formatDisplayAmount(
+                                                        item.auction_price,
+                                                    )
                                                 ) : (
                                                     'Set Price'
                                                 )}
@@ -585,12 +642,19 @@ export default function SellAuction({
                                 Select Vehicle to Sell
                             </h2>
                             <button
-                                onClick={() => setShowPicker(false)}
+                                onClick={closePicker}
                                 className="text-sm text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white"
                             >
                                 &times;
                             </button>
                         </div>
+                        <input
+                            type="text"
+                            value={pickerSearch}
+                            onChange={(e) => setPickerSearch(e.target.value)}
+                            placeholder="Search by name, chassis no..."
+                            className="mb-3 w-full rounded-md border border-[#19140035] bg-white px-2.5 py-1.5 text-xs md:text-sm dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-white"
+                        />
                         <div className="max-h-[60vh] overflow-y-auto rounded-lg border border-[#19140035] dark:border-[#3E3E3A]">
                             <table className="w-full text-left text-[10px] md:text-xs">
                                 <thead className="sticky top-0 border-b border-[#19140035] bg-white dark:border-[#3E3E3A] dark:bg-[#161615]">
@@ -623,48 +687,52 @@ export default function SellAuction({
                                                 No available stock vehicles.
                                             </td>
                                         </tr>
+                                    ) : filteredPickerStocks.length === 0 ? (
+                                        <tr>
+                                            <td
+                                                colSpan={6}
+                                                className="px-2 py-6 text-center text-[#706f6c] dark:text-[#A1A09A]"
+                                            >
+                                                {pickerSearchTerm
+                                                    ? 'No vehicles match your search.'
+                                                    : 'All available vehicles are already added to the sell auction.'}
+                                            </td>
+                                        </tr>
                                     ) : (
-                                        stocks
-                                            .filter(
-                                                (s) =>
-                                                    !pendingStockIds.includes(
-                                                        s.id,
-                                                    ),
-                                            )
-                                            .map((s) => (
-                                                <tr
-                                                    key={s.id}
-                                                    className="border-b border-[#19140035]/50 last:border-b-0 dark:border-[#3E3E3A]/50"
-                                                >
-                                                    <td className="px-2 py-1.5 font-medium">
-                                                        {s.name}
-                                                    </td>
-                                                    <td className="px-2 py-1.5">
-                                                        {s.company}
-                                                    </td>
-                                                    <td className="px-2 py-1.5">
-                                                        {s.colour}
-                                                    </td>
-                                                    <td className="px-2 py-1.5">
-                                                        {s.chassisnumber}
-                                                    </td>
-                                                    <td className="px-2 py-1.5">
-                                                        {formatDisplayAmount(s.price)}
-                                                    </td>
-                                                    <td className="px-2 py-1.5 text-right">
-                                                        <button
-                                                            onClick={() =>
-                                                                openSelectModal(
-                                                                    s,
-                                                                )
-                                                            }
-                                                            className="rounded-md bg-[#00447C] px-2 py-1 text-[10px] font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-xs"
-                                                        >
-                                                            Select
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))
+                                        filteredPickerStocks.map((s) => (
+                                            <tr
+                                                key={s.id}
+                                                className="border-b border-[#19140035]/50 last:border-b-0 dark:border-[#3E3E3A]/50"
+                                            >
+                                                <td className="px-2 py-1.5 font-medium">
+                                                    {s.name}
+                                                </td>
+                                                <td className="px-2 py-1.5">
+                                                    {s.company}
+                                                </td>
+                                                <td className="px-2 py-1.5">
+                                                    {s.colour}
+                                                </td>
+                                                <td className="px-2 py-1.5">
+                                                    {s.chassisnumber}
+                                                </td>
+                                                <td className="px-2 py-1.5">
+                                                    {formatDisplayAmount(
+                                                        s.price,
+                                                    )}
+                                                </td>
+                                                <td className="px-2 py-1.5 text-right">
+                                                    <button
+                                                        onClick={() =>
+                                                            openSelectModal(s)
+                                                        }
+                                                        className="rounded-md bg-[#00447C] px-2 py-1 text-[10px] font-medium text-white hover:bg-[#003d6f] disabled:opacity-50 md:text-xs"
+                                                    >
+                                                        Select
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
                                     )}
                                 </tbody>
                             </table>
