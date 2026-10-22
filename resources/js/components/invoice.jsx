@@ -25,11 +25,9 @@ export default function Invoice({
             const chrome = 130; // modal padding + toolbar
             const availH = window.innerHeight - chrome;
             const availW = window.innerWidth - 40;
-            const s = Math.min(
-                availH / SHEET_HEIGHT_PX,
-                availW / SHEET_WIDTH_PX,
-                1,
-            ) * 0.85;
+            const s =
+                Math.min(availH / SHEET_HEIGHT_PX, availW / SHEET_WIDTH_PX, 1) *
+                0.85;
             setScale(Math.max(s, 0.2));
         };
 
@@ -401,21 +399,25 @@ export default function Invoice({
                                         ))}
                                         <tr>
                                             <td
-                                                colSpan={3}
-                                                className="border-y border-l border-black p-[2mm] text-right text-[15px] font-bold"
+                                                colSpan={4}
+                                                className="border border-black text-[15px] font-bold"
                                             >
-                                                &nbsp;TOTAL AMOUNT
-                                            </td>
-                                            <td className="relative border-y border-r border-black p-[2mm] text-center text-[15px] font-bold">
-                                                {fmtYen(total)}
-                                                <div
-                                                    className="absolute top-0 bottom-0"
-                                                    style={{
-                                                        left: '12mm',
-                                                        borderLeft:
-                                                            '1px solid black',
-                                                    }}
-                                                />
+                                                <div className="flex items-stretch">
+                                                    <div className="flex-1 py-[2mm] pr-[2mm] text-right">
+                                                        &nbsp;TOTAL AMOUNT
+                                                    </div>
+                                                    <div className="relative w-[64mm] shrink-0 py-[2mm] text-center">
+                                                        {fmtYen(total)}
+                                                        <div
+                                                            className="absolute top-0 bottom-0"
+                                                            style={{
+                                                                left: '12mm',
+                                                                borderLeft:
+                                                                    '1px solid black',
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
