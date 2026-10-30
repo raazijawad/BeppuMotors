@@ -72,7 +72,7 @@ class SellAuctionTest extends TestCase
             ->assertInertia(fn ($page) => $page->where('incomes', []));
     }
 
-    public function test_a_sold_auction_price_cannot_be_updated()
+    public function test_a_sold_auction_price_can_be_updated()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -83,7 +83,7 @@ class SellAuctionTest extends TestCase
             'auction_price' => '123456',
         ])->assertRedirect();
 
-        $this->assertEquals(900000, $sellAuction->fresh()->auction_price);
+        $this->assertEquals(123456, $sellAuction->fresh()->auction_price);
     }
 
     public function test_an_unsold_auction_price_can_still_be_updated()

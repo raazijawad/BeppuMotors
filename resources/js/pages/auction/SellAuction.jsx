@@ -215,7 +215,6 @@ export default function SellAuction({
     };
 
     const openPriceModal = (item) => {
-        if (item.sold) return;
         setEditingPrice(item.id);
         setPriceValue(String(item.auction_price ?? '').replace(/\.0+$/, ''));
     };
@@ -542,7 +541,6 @@ export default function SellAuction({
                                             </td>
                                             <td
                                                 onClick={() =>
-                                                    item.sold ||
                                                     pendingPriceIds.includes(
                                                         item.id,
                                                     )
@@ -550,7 +548,6 @@ export default function SellAuction({
                                                         : openPriceModal(item)
                                                 }
                                                 className={`px-2 py-1.5 font-semibold text-[#00447C] dark:text-blue-400 ${
-                                                    item.sold ||
                                                     pendingPriceIds.includes(
                                                         item.id,
                                                     )

@@ -80,17 +80,6 @@ class SellAuctionController extends Controller
 
     public function update(Request $request, SellAuction $sellAuction): RedirectResponse
     {
-        if ($sellAuction->sold) {
-            Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => __(
-                    'Sold auctions cannot be edited — the auction price is locked.',
-                ),
-            ]);
-
-            return back();
-        }
-
         $validated = $request->validate([
             'auction_price' => 'required|numeric|min:0|max:99999999.99',
         ]);
