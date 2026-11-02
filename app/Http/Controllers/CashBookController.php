@@ -6,6 +6,7 @@ use App\Models\Drawer;
 use App\Models\Expense;
 use App\Models\Income;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,6 +16,10 @@ class CashBookController extends Controller
     {
         $date = $request->query('date');
         $month = $date ? substr($date, 0, 7) : now()->format('Y-m');
+
+        $previousMonth = Carbon::parse($month . '-01')->subMonth()->format('Y-m');
+        $openingBalance = Income::where('date', '<', $month . '-01')->sum('amount')
+            - Expense::where('date', '<', $month . '-01')->sum('amount');
 
         $incomes = Income::with('customer:id,name')
             ->select([
@@ -64,6 +69,19 @@ class CashBookController extends Controller
             ]);
 
         $entries = $incomes->concat($expenses)->sortBy('created_at')->values();
+
+        if ($openingBalance != 0) {
+            $entries->prepend([
+                'id' => 'opening-' . $month,
+                'type' => 'opening',
+                'name' => 'Balance brought forward',
+                'amount' => $openingBalance,
+                'description' => 'Net amount from ' . Carbon::parse($previousMonth . '-01')->format('F Y'),
+                'date' => $month . '-01',
+                'created_at' => null,
+                'customer' => null,
+            ]);
+        }
 
         $drawers = Drawer::latest()
             ->select(['id', 'name', 'amount', 'parent_id', 'date', 'created_at', 'source_type', 'message'])

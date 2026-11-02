@@ -74,13 +74,13 @@ export default function Cashbook({
         ? monthEntries.filter((e) => e.date === selectedDate)
         : monthEntries;
 
-    const totalIncome = filteredEntries
-        .filter((e) => e.type === 'income')
-        .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
     const totalExpense = filteredEntries
         .filter((e) => e.type === 'expense')
         .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-    const netAmount = totalIncome - totalExpense;
+    const totalPlus = filteredEntries
+        .filter((e) => e.type === 'income' || e.type === 'opening')
+        .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+    const netAmount = totalPlus - totalExpense;
 
     const [searching, setSearching] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -431,7 +431,7 @@ export default function Cashbook({
                                             </p>
                                         )}
                                     </div>
-                                    {entry.type === 'income' ? (
+                                    {entry.type === 'income' || entry.type === 'opening' ? (
                                         <>
                                             <div className="w-16 text-center text-[8px] font-semibold text-green-600 md:w-24 md:text-xs">
                                                 +{formatDisplay(entry.amount)}
@@ -457,7 +457,7 @@ export default function Cashbook({
                                 Totals
                             </div>
                             <div className="w-16 text-center text-[8px] font-bold text-green-600 md:w-24 md:text-xs">
-                                +{formatDisplay(totalIncome)}
+                                +{formatDisplay(totalPlus)}
                             </div>
                             <div className="w-16 text-center text-[8px] font-bold text-red-600 md:w-24 md:text-xs">
                                 -{formatDisplay(totalExpense)}
