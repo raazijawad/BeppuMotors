@@ -42,7 +42,16 @@ class ExpenseController extends Controller
         $customers = Customer::orderBy('name')->select(['id', 'name'])->get();
 
         $drawers = Drawer::latest()
-            ->select(['id', 'name', 'amount', 'parent_id', 'date', 'created_at'])
+            ->select([
+                'id',
+                'name',
+                'amount',
+                'parent_id',
+                'date',
+                'created_at',
+                'source_type',
+                'message',
+            ])
             ->get();
 
         return Inertia::render('expenses', [

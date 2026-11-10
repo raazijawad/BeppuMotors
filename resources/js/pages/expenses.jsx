@@ -108,13 +108,38 @@ export default function Expenses({
         setShowForm(true);
     };
 
+    const findDrawerForExpense = (expense) => {
+        const messagePrefix = `Expense '${expense.expense_name}' deducted -`;
+        const expenseTime = new Date(expense.created_at || 0).getTime();
+
+        return (
+            [...drawers]
+                .filter(
+                    (drawer) =>
+                        drawer.source_type === 'expense' &&
+                        drawer.date === expense.date &&
+                        drawer.message?.startsWith(messagePrefix),
+                )
+                .sort(
+                    (a, b) =>
+                        Math.abs(
+                            new Date(a.created_at || 0).getTime() - expenseTime,
+                        ) -
+                        Math.abs(
+                            new Date(b.created_at || 0).getTime() - expenseTime,
+                        ),
+                )[0] || null
+        );
+    };
+
     const openEditForm = (expense) => {
         setEditingExpense(expense);
         const stock = expense.stock;
         const auction = expense.buyAuction || expense.buy_auction;
         setShowStockFields(!!stock);
         setAuctionData(auction || null);
-        setSelectedDrawer(null);
+        const drawer = findDrawerForExpense(expense);
+        setSelectedDrawer(drawer);
         setShowDrawerSelect(false);
         setData({
             expense_name: expense.expense_name,
@@ -122,7 +147,7 @@ export default function Expenses({
             description: expense.description || '',
             date: expense.date,
             customer_id: expense.customer_id || '',
-            drawer_id: '',
+            drawer_id: drawer?.id || '',
             name: stock?.name || '',
             company: stock?.company || '',
             colour: stock?.colour || '',
@@ -489,7 +514,10 @@ export default function Expenses({
                                         </div>
                                         {selectedDrawer && (
                                             <p className="mt-1 text-[10px] text-[#00447C] md:text-xs dark:text-[#6cb2e6]">
-                                                Deduct from: {selectedDrawer.name}
+                                                {editingExpense
+                                                    ? 'Selected drawer'
+                                                    : 'Deduct from'}
+                                                : {selectedDrawer.name}
                                                 <button
                                                     type="button"
                                                     onClick={() => {
